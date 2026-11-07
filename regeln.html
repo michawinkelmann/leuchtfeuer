@@ -7,7 +7,15 @@
   <link rel="icon" href="icons/auge.svg">
   <link rel="stylesheet" href="style.css">
   <style>.regeln h2 { margin: 18px 0 6px; font-size: 1.1rem; color: var(--accent); } .regeln p { margin: 6px 0; max-width: 46em; } .regeln table { margin: 8px 0; }
-    .regeln nav { margin-top: 4px; } .regeln figure { margin: 10px 0; } .regeln figure img { display: block; max-width: min(100%, 560px); height: auto; background: #fff; border-radius: 8px; padding: 6px; }</style>
+    .regeln nav { margin-top: 4px; } .regeln figure { margin: 10px 0; } .regeln figure img { display: block; max-width: min(100%, 560px); height: auto; background: #fff; border-radius: 8px; padding: 6px; }
+    .regeln .ic { width: 1.6em; height: 1.6em; padding: 2px; margin: 0 2px 0 0; background: #f3efe6; border-radius: 4px; vertical-align: -0.5em; }
+    .regeln table.reise { max-width: 34em; } .regeln table.reise :is(td, th):is(:nth-child(1), :nth-child(3)) { text-align: center; }
+    .regeln table.reise td, .regeln table.reise th { vertical-align: middle; } .regeln .kosten { white-space: nowrap; }
+    .regeln .legende span { white-space: nowrap; margin-right: 8px; }
+    .regeln ul.karten { list-style: none; padding: 0; margin: 8px 0 4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 10px 18px; }
+    .regeln ul.karten li { display: flex; gap: 10px; align-items: flex-start; }
+    .regeln ul.karten img { flex: none; width: 42px; height: 42px; padding: 5px; background: #fff; border-radius: 6px; }
+    .regeln ul.karten strong { display: block; }</style>
 </head>
 <body>
   <div class="page regeln">
@@ -51,6 +59,46 @@
 <p>Zwerge: Festung und Leuchtfeuer −1 Stein.</p>
 <p>Halblinge: Überfälle verschonen deine Gehöfte; ziehst du aufs Gefahrenfeld, wächst der Turm nicht.</p>
 <p>Küstenvolk: Gebäude am Wasser: bringt deine Ernte dort etwas, je +1; Handel 2 : 1.</p>
+    </section>
+    <section class="card">
+<p class="muted">Am Tisch stehen diese Angaben auf der Reise-Leiste und auf den Karten.</p>
+<h2>Reise-Leiste</h2>
+<p>Wer die Gefährten auf ein Feld zieht, zahlt dessen Kosten und bekommt dessen Ruhm. Feld 10 ist der Feuerberg.</p>
+<table class="list reise"><tr><th>Feld</th><th>Kosten</th><th>Ruhm</th><th>Gefahr</th></tr>
+<tr><td>1</td><td class="kosten"><img class="ic" src="icons/pferde.svg" alt="Pferde" title="Pferde"></td><td>1</td><td></td></tr>
+<tr><td>2</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"></td><td>1</td><td></td></tr>
+<tr><td>3</td><td class="kosten"><img class="ic" src="icons/stein.svg" alt="Stein" title="Stein"></td><td>1</td><td></td></tr>
+<tr><td>4</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/erz.svg" alt="Erz" title="Erz"></td><td>2</td><td><img class="ic" src="icons/auge.svg" alt="Gefahr" title="Gefahr"> Turm +1 (bis 7)</td></tr>
+<tr><td>5</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/holz.svg" alt="Holz" title="Holz"><img class="ic" src="icons/pferde.svg" alt="Pferde" title="Pferde"></td><td>2</td><td></td></tr>
+<tr><td>6</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/stein.svg" alt="Stein" title="Stein"><img class="ic" src="icons/pferde.svg" alt="Pferde" title="Pferde"></td><td>2</td><td></td></tr>
+<tr><td>7</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/erz.svg" alt="Erz" title="Erz"><img class="ic" src="icons/holz.svg" alt="Holz" title="Holz"></td><td>2</td><td></td></tr>
+<tr><td>8</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/erz.svg" alt="Erz" title="Erz"><img class="ic" src="icons/pferde.svg" alt="Pferde" title="Pferde"></td><td>3</td><td><img class="ic" src="icons/auge.svg" alt="Gefahr" title="Gefahr"> Turm +1 (bis 7)</td></tr>
+<tr><td>9</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/erz.svg" alt="Erz" title="Erz"></td><td>3</td><td></td></tr>
+<tr><td>10</td><td class="kosten"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"><img class="ic" src="icons/erz.svg" alt="Erz" title="Erz"><img class="ic" src="icons/pferde.svg" alt="Pferde" title="Pferde"></td><td>4</td><td></td></tr>
+</table>
+<p class="legende">Rohstoffe: <span><img class="ic" src="icons/holz.svg" alt="Holz" title="Holz"> Holz</span> <span><img class="ic" src="icons/stein.svg" alt="Stein" title="Stein"> Stein</span> <span><img class="ic" src="icons/erz.svg" alt="Erz" title="Erz"> Erz</span> <span><img class="ic" src="icons/korn.svg" alt="Korn" title="Korn"> Korn</span> <span><img class="ic" src="icons/pferde.svg" alt="Pferde" title="Pferde"> Pferde</span></p>
+<h2>Heldenkarten</h2>
+<p><strong>Rückseite jeder Karte:</strong> Einmal im Spiel, auch im Zug anderer. Dann quer legen.</p>
+<ul class="karten">
+<li><img src="icons/faecher.svg" alt=""><div><strong>Meister der Karten</strong>Ziehe 3 Schicksalskarten und behalte 2.</div></li>
+<li><img src="icons/lupe.svg" alt=""><div><strong>Die Spürzauberin</strong>Sofort nach dem Runenwurf: bis zu 2 Würfel frei drehen. +2 Ruhm.</div></li>
+<li><img src="icons/zahnrad.svg" alt=""><div><strong>Der Tüftler</strong>Baue eine Burg für 1 Stein und 1 Erz.</div></li>
+<li><img src="icons/klemmbrett.svg" alt=""><div><strong>Die Planerin</strong>Nimm in einer Runde als Erste 2 Würfel statt 1.</div></li>
+<li><img src="icons/blatt.svg" alt=""><div><strong>Die Hüterin der Natur</strong>Schicke eine Horde ohne Kampf zurück aufs Turm-Tor. +2 Ruhm.</div></li>
+<li><img src="icons/buch.svg" alt=""><div><strong>Der Gelehrte</strong>Pax vobiscum: Die Augen eines Runenwurfs zählen nicht. +2 Ruhm.</div></li>
+<li><img src="icons/wegweiser.svg" alt=""><div><strong>Wegweiserin</strong>Als Reise der Runde: 1 Feld, ohne Kosten und Gefahr, mit Ruhm. Nicht auf 10.</div></li>
+<li><img src="icons/stammbaum.svg" alt=""><div><strong>Der Chronist</strong>Eine Horde auf oder neben der Hauptstadt kommt in den Vorrat. +2 Ruhm.</div></li>
+</ul>
+<h2>Schicksalskarten (je 2)</h2>
+<p><strong>Rückseite jeder Karte:</strong> Für 2 Ruhm im Kampf oder die Ruine: 1 Karte. Höchstens 3. Nur im eigenen Zug, dann unter den Stapel.</p>
+<ul class="karten">
+<li><img src="icons/pfeil_fluegel.svg" alt=""><div><strong>Eilbote</strong>Die Gefährten ziehen sofort 1 Feld, auch zusätzlich. Du zahlst und erhältst den Ruhm.</div></li>
+<li><img src="icons/garbe.svg" alt=""><div><strong>Reiche Ernte</strong>Ernte deinen Würfel ein zweites Mal.</div></li>
+<li><img src="icons/auge_bann.svg" alt=""><div><strong>Bannspruch</strong>Schicke eine Horde zurück aufs Turm-Tor.</div></li>
+<li><img src="icons/wachfeuer.svg" alt=""><div><strong>Wachfeuer</strong>Entzünde alle erloschenen Leuchtfeuer ohne Kosten.</div></li>
+<li><img src="icons/pfeile.svg" alt=""><div><strong>Handelszug</strong>Tausche bis zu 3-mal 1 : 1 mit dem Vorrat.</div></li>
+<li><img src="icons/schild.svg" alt=""><div><strong>Verstärkung</strong>+3 Abwehr bei Überfall oder Ausfall, wo du zahlen darfst; zählt als Zahlung.</div></li>
+</ul>
     </section>
   </div>
 </body>
