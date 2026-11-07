@@ -36,6 +36,7 @@ header p { margin: 4px 0 16px; color: var(--muted); }
 .card.small { font-size: 0.92rem; color: var(--muted); }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 18px; margin: 8px 0; }
 .grid2 label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.grid2 label.haken { justify-content: flex-start; cursor: pointer; }
 .presets { margin-bottom: 8px; color: var(--muted); }
 table { border-collapse: collapse; width: 100%; }
 table.seats td, table.seats th { padding: 3px 4px; text-align: left; font-weight: normal; color: var(--muted); }
@@ -133,3 +134,25 @@ body.ingame { overflow: hidden; }
 
 /* Sprachwahl (Startseite der Browser-Fassung) */
 .sprachen { float: right; display: flex; gap: 6px; margin-top: 10px; }
+
+/* Erklärmodus: Schalterzeile, „Was gerade passiert“ und eingerückte Erklärungen im Verlauf */
+.erklrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 6px 0; font-size: 0.9rem; }
+.erklrow label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.erklrow button { margin-left: auto; min-width: 7em; }
+.erklbox { padding: 8px 10px; border-radius: 10px; background: #26302b; border: 1px solid #3f5a4a; }
+.erklbox h3 { color: #9fd3b0; }
+.erkltext { max-height: 38vh; overflow-y: auto; }
+.erkltext p { margin: 4px 0 8px; line-height: 1.45; }
+.erkltext p:last-child { margin-bottom: 2px; }
+.erklbox .c-rot { color: #f2a19c; } .erklbox .c-blau { color: #9cc0f2; } .erklbox .c-gelb { color: #f5d77a; }
+.erklbox .c-weiss { color: #ffffff; } .erklbox .c-lila, .erklbox .c-lavendel { color: #d1b1ee; }
+.loglines.mit-erkl { max-height: 420px; }
+.loglines div.erkl { margin: 0 0 3px 1.4em; padding: 2px 0 3px 8px; border-left: 2px solid #4f7a60; border-bottom: none;
+  color: #c7e3cf; font-size: 0.8rem; line-height: 1.4; }
+.loglines .c-lavendel { color: #d1b1ee; }
+/* Erklärungen in einer eigenen Farbe; der Strich links zeigt, wer handelt */
+.loglines div.erkl.c-rot { color: #c7e3cf; border-left-color: #f2a19c; }
+.loglines div.erkl.c-blau { color: #c7e3cf; border-left-color: #9cc0f2; }
+.loglines div.erkl.c-gelb { color: #c7e3cf; border-left-color: #f5d77a; }
+.loglines div.erkl.c-weiss { color: #c7e3cf; border-left-color: #ffffff; }
+.loglines div.erkl.c-lila, .loglines div.erkl.c-lavendel { color: #c7e3cf; border-left-color: #d1b1ee; }

@@ -6,6 +6,22 @@ import { GATES, CAPITAL_KEY, withNeighbors } from "./shared/board.js";
 import { h, icon, resIcons, esc, modal, closeModal, clientId, toast } from "./ui.js";
 import { t, volkName } from "./sprache.js";
 import { EN, gelaende, gelaendeSatz, wuerfelName, rohstoff, rohstoffSatz, torName, ruhmGrund, logText } from "./i18n_spiel.js";
+import { erklaerText } from "./shared/i18n_erklaer.js";
+
+// Erklärmodus: „Züge erklären“ ist eine Einstellung dieses Browsers (Standard aus), „Schritt für Schritt“ eine des Raums
+const ERKLAER_SPEICHER = "lf_erklaeren";
+function erklaerenGespeichert() {
+  try {
+    return localStorage.getItem(ERKLAER_SPEICHER) === "1";
+  } catch {
+    return false;
+  }
+}
+function erklaerenSpeichern(an) {
+  try {
+    localStorage.setItem(ERKLAER_SPEICHER, an ? "1" : "0");
+  } catch { /* ohne Speicher */ }
+}
 
 // Kartentexte: aus dem Generator (texte.js), sonst dieser Stand vom 5.11.2026
 const FALLBACK_HELDEN = {
@@ -95,7 +111,8 @@ export async function startGame(root, gameId) {
       <aside class="side" id="side"></aside>
     </div>`;
   const side = root.querySelector("#side");
-  const st = { view: null, seats: [], claims: {}, mode: null, sel: [], seatTab: null, botDelay: 700, title: "" };
+  const st = { view: null, seats: [], claims: {}, mode: null, sel: [], seatTab: null, botDelay: 700, title: "",
+              erklaeren: erklaerenGespeichert(), schritt: false, wartet: false };
   let ws = null;
   let scene = null;
 
@@ -166,6 +183,8 @@ export async function startGame(root, gameId) {
         st.claims = m.claims;
         st.botDelay = m.botDelay;
         st.title = m.title;
+        st.schritt = !!m.schritt;          // Schritt für Schritt: Bots ziehen erst nach „Weiter“
+        st.wartet = !!m.wartet;            // ein Bot wartet gerade auf „Weiter“
         if (!st.autoClaimed && new URLSearchParams(location.search).has("alle")) {
           // nach dem Anlegen: alle Menschen-Plätze an diesem Gerät spielen (Hot-Seat)
           st.autoClaimed = true;
@@ -190,6 +209,13 @@ export async function startGame(root, gameId) {
   }
   connect();
 
+  document.addEventListener("keydown", (e) => {
+    if (e.code !== "Space" || !st.schritt || !st.wartet || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.target.closest?.("input, select, textarea, button, a") || document.querySelector(".modalbg")) return;
+    e.preventDefault();
+    sendMsg({ type: "weiter" });
+  });
+
   // ---------------------------------------------------------------- Auswahl auf dem Brett
   function setMode(mode) {
     st.mode = mode;
@@ -208,7 +234,7 @@ export async function startGame(root, gameId) {
           const b = E.board(st.view);
           return scene.setTargets("field", Object.values(b.pos).filter((x) => x.type === "home" && !st.view.tiles[x.key]).map((x) => x.key));
         }
-        if (p.type === "hordeTie") return scene.setTargets("field", p.options, true);
+        if (p.type === "hordeTie" || p.type === "raidOrder") return scene.setTargets("field", p.options, true);
       }
       return scene.clearTargets();
     }
@@ -222,6 +248,7 @@ export async function startGame(root, gameId) {
       if (p.type === "placeStart" && kind === "edge") act(p.seat, { type: "placeStart", edge: key });
       if (p.type === "placeWater" && kind === "field") act(p.seat, { type: "placeWater", pos: key });
       if (p.type === "hordeTie" && kind === "field") act(p.seat, { type: "hordeTie", pos: key });
+      if (p.type === "raidOrder" && kind === "field") act(p.seat, { type: "raidOrder", pos: key });
       return;
     }
     const m = st.mode;
@@ -259,6 +286,8 @@ export async function startGame(root, gameId) {
         </div>
         ${s.dice.length || s.rolled.length ? `<div class="dicebar">${t("g.wuerfel")}: ${s.dice.map((d, i) => `<button class="die ${st.sel.includes(i) ? "sel" : ""}" data-die="${i}" title="${wuerfelName(d)}">${icon(d)}</button>`).join("") || `<i>${t("g.alleGenommen")}</i>`}</div>` : ""}
       </div>
+      ${renderErklaerSchalter()}
+      ${st.erklaeren ? renderWasPassiert(s) : ""}
       ${s.over ? renderOver(s) : renderPending(s)}
       <div class="section"><h3>${t("g.spieler")}</h3>${s.seats.map((x, i) => renderSeat(s, i)).join("")}</div>
       <div class="section tools">
@@ -269,10 +298,46 @@ export async function startGame(root, gameId) {
           <a class="btn" href="/api/games/${gameId}/spiel.json">${t("g.spielstand")}</a>`}
         </div>
       </div>
-      <div class="section log"><h3>${t("g.verlauf")}</h3><div class="loglines">${s.log.slice(-60).map((l) => `<div class="${l.seat !== null && l.seat !== undefined ? "c-" + s.seats[l.seat]?.color : ""}"><span>R${l.r}</span> ${esc(logText(l.msg))}</div>`).join("")}</div></div>`;
+      <div class="section log"><h3>${t("g.verlauf")}</h3><div class="loglines${st.erklaeren ? " mit-erkl" : ""}">${renderLog(s)}</div></div>`;
     const ll = side.querySelector(".loglines");
     if (ll) ll.scrollTop = ll.scrollHeight;
     wire();
+  }
+
+  // ---------------------------------------------------------------- Erklärmodus
+  function seatClass(s, l) {
+    return l.seat !== null && l.seat !== undefined ? "c-" + s.seats[l.seat]?.color : "";
+  }
+  function erklText(l) {
+    return erklaerText(l, st.view, EN ? "en" : "de");
+  }
+  // Verlauf: Zeilen der Engine (msg); mit „Züge erklären“ darunter eingerückt die Erklärungen (Einträge ohne msg)
+  function renderLog(s) {
+    const zeilen = s.log.filter((l) => l.msg || (st.erklaeren && l.erkl)).slice(st.erklaeren ? -160 : -60);
+    return zeilen.map((l) => {
+      if (l.msg) return `<div class="${seatClass(s, l)}"><span>R${l.r}</span> ${esc(logText(l.msg))}</div>`;
+      const tx = erklText(l);
+      return tx ? `<div class="erkl ${seatClass(s, l)}">${esc(tx)}</div>` : "";
+    }).join("");
+  }
+  // Was der letzte Schritt ausgelöst hat: alle Einträge mit der höchsten Aktionsnummer v (Erklärungen, sonst die Zeilen)
+  function renderWasPassiert(s) {
+    let v = -1;
+    for (const l of s.log) if (typeof l.v === "number" && l.v > v) v = l.v;
+    const zuletzt = v >= 0 ? s.log.filter((l) => l.v === v) : [];
+    const erkl = zuletzt.filter((l) => l.erkl).map((l) => [l, erklText(l)]).filter(([, tx]) => tx);
+    const inhalt = erkl.length ? erkl.map(([l, tx]) => `<p class="${seatClass(s, l)}">${esc(tx)}</p>`).join("")
+      : zuletzt.filter((l) => l.msg).map((l) => `<p class="${seatClass(s, l)}">${esc(logText(l.msg))}</p>`).join("");
+    return `<div class="section erklbox"><h3>${t("g.wasPassiert")}</h3><div class="erkltext">${inhalt || `<p class="muted">${t("g.nochNichts")}</p>`}</div></div>`;
+  }
+  // Schalter „Züge erklären“ und „Schritt für Schritt“, dazu „Weiter“ (immer an derselben Stelle, zum mehrfachen Klicken)
+  function renderErklaerSchalter() {
+    const weiter = st.schritt ? `<button class="primary" data-cmd="weiter" ${st.wartet ? "" : "disabled"} title="${t("g.weiterTitel")}">${t("g.weiterBot")}</button>` : "";
+    return `<div class="erklrow">
+        <label title="${t("g.erklaerenTitel")}"><input type="checkbox" id="erklaeren" ${st.erklaeren ? "checked" : ""}> ${t("g.erklaeren")}</label>
+        <label title="${t("g.schrittTitel")}"><input type="checkbox" id="schritt" ${st.schritt ? "checked" : ""}> ${t("g.schritt")}</label>
+        ${weiter}
+      </div>`;
   }
 
   function renderSeat(s, i) {
@@ -340,7 +405,8 @@ export async function startGame(root, gameId) {
     const mine = st.seats.includes(p.seat);
     const head = `<div class="who">${colorChip(who.color)} <b>${esc(who.name)}</b> ${t("g.wartet")[p.type] || p.type}</div>`;
     if (!mine) {
-      return `<div class="section prompt wait">${head}${who.bot ? `<small>${t("g.botDenkt")}</small>` : !st.claims[p.seat] ? `<button data-claim="${p.seat}">${t("g.platzSpielen")}</button>` : ""}</div>`;
+      const botText = who.bot && st.schritt ? `<small>${t("g.botWartet")}</small>` : `<small>${t("g.botDenkt")}</small>`;
+      return `<div class="section prompt wait">${head}${who.bot ? botText : !st.claims[p.seat] ? `<button data-claim="${p.seat}">${t("g.platzSpielen")}</button>` : ""}</div>`;
     }
     const body = PROMPTS[p.type]?.(s, p) ?? `<p>${p.type}</p>`;
     return `<div class="section prompt mine">${head}${body}</div>`;
@@ -361,6 +427,8 @@ export async function startGame(root, gameId) {
     turn: (s, p) => renderTurn(s, p),
     hordeTie: (s, p) => `<p>${t("g.hordeTie", esc(fieldIn(s, p.from)))}</p>
       ${p.options.map((f) => `<button data-a='${JSON.stringify({ type: "hordeTie", pos: f })}'>${esc(fieldName(s, f))} (${dirName(s, p.from, f)}, ${t("g.nGebaeude", E.buildingsAt(s, f).length)})</button>`).join(" ")}`,
+    raidOrder: (s, p) => `<p>${t("g.raidOrder")}</p>
+      ${p.options.map((f) => `<button data-a='${JSON.stringify({ type: "raidOrder", pos: f })}'>${esc(fieldName(s, f))} (${t("g.nHorden", E.hordesAt(s, f).length)}, ${t("g.nGebaeude", E.buildingsAt(s, f).length)})</button>`).join(" ")}`,
     intervene: (s, p) => `<p>${p.kind === "siege" ? t("g.belagerungHauptstadt") : t("g.ueberfallAuf", esc(fieldIn(s, p.field)))}: ${t("g.nHorden", p.hordes.length)}. ${t("g.heldRufen")}</p>
       ${p.can.hueterin ? `<button data-a='${JSON.stringify({ type: "hueterin", horde: p.hordes[0] })}'>${t("g.hueterinKnopf")}</button>` : ""}
       ${p.can.chronist ? `<button data-a='${JSON.stringify({ type: "chronist", horde: p.hordes[0] })}'>${t("g.chronistKnopf")}</button>` : ""}
@@ -447,6 +515,14 @@ export async function startGame(root, gameId) {
     }));
     const bd = side.querySelector("#botDelay");
     if (bd) bd.onchange = () => sendMsg({ type: "botDelay", ms: Number(bd.value) });
+    const er = side.querySelector("#erklaeren");
+    if (er) er.onchange = () => {
+      st.erklaeren = er.checked;
+      erklaerenSpeichern(st.erklaeren);
+      render();
+    };
+    const sch = side.querySelector("#schritt");
+    if (sch) sch.onchange = () => sendMsg({ type: "schritt", on: sch.checked });
     side.querySelectorAll("[data-take]").forEach((b) => (b.onclick = () => {
       const face = side.querySelector("#elbenFace")?.value;
       act(p.seat, face ? { type: "takeDie", index: Number(b.dataset.take), face } : { type: "takeDie", index: Number(b.dataset.take) });
@@ -478,6 +554,7 @@ export async function startGame(root, gameId) {
     const seat = p?.seat;
     switch (cmd) {
       case "resetView": return scene?.resetView();
+      case "weiter": return sendMsg({ type: "weiter" });
       case "cancelMode": return setMode(null);
       case "hint": return sendMsg({ type: "hint", seat });
       case "gehoeft":

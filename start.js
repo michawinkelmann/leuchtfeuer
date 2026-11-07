@@ -9,6 +9,21 @@ const root = document.getElementById("app");
 document.documentElement.lang = SPRACHE;
 document.title = t("titel");
 
+// „Züge erklären“ gilt für diesen Browser (dieselbe Einstellung wie der Schalter im Spiel, game.js)
+const ERKLAER_SPEICHER = "lf_erklaeren";
+function erklaerenGespeichert() {
+  try {
+    return localStorage.getItem(ERKLAER_SPEICHER) === "1";
+  } catch {
+    return false;
+  }
+}
+function erklaerenSpeichern(an) {
+  try {
+    localStorage.setItem(ERKLAER_SPEICHER, an ? "1" : "0");
+  } catch { /* ohne Speicher */ }
+}
+
 function zeigeStart() {
   const alt = gespeichert();
   root.innerHTML = `
@@ -27,10 +42,13 @@ function zeigeStart() {
           <button data-preset="solo">${t("solo")}</button>
           <button data-preset="hot">${t("hotseat")}</button>
           <button data-preset="bots">${t("zuschauen")}</button>
+          <button data-preset="erklaeren">${t("erklaerVorlage")}</button>
         </div>
         <div class="grid2">
           <label>${t("plaetze")} <select id="n">${[2, 3, 4, 5].map((n) => `<option ${n === 4 ? "selected" : ""}>${n}</option>`).join("")}</select></label>
           <label>${t("tempo")} <select id="botDelay"><option value="0">${t("sofort")}</option><option value="400">${t("schnell")}</option><option value="900" selected>${t("normal")}</option><option value="1800">${t("langsam")}</option></select></label>
+          <label class="haken" title="${t("erklaerenTitel")}"><input type="checkbox" id="erklaeren" ${erklaerenGespeichert() ? "checked" : ""}> ${t("erklaeren")}</label>
+          <label class="haken" title="${t("schrittTitel")}"><input type="checkbox" id="schritt"> ${t("schritt")}</label>
         </div>
         <table class="seats" id="seats"></table>
         <p class="muted">${t("beginnt")}</p>
@@ -43,7 +61,7 @@ function zeigeStart() {
   const $ = (s) => root.querySelector(s);
   root.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => setzeSprache(b.dataset.lang)));
   if (alt) {
-    $("#weiter").onclick = () => spielen(alt.state, alt.botDelay ?? 900);
+    $("#weiter").onclick = () => spielen(alt.state, alt.botDelay ?? 900, !!alt.schritt);
     $("#verwerfen").onclick = () => {
       if (!confirm(t("wirklich"))) return;
       vergessen();
@@ -72,9 +90,13 @@ function zeigeStart() {
 
   root.querySelectorAll("[data-preset]").forEach((b) => (b.onclick = () => {
     const pr = b.dataset.preset;
-    seats = D.COLOR_ORDER.map((c, i) => ({ name: farbName(c), color: c, people: "", bot: pr === "bots" || (pr === "solo" && i > 0) }));
+    const zusehen = pr === "bots" || pr === "erklaeren";
+    seats = D.COLOR_ORDER.map((c, i) => ({ name: farbName(c), color: c, people: "", bot: zusehen || (pr === "solo" && i > 0) }));
     if (pr === "solo") seats[0].name = t("ich");
     $("#n").value = pr === "bots" ? "5" : "4";
+    // Bots zusehen und erklären lassen: Erklärungen an und Schritt für Schritt (die Bots warten auf „Weiter“)
+    $("#schritt").checked = pr === "erklaeren";
+    if (pr === "erklaeren") $("#erklaeren").checked = true;
     zeichne();
   }));
 
@@ -87,12 +109,13 @@ function zeigeStart() {
     if (new Set(voelker).size !== voelker.length) return alert(t("volkdoppelt"));
     const state = neuesSpiel(auswahl.map((x, i) => ({ name: x.name.trim() || farbName(x.color) || `${t("spieler")} ${i + 1}`,
       color: x.color, people: x.people || null, bot: x.bot })), 0);
-    spielen(state, Number($("#botDelay").value));
+    erklaerenSpeichern($("#erklaeren").checked);
+    spielen(state, Number($("#botDelay").value), $("#schritt").checked);
   };
 }
 
-async function spielen(state, botDelay) {
-  globalThis.LF_LOKAL = lokalerRaum(state, botDelay);
+async function spielen(state, botDelay, schritt = false) {
+  globalThis.LF_LOKAL = lokalerRaum(state, botDelay, schritt);
   document.body.classList.add("ingame");
   const { startGame } = await import("./game.js");
   startGame(root, "lokal");

@@ -1,5 +1,6 @@
 // Leuchtfeuer im Browser ohne Server (GitHub Pages): ein Spielraum im Speicher, der dieselben Nachrichten
-// versteht wie server/index.js (join, setBot, botDelay, act, hint). Alle Menschen-Plätze spielen an diesem Gerät.
+// versteht wie server/index.js (join, setBot, botDelay, schritt, weiter, act, hint). Alle Menschen-Plätze spielen an
+// diesem Gerät. „Schritt für Schritt“ (schritt): Bots ziehen erst, wenn jemand „Weiter“ schickt.
 import * as E from "./shared/engine.js";
 import { botAction, runBots } from "./shared/bot.js";
 
@@ -25,8 +26,8 @@ export function neuesSpiel(seats, startSeat = 0) {
 }
 
 // -> Objekt mit socket(): ein Ersatz für den WebSocket in game.js
-export function lokalerRaum(state, botDelay = 700) {
-  const room = { state, botDelay, hoerer: new Set(), pumping: false, lastPending: null, botTries: 0 };
+export function lokalerRaum(state, botDelay = 700, schritt = false) {
+  const room = { state, botDelay, schritt: !!schritt, hoerer: new Set(), pumping: false, lastPending: null, botTries: 0 };
 
   const plaetze = () => room.state.seats.map((x, i) => (x.bot ? null : i)).filter((i) => i !== null);
   const claims = () => Object.fromEntries(plaetze().map((i) => [i, "lokal"]));
@@ -34,15 +35,17 @@ export function lokalerRaum(state, botDelay = 700) {
   function speichern() {
     try {
       if (room.state.over) localStorage.removeItem(SPEICHER);
-      else localStorage.setItem(SPEICHER, JSON.stringify({ state: room.state, botDelay: room.botDelay, saved: Date.now() }));
+      else localStorage.setItem(SPEICHER, JSON.stringify({ state: room.state, botDelay: room.botDelay, schritt: room.schritt, saved: Date.now() }));
     } catch { /* voll oder gesperrt: dann eben ohne Fortsetzen */ }
   }
+
+  const botAmZug = (s) => !s.over && s.pending && s.seats[s.pending.seat].bot;
 
   function senden() {
     speichern();
     const seats = plaetze();
     const msg = { type: "state", game: "lokal", title: "Leuchtfeuer", seats, claims: claims(), botDelay: room.botDelay,
-                  state: E.view(room.state, seats) };
+                  schritt: room.schritt, wartet: room.schritt && !!botAmZug(room.state), state: E.view(room.state, seats) };
     for (const h of room.hoerer) h(msg);
   }
 
@@ -53,15 +56,43 @@ export function lokalerRaum(state, botDelay = 700) {
     if (s.pending === before && before.type === "turn") E.act(s, before.seat, before.dieTaken ? { type: "endTurn" } : { type: "takeResource", res: "holz" });
   }
 
-  // Bots ziehen lassen, mit Verzögerung, damit man zusehen kann
-  function pump() {
-    if (room.pumping) return;
+  // Eine Aktion des Bots, der gerade dran ist (mit Ersatzzug). -> false bei einem Fehler, den auch der Ersatz nicht löst
+  function einZug(s) {
+    const seat = s.pending.seat;
+    room.botTries = room.lastPending === s.pending ? room.botTries + 1 : 0;
+    room.lastPending = s.pending;
+    try {
+      E.act(s, seat, botAction(s, seat, room.botTries));
+    } catch (e) {
+      try {
+        botEinmal(s);
+      } catch {
+        s.log.push({ r: s.round, seat, msg: `Bot-Fehler: ${e.message}` });
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // „Weiter“: Bots ziehen, bis etwas Sichtbares passiert ist (neuer Eintrag im Verlauf), ein Mensch dran ist oder das
+  // Spiel endet. So kostet ein stilles „Passen“ (Held nicht rufen, nichts zahlen ohne Eintrag) keinen eigenen Klick.
+  function weiter() {
     const s = room.state;
-    if (s.over || !s.pending || !s.seats[s.pending.seat].bot) return;
+    const vorher = s.log.at(-1);
+    for (let k = 0; k < 200 && botAmZug(s); k++) {
+      if (!einZug(s) || s.log.at(-1) !== vorher) break;
+    }
+  }
+
+  // Bots ziehen lassen, mit Verzögerung, damit man zusehen kann (nicht bei „Schritt für Schritt“: dort wartet der Bot)
+  function pump() {
+    if (room.pumping || room.schritt) return;
+    const s = room.state;
+    if (!botAmZug(s)) return;
     room.pumping = true;
     const step = () => {
       room.pumping = false;
-      if (s.over || !s.pending || !s.seats[s.pending.seat].bot) return;
+      if (room.schritt || !botAmZug(s)) return;
       if (!room.botDelay) {
         try {
           runBots(s);
@@ -71,19 +102,9 @@ export function lokalerRaum(state, botDelay = 700) {
         senden();
         return;
       }
-      const seat = s.pending.seat;
-      room.botTries = room.lastPending === s.pending ? room.botTries + 1 : 0;
-      room.lastPending = s.pending;
-      try {
-        E.act(s, seat, botAction(s, seat, room.botTries));
-      } catch (e) {
-        try {
-          botEinmal(s);
-        } catch {
-          s.log.push({ r: s.round, seat, msg: `Bot-Fehler: ${e.message}` });
-          senden();
-          return;
-        }
+      if (!einZug(s)) {
+        senden();
+        return;
       }
       senden();
       room.pumping = true;
@@ -106,6 +127,10 @@ export function lokalerRaum(state, botDelay = 700) {
       s.log.push({ r: s.round, seat, msg: `${s.seats[seat].name} wird ${m.bot ? "von einem Bot" : "von einem Menschen"} gespielt.` });
     } else if (m.type === "botDelay") {
       room.botDelay = Math.max(0, Math.min(5000, Number(m.ms) || 0));
+    } else if (m.type === "schritt") {
+      room.schritt = !!m.on;
+    } else if (m.type === "weiter") {
+      if (room.schritt) weiter();
     } else if (m.type === "act") {
       const seat = Number(m.seat);
       if (s.seats[seat]?.bot) throw new Error("Diesen Platz spielt ein Bot");

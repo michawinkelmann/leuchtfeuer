@@ -117,6 +117,39 @@ export async function createScene(el, { onPick, onProgress } = {}) {
   const fogMat = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 1, transparent: true, opacity: 0.55 });
   const fogGeo = new THREE.ExtrudeGeometry(hexShape(R * 0.96), { depth: 3, bevelEnabled: false });
   fogGeo.rotateX(-Math.PI / 2);
+  // Nebel-Plättchen (seit dem Tisch-Durchlauf 7.11.2026): auf jedem leeren Nebel-Platz verdeckt, Wirbel oben;
+  // grau 32 mm Schlüsselweite, 3 mm dick wie zubehoer.nebel_plaettchen. Horden im Nebel stehen darauf.
+  const CHIP_R = 16 / Math.cos(30 * DEG);
+  const chipGeo = new THREE.ExtrudeGeometry(hexShape(CHIP_R), { depth: 3, bevelEnabled: false });
+  chipGeo.rotateX(-Math.PI / 2);
+  const chipMats = (() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 256;
+    const g = c.getContext("2d");
+    const k = 256 / (2 * CHIP_R);
+    g.fillStyle = "#9b9ea0";
+    g.fillRect(0, 0, 256, 256);
+    g.strokeStyle = "#f2f0ea";
+    g.lineWidth = 1.2 * k;
+    g.lineCap = "round";
+    g.beginPath();
+    for (let i = 0; i <= 120; i++) {
+      const t = i / 120, a = t * 2.4 * 2 * Math.PI + 1.3, rr = (1.5 + t * 10.5) * k;
+      const px = 128 + rr * Math.cos(a), py = 128 + rr * Math.sin(a);
+      if (i) g.lineTo(px, py);
+      else g.moveTo(px, py);
+    }
+    g.stroke();
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.repeat.set(1 / (2 * CHIP_R), 1 / (2 * CHIP_R));
+    tex.offset.set(0.5, 0.5);
+    return [new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9 }), new THREE.MeshStandardMaterial({ color: 0x9b9ea0, roughness: 0.9 })];
+  })();
+  const Z_CHIP = 3;
+  const RING_H = 2.6;
+  const ringGeo = new THREE.CylinderGeometry(6.8, 6.8, RING_H, 28);
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xb5281c, roughness: 0.6 });
 
   function mm(p) {
     return [p.x * R, p.y * R];
@@ -133,6 +166,10 @@ export async function createScene(el, { onPick, onProgress } = {}) {
         m.position.copy(W(x, y, 0));
         m.receiveShadow = true;
         layers.tiles.add(m);
+        const chip = new THREE.Mesh(chipGeo, chipMats);
+        chip.position.copy(W(x, y, Z_CHIP));
+        chip.castShadow = chip.receiveShadow = true;
+        layers.tiles.add(chip);
         continue;
       }
       const grey = ["hauptstadt", "tor", "turm_tor", "feuerberg"].includes(t.kind);
@@ -205,13 +242,18 @@ export async function createScene(el, { onPick, onProgress } = {}) {
       const [x, y] = mm(p);
       const t = s.tiles[f];
       const spot = (t && models[t.model]?.spot) || [0, 0];
-      hs.forEach((h, k) => {
-        const dx = hs.length > 1 ? (k - (hs.length - 1) / 2) * 15 : 0;
-        const obj = inst(`Ork-Horde ${1 + (h.id % 3)}`) || inst("Ork-Horde 1") || fallbackBox(0x222222, 12, 10);
-        obj.userData = { kind: "horde", key: h.id };
-        const z = t ? Z_INSERT + INSERT_H + 0.4 : 3;
-        layers.pieces.add(place(obj, x + spot[0] + dx, y + spot[1], z, 15 * h.id));
-      });
+      // wie am Tisch: eine Figur, für jede weitere Horde ein roter Hordenring darunter (figuren.hordenring)
+      const z = t ? Z_INSERT + INSERT_H + 0.4 : Z_CHIP + 3;            // im Nebel auf dem Plättchen
+      for (let k = 0; k < hs.length - 1; k++) {
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.position.copy(W(x + spot[0], y + spot[1], z + RING_H * (k + 0.5)));
+        ring.castShadow = ring.receiveShadow = true;
+        layers.pieces.add(ring);
+      }
+      const h = hs[0];
+      const obj = inst(`Ork-Horde ${1 + (h.id % 3)}`) || inst("Ork-Horde 1") || fallbackBox(0x222222, 12, 10);
+      obj.userData = { kind: "horde", key: h.id, n: hs.length };
+      layers.pieces.add(place(obj, x + spot[0], y + spot[1], z + RING_H * (hs.length - 1), 15 * h.id));
     }
     // Turm mit Auge
     const tg = board.pos[TOWER_GATE];
