@@ -298,7 +298,7 @@ export async function startGame(root, gameId) {
     return `
       <div class="seat ${active ? "active" : ""}" style="--c:${D.COLORS[x.color].hex}">
         <div class="seathead">${colorChip(x.color)} <b>${esc(x.name)}</b>${x.persons && x.persons.join(" & ") !== x.name ? ` <small>(${x.persons.map(esc).join(" & ")})</small>` : ""} · ${volkName(x.people)} ${who}
-          <span class="fame" title="${t("g.ruhmTitel", sc.fame, sc.bau)}">★ ${sc.total}</span></div>
+          <span class="fame" title="${t("g.ruhmTitel", sc.fame, sc.bauRuhm)}">★ ${sc.leiste}</span></div>
         <div class="res">${D.RES.map((r) => `<span title="${rohstoff(r)}">${icon(r)}${x.res[r]}</span>`).join("")}
           <span class="pieces" title="${t("g.gebaeudeVorrat")}">${t("g.figuren", D.PIECES.gehoeft - use.gehoeft, D.PIECES.burg - use.burg, D.PIECES.festung - use.festung)}</span></div>
         <div class="cards">${heroes} ${hand}</div>
@@ -312,15 +312,22 @@ export async function startGame(root, gameId) {
 
   function renderOver(s) {
     const o = s.over;
+    // Gleicher Ruhm und gleich viele Rohstoffe: gleicher Platz (alte Spielstände ohne winners: nur der Erste)
+    const winners = o.winners || (o.lost ? [] : [o.ranking[0].seat]);
+    const pts = (r) => r.leiste ?? r.total;
+    let platz = 0;
     const rows = o.ranking.map((r, k) => {
       const x = s.seats[r.seat];
+      const vor = o.ranking[k - 1];
+      if (!vor || pts(vor) !== pts(r) || vor.res !== r.res) platz = k + 1;
       const by = Object.entries(x.fameBy).map(([key, v]) => `${ruhmGrund(key)} ${v}`).join(", ");
-      return `<tr><td>${k + 1}.</td><td>${colorChip(x.color)} ${esc(x.name)}</td><td>${volkName(x.people)}</td><td><b>${r.total}</b></td><td>${t("g.gebaeude")} ${r.bau}${by ? ", " + esc(by) : ""}</td></tr>`;
+      return `<tr><td>${platz}.</td><td>${colorChip(x.color)} ${esc(x.name)}</td><td>${volkName(x.people)}</td><td><b>${r.leiste ?? r.total}</b></td><td>${t("g.gebaeude")} ${r.bauRuhm ?? r.bau}${by ? ", " + esc(by) : ""}</td></tr>`;
     }).join("");
     return `<div class="section prompt over ${o.lost ? "lost" : "won"}">
       <h2>${o.lost ? t("g.schattenSiegt") : t("g.gefaehrtenAmZiel")}</h2>
       <p>${esc(logText(o.reason))} ${t("g.endeZahlen", o.round, o.tower, o.journey)}</p>
       ${o.lost ? `<p>${t("g.alleVerloren")}</p>` : ""}
+      ${winners.length > 1 ? `<p>${t("g.gemeinsamerSieg", winners.map((w) => esc(s.seats[w].name)))}</p>` : ""}
       <table class="rank">${rows}</table>
       <p>${LOKAL ? `<a class="btn" href="./">${t("g.neuesSpiel")}</a>` : `<a class="btn" href="/api/games/${gameId}/protokoll.csv">${t("g.protokollAlsCsv")}</a> <a class="btn" href="/">${t("g.zurUebersicht")}</a>`}</p>
     </div>`;

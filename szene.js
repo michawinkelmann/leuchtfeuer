@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { makeBoard, GATES, TOWER_GATE } from "./shared/board.js";
 import { COLORS } from "./shared/data.js";
+import { score } from "./shared/engine.js";
 
 const COLOR_LABEL = { rot: "Rot", blau: "Blau", gelb: "Gelb", weiss: "Weiß", lavendel: "Lavendel", lila: "Lila" };
 const DEG = Math.PI / 180;
@@ -237,12 +238,12 @@ export async function createScene(el, { onPick, onProgress } = {}) {
     const gx = reiseAt.x - rw / 2 + 3 + stepW * (s.journey + 0.5);
     const gf = inst("Gefährten");
     if (gf) layers.pieces.add(place(gf, gx, reiseAt.y + 7.0, 3.2));
-    // Ruhm-Leiste mit Markern
+    // Ruhm-Leiste mit Markern: Stand wie am Tisch (Gebäude eingerechnet, ohne die Startgehöfte)
     const ru = inst("Ruhm-Leiste");
     if (ru) layers.pieces.add(place(ru, ruhmAt.x, ruhmAt.y, 0));
     const occ = {};
     s.seats.forEach((seat, i) => {
-      const n = Math.max(0, seat.fame) % 60;
+      const n = score(s, i).leiste % 60;
       const k = (occ[n] = (occ[n] || 0) + 1) - 1;
       const c = n % 10;
       const r = Math.floor(n / 10);
