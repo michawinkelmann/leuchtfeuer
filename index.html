@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leuchtfeuer · Beacons</title>
+  <meta name="description" content="Leuchtfeuer (Beacons): ein komplett 3D-gedrucktes Brettspiel, hier zum Ausprobieren im Browser – gegen Bots oder zu mehreren an einem Gerät.">
+  <link rel="icon" href="icons/auge.svg">
+  <link rel="stylesheet" href="style.css">
+  <script>globalThis.LF_BROWSER_SPRACHE = true;</script>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three/build/three.module.min.js", "three/addons/": "./vendor/three/examples/jsm/" } }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <noscript>Bitte JavaScript einschalten. / Please enable JavaScript.</noscript>
+  <script type="module" src="start.js"></script>
+</body>
+</html>
