@@ -402,6 +402,11 @@ export function botAction(s, seat, tries = 0) {
       const cnt = (f) => E.buildingsAt(s, f).filter((x) => x.seat === seat).length;
       return { type: "hordeTie", pos: p.options.reduce((a, f) => (cnt(f) < cnt(a) ? f : a), p.options[0]) };
     }
+    case "raidOrder": {
+      // zuerst dort, wo die eigenen Gebäude stehen: Dann hat man die Rohstoffe noch für die eigene Abwehr
+      const cnt = (f) => E.buildingsAt(s, f).filter((x) => x.seat === seat).length;
+      return { type: "raidOrder", pos: p.options.reduce((a, f) => (cnt(f) > cnt(a) ? f : a), p.options[0]) };
+    }
     case "intervene": {
       const mineHere = E.buildingsAt(s, p.field).some((x) => x.seat === seat);
       const strength = E.hordeStrength(s) * p.hordes.length;

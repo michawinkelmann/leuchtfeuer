@@ -98,6 +98,7 @@ const FEST = {
   "Die Reise ist zu Ende": "The journey is over",
   "Hier ist keine Horde an deinen Gebäuden": "There is no horde at your buildings here",
   "Ungültiger Tausch": "Invalid trade",
+  "Jedes Volk gibt es nur einmal": "Each people can be chosen only once",
   "Der Vorrat ist leer": "The supply is empty",
   "Ungültiger Handelspartner": "Invalid trading partner",
   "Leeres Angebot": "Empty offer",

@@ -79,7 +79,7 @@ export const DEFAULT_VARIANTS = {
   defenseTie: "v03",      // Gleichstand bei der Abwehr: v03 (der Erste 2 Ruhm + Karte, die anderen 1) oder alle
   payOrder: "v03",        // v03: reihum, nie mehr als nötig; frei: beliebig viel
   hordeTie: "gebaeude",   // gleich kurze Wege: gebaeude (meiste Gebäude) oder start (Startspieler wählt)
-  hordeTieRandom: true,   // stehen auf keinem der gleich weiten Felder Gebäude: zufällig statt Rückfrage
+  hordeTieRandom: false,  // true: stehen auf keinem der gleich weiten Felder Gebäude, zufällig statt Rückfrage; seit 7.11.2026 wie am Tisch: der Startspieler wählt
   handLimit: 3,
   supply: 15,
   diceTwoPlayers: 4,
