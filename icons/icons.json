@@ -1,0 +1,294 @@
+{
+ "wald": {
+  "file": "wald.svg",
+  "mono": "wald_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "dunkelgruen",
+   "braun"
+  ],
+  "quelle": "symbole.symbol('wald')"
+ },
+ "feld": {
+  "file": "feld.svg",
+  "mono": "feld_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "gelb"
+  ],
+  "quelle": "symbole.symbol('feld')"
+ },
+ "weide": {
+  "file": "weide.svg",
+  "mono": "weide_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "braun"
+  ],
+  "quelle": "symbole.symbol('weide')"
+ },
+ "huegel": {
+  "file": "huegel.svg",
+  "mono": "huegel_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "grau"
+  ],
+  "quelle": "symbole.symbol('huegel')"
+ },
+ "gebirge": {
+  "file": "gebirge.svg",
+  "mono": "gebirge_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "grau",
+   "weiss"
+  ],
+  "quelle": "symbole.symbol('gebirge')"
+ },
+ "wasser": {
+  "file": "wasser.svg",
+  "mono": "wasser_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "blau"
+  ],
+  "quelle": "symbole.symbol('wasser')"
+ },
+ "ruine": {
+  "file": "ruine.svg",
+  "mono": "ruine_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "weiss"
+  ],
+  "quelle": "symbole.symbol('ruine')"
+ },
+ "auge": {
+  "file": "auge.svg",
+  "mono": "auge_mono.svg",
+  "gruppe": "gelaende",
+  "farben": [
+   "rot",
+   "schwarz"
+  ],
+  "quelle": "symbole.symbol('auge')"
+ },
+ "holz": {
+  "file": "holz.svg",
+  "mono": "holz_mono.svg",
+  "gruppe": "rohstoff",
+  "farben": [
+   "dunkelgruen",
+   "braun"
+  ],
+  "quelle": "symbole.symbol('wald', **{}) wie auf der Reise-Leiste"
+ },
+ "stein": {
+  "file": "stein.svg",
+  "mono": "stein_mono.svg",
+  "gruppe": "rohstoff",
+  "farben": [
+   "grau"
+  ],
+  "quelle": "symbole.symbol('huegel', **{'mono': 'grau'}) wie auf der Reise-Leiste"
+ },
+ "erz": {
+  "file": "erz.svg",
+  "mono": "erz_mono.svg",
+  "gruppe": "rohstoff",
+  "farben": [
+   "grau"
+  ],
+  "quelle": "symbole.symbol('gebirge', **{'mono': 'grau'}) wie auf der Reise-Leiste"
+ },
+ "korn": {
+  "file": "korn.svg",
+  "mono": "korn_mono.svg",
+  "gruppe": "rohstoff",
+  "farben": [
+   "gelb"
+  ],
+  "quelle": "symbole.symbol('feld', **{'mono': 'gelb'}) wie auf der Reise-Leiste"
+ },
+ "pferde": {
+  "file": "pferde.svg",
+  "mono": "pferde_mono.svg",
+  "gruppe": "rohstoff",
+  "farben": [
+   "braun"
+  ],
+  "quelle": "symbole.symbol('weide', **{'mono': 'braun'}) wie auf der Reise-Leiste"
+ },
+ "faecher": {
+  "file": "faecher.svg",
+  "mono": "faecher_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_faecher"
+ },
+ "lupe": {
+  "file": "lupe.svg",
+  "mono": "lupe_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_lupe"
+ },
+ "zahnrad": {
+  "file": "zahnrad.svg",
+  "mono": "zahnrad_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_zahnrad"
+ },
+ "klemmbrett": {
+  "file": "klemmbrett.svg",
+  "mono": "klemmbrett_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_klemmbrett"
+ },
+ "blatt": {
+  "file": "blatt.svg",
+  "mono": "blatt_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_blatt"
+ },
+ "buch": {
+  "file": "buch.svg",
+  "mono": "buch_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_buch"
+ },
+ "wegweiser": {
+  "file": "wegweiser.svg",
+  "mono": "wegweiser_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_wegweiser"
+ },
+ "stammbaum": {
+  "file": "stammbaum.svg",
+  "mono": "stammbaum_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_stammbaum"
+ },
+ "pfeil_fluegel": {
+  "file": "pfeil_fluegel.svg",
+  "mono": "pfeil_fluegel_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_pfeil_fluegel"
+ },
+ "garbe": {
+  "file": "garbe.svg",
+  "mono": "garbe_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_garbe"
+ },
+ "auge_bann": {
+  "file": "auge_bann.svg",
+  "mono": "auge_bann_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_auge_bann"
+ },
+ "wachfeuer": {
+  "file": "wachfeuer.svg",
+  "mono": "wachfeuer_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_wachfeuer"
+ },
+ "pfeile": {
+  "file": "pfeile.svg",
+  "mono": "pfeile_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_pfeile"
+ },
+ "schild": {
+  "file": "schild.svg",
+  "mono": "schild_mono.svg",
+  "gruppe": "karte",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "karten._b_schild"
+ },
+ "bau_gehoeft": {
+  "file": "bau_gehoeft.svg",
+  "mono": "bau_gehoeft_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Gehöft']"
+ },
+ "bau_burg": {
+  "file": "bau_burg.svg",
+  "mono": "bau_burg_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Burg']"
+ },
+ "bau_festung": {
+  "file": "bau_festung.svg",
+  "mono": "bau_festung_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Festung']"
+ },
+ "bau_leuchtfeuer": {
+  "file": "bau_leuchtfeuer.svg",
+  "mono": "bau_leuchtfeuer_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Leuchtfeuer']"
+ },
+ "bau_flamme": {
+  "file": "bau_flamme.svg",
+  "mono": "bau_flamme_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Flamme']"
+ }
+}
