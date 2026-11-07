@@ -40,6 +40,8 @@ export function board(s) {
   return BOARDS[n];
 }
 
+// Nur für die Modellnamen der Kacheln („Feld 1“ wie in public/models/models.json und den GLB-Dateien), nie für Texte:
+// Die Geländeart heißt in Verlauf und Oberfläche „Acker“ (D.TERRAIN_NAME), „Feld“ meint ein Kartensechseck.
 const TILE_LABEL = { wald: "Wald", feld: "Feld", weide: "Weide", huegel: "Hügel", gebirge: "Gebirge", wasser: "Wasser", ruine: "Ruine" };
 
 // ------------------------------------------------------------------ Anlegen
@@ -385,10 +387,19 @@ function harvest(s, seat, face, own) {
   if (k) log(s, `${seatName(s, seat)} erntet ${k} ${D.RES_NAME[res]}${k < n ? " (Vorrat reicht nicht)" : ""}.`, seat);
   return k;
 }
+export const START_GEHOEFTE = 2;   // je Platz, sie bringen keinen Ruhm (REGELN.md, Aufbau 7)
+/** Ruhm eines Platzes.
+ *  leiste: Stand der Ruhm-Leiste wie am Tisch (v0.4): Gebäude-Ruhm kommt sofort dazu (Gehöft 1, jeder Ausbau 1 mehr),
+ *          die Startgehöfte bringen keinen, jede verlorene Stufe kostet 1, aber nie unter 0 (was die 0 abfängt,
+ *          zählt seat.leisteAusgleich). Danach gehen Sieg und Startspieler.
+ *  fame: Ruhm ohne Gebäude (Reise, Kämpfe, Leuchtfeuer, Helden, Ruine), bauRuhm: Anteil der Gebäude an der Leiste,
+ *  bau: alle Gebäudestufen, total = fame + bau (alte Zählung mit den Startgehöften, nur noch für die Bots). */
 export function score(s, seat) {
+  const x = s.seats[seat];
   let bau = 0;
   for (const bl of Object.values(s.buildings)) if (bl.seat === seat) bau += bl.level;
-  return { fame: s.seats[seat].fame, bau, total: s.seats[seat].fame + bau, res: D.RES.reduce((a, r) => a + s.seats[seat].res[r], 0) };
+  const leiste = Math.max(0, x.fame + bau - START_GEHOEFTE + (x.leisteAusgleich || 0));
+  return { fame: x.fame, bau, bauRuhm: leiste - x.fame, leiste, total: x.fame + bau, res: D.RES.reduce((a, r) => a + x.res[r], 0) };
 }
 
 // ------------------------------------------------------------------ Turm, Horden, Leuchtfeuer
@@ -446,6 +457,8 @@ function knockDown(s, field) {
   for (const bl of buildingsAt(s, field)) {
     const seat = bl.seat;
     if (bl.level === 1 && s.seats[seat].people === "halblinge") continue;
+    // Die Stufe kostet 1 Ruhm, aber die Leiste geht nie unter 0
+    if (score(s, seat).leiste === 0) s.seats[seat].leisteAusgleich = (s.seats[seat].leisteAusgleich || 0) + 1;
     if (bl.level === 1) {
       delete s.buildings[bl.edge];
       log(s, `Ein Gehöft von ${seatName(s, seat)} wird zerstört.`, seat);
@@ -459,13 +472,20 @@ function knockDown(s, field) {
 // ------------------------------------------------------------------ Spielende
 function endGame(s, lost, reason) {
   if (s.over) return;
+  // Wer am meisten Ruhm auf der Leiste hat, bei Gleichstand mehr Rohstoffe; ist auch das gleich,
+  // teilen sie sich den Sieg (winners: alle Sieger, ranking[0] ist nur der erste von ihnen)
   const ranking = order(s, 0).map((i) => ({ seat: i, ...score(s, i) }))
-    .sort((a, b) => b.total - a.total || b.res - a.res);
-  s.over = { lost, reason, ranking, round: s.round, tower: s.tower, journey: s.journey };
+    .sort((a, b) => b.leiste - a.leiste || b.res - a.res);
+  const top = ranking[0];
+  const winners = lost ? [] : ranking.filter((r) => r.leiste === top.leiste && r.res === top.res).map((r) => r.seat);
+  s.over = { lost, reason, ranking, winners, round: s.round, tower: s.tower, journey: s.journey };
   s.pending = null;
   s.queue = [];
   s.stack = [];
-  log(s, lost ? `${reason} Alle haben verloren.` : `${reason} Es gewinnt ${seatName(s, ranking[0].seat)} mit ${ranking[0].total} Ruhm.`);
+  const namen = winners.map((w) => seatName(s, w));
+  if (lost) log(s, `${reason} Alle haben verloren.`);
+  else if (namen.length > 1) log(s, `${reason} Es gewinnen ${namen.slice(0, -1).join(", ")} und ${namen.at(-1)} gemeinsam mit ${top.leiste} Ruhm.`);
+  else log(s, `${reason} Es gewinnt ${namen[0]} mit ${top.leiste} Ruhm.`);
 }
 
 // ------------------------------------------------------------------ Ablaufschritte
@@ -517,7 +537,8 @@ const STEPS = {
       if (!b.pos[key] || s.tiles[key]) continue;
       let t = s.bag.shift();
       let guard = 0;
-      while (t.kind === "ruine" && guard++ < 50) {
+      // Ruine oder Schatz-Plättchen zurück in die Dose, dann neu ziehen (REGELN.md, Aufbau 3)
+      while ((t.kind === "ruine" || t.treasure) && guard++ < 50) {
         s.bag.splice(1 + rint(s, s.bag.length), 0, t);
         t = s.bag.shift();
       }
@@ -544,7 +565,7 @@ const STEPS = {
     s.rolled = Array.from({ length: Math.min(6, n) }, () => D.DIE_FACES[rint(s, 6)]);
     s.dice = s.rolled.slice();
     if (s.variants.catchupRes && s.round > 1) {
-      const sc = s.seats.map((_, i) => (s.variants.catchupStart === "leiste" ? score(s, i).fame : score(s, i).total));
+      const sc = s.seats.map((_, i) => (s.variants.catchupStart === "leiste" ? score(s, i).fame : score(s, i).leiste));
       const hi = Math.max(...sc), lo = Math.min(...sc);
       if (hi - lo >= s.variants.catchupRes) for (let i = 0; i < s.nSeats; i++) if (sc[i] === lo) {
         const r = D.RES.reduce((a, x) => (s.seats[i].res[x] < s.seats[i].res[a] ? x : a), "holz");
@@ -761,7 +782,7 @@ const STEPS = {
       else s.stats.overfallsWon++;
       s.roundStats.overfallsWon++;
     } else {
-      log(s, `${where} gescheitert (${total} gegen ${st.strength}).`);
+      log(s, `${where}: Abwehr gescheitert (${total} gegen ${st.strength}).`);
       knockDown(s, f);
       if (st.kind === "siege") {
         removeHordes(s, hs);
@@ -802,7 +823,7 @@ const STEPS = {
       round: s.round, tower: s.tower, journey: s.journey, eyes: s.roundStats.eyes, hordes: s.hordes.length,
       overfallsWon: s.roundStats.overfallsWon, overfallsLost: s.roundStats.overfallsLost, sieges: s.roundStats.sieges,
       beaconsLit: Object.values(s.beacons).filter((b) => b.lit).length,
-      fame: s.seats.map((_, i) => score(s, i).total),
+      fame: s.seats.map((_, i) => score(s, i).leiste),
     });
     if (s.endAfterRound || s.journey >= 10) {
       endGame(s, false, "Die Gefährten haben den Feuerberg erreicht.");
@@ -814,8 +835,9 @@ const STEPS = {
     }
     s.start = (s.start + 1) % s.nSeats;
     if (s.variants.catchupStart) {
-      // Startspieler wird, wer am wenigsten Ruhm hat (bei Gleichstand der Nächste in der Reihe)
-      const sc = s.seats.map((_, i) => (s.variants.catchupStart === "leiste" ? score(s, i).fame : score(s, i).total));
+      // Startspieler wird, wer am wenigsten Ruhm hat (bei Gleichstand der Nächste in der Reihe).
+      // Prüfvariante "leiste": nur Ruhm ohne Gebäude (so stand die Leiste bis v0.3)
+      const sc = s.seats.map((_, i) => (s.variants.catchupStart === "leiste" ? score(s, i).fame : score(s, i).leiste));
       const lo = Math.min(...sc);
       for (let k = 0; k < s.nSeats; k++) { const i = (s.start + k) % s.nSeats; if (sc[i] === lo) { s.start = i; break; } }
     }

@@ -61,7 +61,7 @@ export const HELDEN = [
   "datei": "Chronist",
   "titel": "DER CHRONIST",
   "bild": "stammbaum",
-  "text": "EINE HORDE AUF ODER NEBEN DER HAUPTSTADT ZIEHT AB. +2 RUHM.",
+  "text": "EINE HORDE AUF ODER NEBEN DER HAUPTSTADT KOMMT IN DEN VORRAT. +2 RUHM.",
   "persoenlich": null
  }
 ];
@@ -92,7 +92,7 @@ export const HELDEN_EN = [
   "datei": "Planner",
   "titel": "PLANNER",
   "bild": "klemmbrett",
-  "text": "IN ONE ROUND, TAKE 2 DICE BEFORE EVERYONE ELSE."
+  "text": "IN ONE ROUND, TAKE 2 DICE INSTEAD OF 1, BEFORE ANYONE ELSE."
  },
  {
   "id": "hueterin",
@@ -120,7 +120,7 @@ export const HELDEN_EN = [
   "datei": "Chronicler",
   "titel": "CHRONICLER",
   "bild": "stammbaum",
-  "text": "A HORDE ON OR NEXT TO THE CAPITAL WITHDRAWS. +2 FAME."
+  "text": "A HORDE ON OR NEXT TO THE CAPITAL GOES BACK TO THE SUPPLY. +2 FAME."
  }
 ];
 export const HELD_RUECK = {
@@ -133,7 +133,7 @@ export const HELD_RUECK = {
 export const HELD_RUECK_EN = {
  "titel": "HERO",
  "absaetze": [
-  "ONCE PER GAME, ALSO ON OTHER TURNS.",
+  "ONCE PER GAME, EVEN ON OTHER PLAYERS' TURNS.",
   "THEN TURN IT SIDEWAYS."
  ]
 };
@@ -286,7 +286,7 @@ export const SCHICKSAL_EN = [
   "id": "eilbote",
   "name": "MESSENGER",
   "bild": "pfeil_fluegel",
-  "text": "COMPANIONS MOVE 1 SPACE NOW, EVEN AS AN EXTRA. YOU PAY AND GET THE FAME."
+  "text": "COMPANIONS MOVE 1 EXTRA SPACE NOW. YOU PAY AND GET THE FAME."
  },
  {
   "id": "ernte",
@@ -304,7 +304,7 @@ export const SCHICKSAL_EN = [
   "id": "wachfeuer",
   "name": "WATCHFIRE",
   "bild": "wachfeuer",
-  "text": "RELIGHT ALL BEACONS THAT WENT OUT, FOR FREE."
+  "text": "RELIGHT ALL UNLIT BEACONS FOR FREE."
  },
  {
   "id": "handel",
@@ -330,6 +330,6 @@ export const SCHICKSAL_RUECK_EN = {
  "titel": "FATE",
  "absaetze": [
   "FOR 2 FAME IN BATTLE OR THE RUIN: 1 CARD.",
-  "AT MOST 3. ONLY ON YOUR OWN TURN, THEN UNDER THE PILE."
+  "AT MOST 3. ONLY ON YOUR OWN TURN, THEN TO THE BOTTOM OF THE DECK."
  ]
 };

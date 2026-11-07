@@ -122,7 +122,7 @@ const FEST = {
   "Ungültiger Würfel": "Invalid die",
   "Unbekannte Antwort": "Unknown answer",
   "Wähle Würfel": "Choose dice",
-  "Wähle eines der markierten Felder": "Choose one of the marked fields",
+  "Wähle eines der markierten Felder": "Choose one of the marked hexes",
   "Wähle einen Rohstoff": "Choose a resource",
   "Behalte 2 Karten": "Keep 2 cards",
   "Ungültige Karte": "Invalid card",
@@ -178,7 +178,8 @@ export const MUSTER = [
     (w, wer) => wo(w) && `${wo(w)} repelled: castles and fortresses are enough${wer ? `, 1 fame each for ${wer}` : ""}.`],
   [re(`${N} abgewehrt \\((\\d+) gegen (\\d+)\\)\\. (.+): 2 Ruhm und eine Schicksalskarte\\.`),
     (w, a, b, wer) => wo(w) && `${wo(w)} repelled (${a} vs. ${b}). ${wer}: 2 fame and a fate card.`],
-  [re(`${N} gescheitert \\((\\d+) gegen (\\d+)\\)\\.`), (w, a, b) => wo(w) && `${wo(w)}: defense failed (${a} vs. ${b}).`],
+  [re(`${N}: Abwehr gescheitert \\((\\d+) gegen (\\d+)\\)\\.`), (w, a, b) => wo(w) && `${wo(w)}: defense failed (${a} vs. ${b}).`],
+  [re(`${N} gescheitert \\((\\d+) gegen (\\d+)\\)\\.`), (w, a, b) => wo(w) && `${wo(w)}: defense failed (${a} vs. ${b}).`],   // bis 7.11.2026
   [re(`Ein Gehöft von (.+) wird zerstört\\.`), (a) => `${a} loses a farm.`],
   [re(`(\\S+) von (.+) wird zu (\\S+)\\.`), (l1, a, l2) => lvl(l1) && lvl(l2) && `${a}'s ${lvl(l1)} is reduced to a ${lvl(l2)}.`],
   [re(`${N} zahlt (\\d+) Abwehr\\.`), (a, n) => `${a} pays ${n} defense.`],
@@ -213,6 +214,8 @@ export const MUSTER = [
   // Spielende: Grund + Ergebnis
   [re(`(.+\\.) Alle haben verloren\\.`), (g) => ende(g) && `${ende(g)} Everyone loses.`],
   [re(`(.+\\.) Es gewinnt (.+) mit (\\d+) Ruhm\\.`), (g, a, n) => ende(g) && `${ende(g)} ${a} wins with ${n} fame.`],
+  [re(`(.+\\.) Es gewinnen (.+) gemeinsam mit (\\d+) Ruhm\\.`),            // „A, B und C“ → „A, B and C“
+    (g, a, n) => ende(g) && `${ende(g)} ${a.replace(/^(.*) und /, "$1 and ")} share the win with ${n} fame.`],
   [re(`(.+)`), (g) => ende(g)],
   // Plätze (Server und Browser-Fassung)
   [re(`(.+) wird von einem Bot gespielt\\.`), (a) => `${a} is now played by a bot.`],
