@@ -1,0 +1,2743 @@
+{
+ "_hinweis": "generiert von generator/digital_modelle.py (Blender-Teil digital_glb_blender.py), nicht von Hand ändern. Schlüssel ohne „_“ sind Modelle.",
+ "_achsen": {
+  "einheit": "1 glTF-Einheit = 1 mm",
+  "generator": "Generator (leuchtfeuer/, Blender): x rechts, y hinten, z oben",
+  "gltf": "glTF/three.js: y oben. x -> x, z -> y, y -> −z (Punkt (x, y, z) im Generator = (x, z, −y) in glTF)",
+  "drehung": "Drehung um z (Generator, gegen den Uhrzeigersinn von oben) um a = rotation.y = a in three.js",
+  "ursprung": "jedes Modell: x/y-Mitte der Bounding-Box (Generator) = 0, Unterkante = 0 (wie set_bauen.centered)",
+  "spot": "Lichtung für die Horde, [x, y] im Generator relativ zur Kachelmitte; in three.js (x, −y) in der x/z-Ebene. null = keine Lichtung (Hauptstadt)",
+  "bbox": "[minx, miny, minz, maxx, maxy, maxz] in glTF; bbox_generator dasselbe im Generator"
+ },
+ "_konstanten": {
+  "A": 32,
+  "CORNER_R": 36.9504,
+  "SHELL_H": 9,
+  "RECESS_D": 2,
+  "INSERT_H": 2,
+  "PLATZ_D": 0.8,
+  "LF_FLAME_Z": 21.9,
+  "A_INSERT": 28.25,
+  "EDGE_FREE": 5.5,
+  "SPOT_R": 7
+ },
+ "_versaetze": {
+  "_hinweis": "Generator-Koordinaten (mm, z oben) relativ zur Kachelmitte; die Schale steht mit z = 0 auf dem Tisch, alle Modelle sind zentriert (x/y-Mitte 0, Unterkante z = 0). Aus szene_rendern.py.",
+  "einsatz_z": 7,
+  "horde_z": 9.4,
+  "horde_xy": "Kachelmitte + spot der Kachel",
+  "turm_sockel": {
+   "xy": [
+    0,
+    4.5
+   ],
+   "z": 9.6,
+   "drehung": 0,
+   "_hinweis": "nur auf dem Turm-Tor; Sechskant-Zapfen, Drehung 0 (oder Vielfache von 60°)"
+  },
+  "turm_segment_z": "turm_sockel.z + 12.4 + 9.0 · k (k = 0, 1, …)",
+  "turm_segment_z0": 12.4,
+  "turm_segment_h": 9,
+  "turm_spitze_z": "turm_sockel.z + 12.4 + 9.0 · Zahl der Segmente",
+  "turm_spitze_auge": "Das Auge blickt im Modell nach +y (Generator) = −z (glTF). Drehung um z um a Grad: Blickrichtung 90 + a Grad. szene_rendern.py nimmt a = 150.",
+  "gehoeft_z": 8.2,
+  "burg_z": 9,
+  "festung_z": 9,
+  "kante": "Kante k (0…5): Mitte bei Kachelmitte + A · (cos θ, sin θ), θ = 30 + 60k Grad; Gebäude um z gedreht um θ + 90 Grad",
+  "ecke": "Ecke k (0…5): Kachelmitte + CORNER_R · (cos 60k, sin 60k)",
+  "leuchtfeuer_z": 8.2,
+  "flamme_z": 30.1,
+  "kachelraster": "flache Sechsecke (Ecken bei ±x), Spalte c, Zeile r: Mitte = (1.5 · CORNER_R · c, −√3 · CORNER_R · (r + 0.5 · (c mod 2))); Nachbarn liegen 2 · A auseinander",
+  "reise_leiste": {
+   "felder_xy": [
+    [
+     -97.5,
+     7
+    ],
+    [
+     -78,
+     7
+    ],
+    [
+     -58.5,
+     7
+    ],
+    [
+     -39,
+     7
+    ],
+    [
+     -19.5,
+     7
+    ],
+    [
+     0,
+     7
+    ],
+    [
+     19.5,
+     7
+    ],
+    [
+     39,
+     7
+    ],
+    [
+     58.5,
+     7
+    ],
+    [
+     78,
+     7
+    ],
+    [
+     97.5,
+     7
+    ]
+   ],
+   "z": 3.2,
+   "_hinweis": "Feld 0 = Start, 10 = Ziel; Gefährten auf z"
+  },
+  "ruhm_leiste": {
+   "felder_xy": [
+    [
+     -96.75,
+     41.25
+    ],
+    [
+     -75.25,
+     41.25
+    ],
+    [
+     -53.75,
+     41.25
+    ],
+    [
+     -32.25,
+     41.25
+    ],
+    [
+     -10.75,
+     41.25
+    ],
+    [
+     10.75,
+     41.25
+    ],
+    [
+     32.25,
+     41.25
+    ],
+    [
+     53.75,
+     41.25
+    ],
+    [
+     75.25,
+     41.25
+    ],
+    [
+     96.75,
+     41.25
+    ],
+    [
+     -96.75,
+     24.75
+    ],
+    [
+     -75.25,
+     24.75
+    ],
+    [
+     -53.75,
+     24.75
+    ],
+    [
+     -32.25,
+     24.75
+    ],
+    [
+     -10.75,
+     24.75
+    ],
+    [
+     10.75,
+     24.75
+    ],
+    [
+     32.25,
+     24.75
+    ],
+    [
+     53.75,
+     24.75
+    ],
+    [
+     75.25,
+     24.75
+    ],
+    [
+     96.75,
+     24.75
+    ],
+    [
+     -96.75,
+     8.25
+    ],
+    [
+     -75.25,
+     8.25
+    ],
+    [
+     -53.75,
+     8.25
+    ],
+    [
+     -32.25,
+     8.25
+    ],
+    [
+     -10.75,
+     8.25
+    ],
+    [
+     10.75,
+     8.25
+    ],
+    [
+     32.25,
+     8.25
+    ],
+    [
+     53.75,
+     8.25
+    ],
+    [
+     75.25,
+     8.25
+    ],
+    [
+     96.75,
+     8.25
+    ],
+    [
+     -96.75,
+     -8.25
+    ],
+    [
+     -75.25,
+     -8.25
+    ],
+    [
+     -53.75,
+     -8.25
+    ],
+    [
+     -32.25,
+     -8.25
+    ],
+    [
+     -10.75,
+     -8.25
+    ],
+    [
+     10.75,
+     -8.25
+    ],
+    [
+     32.25,
+     -8.25
+    ],
+    [
+     53.75,
+     -8.25
+    ],
+    [
+     75.25,
+     -8.25
+    ],
+    [
+     96.75,
+     -8.25
+    ],
+    [
+     -96.75,
+     -24.75
+    ],
+    [
+     -75.25,
+     -24.75
+    ],
+    [
+     -53.75,
+     -24.75
+    ],
+    [
+     -32.25,
+     -24.75
+    ],
+    [
+     -10.75,
+     -24.75
+    ],
+    [
+     10.75,
+     -24.75
+    ],
+    [
+     32.25,
+     -24.75
+    ],
+    [
+     53.75,
+     -24.75
+    ],
+    [
+     75.25,
+     -24.75
+    ],
+    [
+     96.75,
+     -24.75
+    ],
+    [
+     -96.75,
+     -41.25
+    ],
+    [
+     -75.25,
+     -41.25
+    ],
+    [
+     -53.75,
+     -41.25
+    ],
+    [
+     -32.25,
+     -41.25
+    ],
+    [
+     -10.75,
+     -41.25
+    ],
+    [
+     10.75,
+     -41.25
+    ],
+    [
+     32.25,
+     -41.25
+    ],
+    [
+     53.75,
+     -41.25
+    ],
+    [
+     75.25,
+     -41.25
+    ],
+    [
+     96.75,
+     -41.25
+    ]
+   ],
+   "z": 3.2,
+   "_hinweis": "Feld n = 0…59, Zeilen zu je 10 von oben"
+  }
+ },
+ "_wuerfel": {
+  "seiten": [
+   "wald",
+   "feld",
+   "weide",
+   "huegel",
+   "gebirge",
+   "auge"
+  ],
+  "groesse": 16,
+  "oben_im_modell": "wald",
+  "_hinweis": "nach_oben_quat_gltf dreht die Seite nach +Y (three.js: mesh.quaternion.set(x, y, z, w)); danach ist eine Drehung um Y frei. Das Modell liegt mit „wald“ oben.",
+  "flaechen": {
+   "wald": {
+    "drehung_generator": [
+     0,
+     0,
+     0
+    ],
+    "normale_generator": [
+     0,
+     0,
+     1
+    ],
+    "normale_gltf": [
+     0,
+     1,
+     0
+    ],
+    "nach_oben_quat_gltf": [
+     0,
+     0,
+     0,
+     1
+    ]
+   },
+   "feld": {
+    "drehung_generator": [
+     180,
+     0,
+     0
+    ],
+    "normale_generator": [
+     0,
+     0,
+     -1
+    ],
+    "normale_gltf": [
+     0,
+     -1,
+     0
+    ],
+    "nach_oben_quat_gltf": [
+     1,
+     0,
+     0,
+     0
+    ]
+   },
+   "weide": {
+    "drehung_generator": [
+     0,
+     90,
+     0
+    ],
+    "normale_generator": [
+     1,
+     0,
+     0
+    ],
+    "normale_gltf": [
+     1,
+     0,
+     0
+    ],
+    "nach_oben_quat_gltf": [
+     0,
+     0,
+     0.707107,
+     0.707107
+    ]
+   },
+   "huegel": {
+    "drehung_generator": [
+     0,
+     -90,
+     0
+    ],
+    "normale_generator": [
+     -1,
+     0,
+     0
+    ],
+    "normale_gltf": [
+     -1,
+     0,
+     0
+    ],
+    "nach_oben_quat_gltf": [
+     0,
+     0,
+     -0.707107,
+     0.707107
+    ]
+   },
+   "gebirge": {
+    "drehung_generator": [
+     -90,
+     0,
+     0
+    ],
+    "normale_generator": [
+     0,
+     1,
+     0
+    ],
+    "normale_gltf": [
+     0,
+     0,
+     -1
+    ],
+    "nach_oben_quat_gltf": [
+     0.707107,
+     0,
+     0,
+     0.707107
+    ]
+   },
+   "auge": {
+    "drehung_generator": [
+     90,
+     0,
+     0
+    ],
+    "normale_generator": [
+     0,
+     -1,
+     0
+    ],
+    "normale_gltf": [
+     0,
+     0,
+     1
+    ],
+    "nach_oben_quat_gltf": [
+     -0.707107,
+     0,
+     0,
+     0.707107
+    ]
+   }
+  }
+ },
+ "Wald 1": {
+  "file": "wald_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 58130,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   15.572,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   15.572
+  ],
+  "bytes": 62736,
+  "kind": "wald",
+  "seed": 1000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -10.321,
+   -1.395
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Wald 2": {
+  "file": "wald_2.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 60368,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   15.461,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   15.461
+  ],
+  "bytes": 65404,
+  "kind": "wald",
+  "seed": 1001,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -6.128,
+   -5.24
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Wald 3": {
+  "file": "wald_3.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 57951,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   15.584,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   15.584
+  ],
+  "bytes": 61744,
+  "kind": "wald",
+  "seed": 1002,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -6.906,
+   6.419
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Wald 4": {
+  "file": "wald_4.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 58950,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   13.975,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   13.975
+  ],
+  "bytes": 63724,
+  "kind": "wald",
+  "seed": 1003,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   3.441,
+   8.345
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Wald 5": {
+  "file": "wald_5.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 59908,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   14.443,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   14.443
+  ],
+  "bytes": 64788,
+  "kind": "wald",
+  "seed": 1004,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   8.52,
+   0.047
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Feld 1": {
+  "file": "feld_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 99386,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.692,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.692
+  ],
+  "bytes": 69152,
+  "kind": "feld",
+  "seed": 2000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   11.495,
+   -9.346
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Feld 2": {
+  "file": "feld_2.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 97919,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   -0.001,
+   -28.25,
+   32.62,
+   12.719,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   -0.001,
+   32.62,
+   28.25,
+   12.719
+  ],
+  "bytes": 69204,
+  "kind": "feld",
+  "seed": 2001,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -6,
+   -10.392
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Feld 3": {
+  "file": "feld_3.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 97180,
+  "farben": [
+   "gelb",
+   "gruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.792,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.792
+  ],
+  "bytes": 68524,
+  "kind": "feld",
+  "seed": 2002,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   6,
+   10.392
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Feld 4": {
+  "file": "feld_4.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 94047,
+  "farben": [
+   "gelb",
+   "gruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.73,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.73
+  ],
+  "bytes": 66780,
+  "kind": "feld",
+  "seed": 2003,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -3.19,
+   11.074
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Feld 5": {
+  "file": "feld_5.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 101406,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.783,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.783
+  ],
+  "bytes": 69888,
+  "kind": "feld",
+  "seed": 2004,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   15.826,
+   -3.28
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Weide 1": {
+  "file": "weide_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 58668,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   11.17,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   11.17
+  ],
+  "bytes": 60780,
+  "kind": "weide",
+  "seed": 3000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -8.581,
+   3.617
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Weide 2": {
+  "file": "weide_2.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 57099,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   11.729,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   11.729
+  ],
+  "bytes": 59408,
+  "kind": "weide",
+  "seed": 3001,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   9.84,
+   -5.596
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Weide 3": {
+  "file": "weide_3.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 57326,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   10.664,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   10.664
+  ],
+  "bytes": 59672,
+  "kind": "weide",
+  "seed": 3002,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   3.164,
+   -16.935
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Weide 4": {
+  "file": "weide_4.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 56965,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   10.397,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   10.397
+  ],
+  "bytes": 57724,
+  "kind": "weide",
+  "seed": 3003,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -5.5,
+   9.526
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Hügel 1": {
+  "file": "huegel_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 84790,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.807,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.807
+  ],
+  "bytes": 69068,
+  "kind": "huegel",
+  "seed": 4000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   12.474,
+   2.7
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Hügel 2": {
+  "file": "huegel_2.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 82284,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.5,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.5
+  ],
+  "bytes": 66740,
+  "kind": "huegel",
+  "seed": 4001,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   8.969,
+   3.08
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Hügel 3": {
+  "file": "huegel_3.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 84058,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   15.633,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   15.633
+  ],
+  "bytes": 69136,
+  "kind": "huegel",
+  "seed": 4002,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   6.649,
+   -7.993
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Hügel 4": {
+  "file": "huegel_4.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 83001,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   14.524,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   14.524
+  ],
+  "bytes": 67564,
+  "kind": "huegel",
+  "seed": 4003,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   10.609,
+   -5.052
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Gebirge 1": {
+  "file": "gebirge_1.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 97301,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   21.146,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   21.146
+  ],
+  "bytes": 74428,
+  "kind": "gebirge",
+  "seed": 5000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -4.952,
+   14.079
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Gebirge 2": {
+  "file": "gebirge_2.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 98660,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   22.13,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   22.13
+  ],
+  "bytes": 75576,
+  "kind": "gebirge",
+  "seed": 5001,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -14.292,
+   -6.252
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Gebirge 3": {
+  "file": "gebirge_3.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 99881,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   21.061,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   21.061
+  ],
+  "bytes": 75392,
+  "kind": "gebirge",
+  "seed": 5002,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   0.991,
+   -15.066
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Gebirge 4": {
+  "file": "gebirge_4.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 95977,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   20.792,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   20.792
+  ],
+  "bytes": 73284,
+  "kind": "gebirge",
+  "seed": 5003,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   15.243,
+   0.366
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Wasser 1": {
+  "file": "wasser_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 85348,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun",
+   "blau"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   10.558,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   10.558
+  ],
+  "bytes": 66436,
+  "kind": "wasser",
+  "seed": 6000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   -8.734,
+   14.426
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Wasser 2": {
+  "file": "wasser_2.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 85033,
+  "farben": [
+   "gelb",
+   "gruen",
+   "dunkelgruen",
+   "braun",
+   "blau"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   13.224,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   13.224
+  ],
+  "bytes": 67004,
+  "kind": "wasser",
+  "seed": 6001,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   17.918,
+   -0.359
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruine 1": {
+  "file": "ruine_1.glb",
+  "art": "kachel",
+  "tris": 11999,
+  "tris_roh": 60821,
+  "farben": [
+   "weiss",
+   "grau",
+   "gruen",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   12.359,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   12.359
+  ],
+  "bytes": 68040,
+  "kind": "ruine",
+  "seed": 7000,
+  "schale": "Schale dunkelgrün",
+  "spot": [
+   0,
+   -15.5
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Hauptstadt 1": {
+  "file": "hauptstadt_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 51018,
+  "farben": [
+   "weiss",
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   23.9,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   23.9
+  ],
+  "bytes": 59052,
+  "kind": "hauptstadt",
+  "seed": 8000,
+  "schale": "Schale grau",
+  "spot": null,
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Schattenland-Tor 1": {
+  "file": "schattenland_tor_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 61892,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   17.103,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   17.103
+  ],
+  "bytes": 50852,
+  "kind": "tor",
+  "seed": 9000,
+  "schale": "Schale grau",
+  "spot": [
+   0.43,
+   8.54
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Turm-Tor 1": {
+  "file": "turm_tor_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 60450,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   14.469,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   14.469
+  ],
+  "bytes": 52492,
+  "kind": "turm_tor",
+  "seed": 10000,
+  "schale": "Schale grau",
+  "spot": [
+   0,
+   -15.5
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Feuerberg 1": {
+  "file": "feuerberg_1.glb",
+  "art": "kachel",
+  "tris": 12000,
+  "tris_roh": 83980,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -32.62,
+   0,
+   -28.25,
+   32.62,
+   19.643,
+   28.25
+  ],
+  "bbox_generator": [
+   -32.62,
+   -28.25,
+   0,
+   32.62,
+   28.25,
+   19.643
+  ],
+  "bytes": 54824,
+  "kind": "feuerberg",
+  "seed": 11000,
+  "schale": "Schale grau",
+  "spot": [
+   15.344,
+   3.022
+  ],
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Schale dunkelgrün": {
+  "file": "schale_dunkelgruen.glb",
+  "art": "schale",
+  "tris": 1080,
+  "tris_roh": 1080,
+  "farben": [
+   "dunkelgruen"
+  ],
+  "bbox": [
+   -36.95,
+   0,
+   -32,
+   36.95,
+   9,
+   32
+  ],
+  "bbox_generator": [
+   -36.95,
+   -32,
+   0,
+   36.95,
+   32,
+   9
+  ],
+  "bytes": 7908,
+  "methode": "unverändert"
+ },
+ "Schale grau": {
+  "file": "schale_grau.glb",
+  "art": "schale",
+  "tris": 1080,
+  "tris_roh": 1080,
+  "farben": [
+   "grau"
+  ],
+  "bbox": [
+   -36.95,
+   0,
+   -32,
+   36.95,
+   9,
+   32
+  ],
+  "bbox_generator": [
+   -36.95,
+   -32,
+   0,
+   36.95,
+   32,
+   9
+  ],
+  "bytes": 7884,
+  "methode": "unverändert"
+ },
+ "Gehöft Rot": {
+  "file": "gehoeft_rot.glb",
+  "art": "figur",
+  "tris": 570,
+  "tris_roh": 570,
+  "farben": [
+   "grau",
+   "rot",
+   "braun"
+  ],
+  "bbox": [
+   -5.2,
+   0,
+   -3.65,
+   5.2,
+   9.735,
+   3.65
+  ],
+  "bbox_generator": [
+   -5.2,
+   -3.65,
+   0,
+   5.2,
+   3.65,
+   9.735
+  ],
+  "bytes": 5628,
+  "spieler": "rot",
+  "methode": "unverändert"
+ },
+ "Burg Rot": {
+  "file": "burg_rot.glb",
+  "art": "figur",
+  "tris": 2310,
+  "tris_roh": 2310,
+  "farben": [
+   "grau",
+   "rot",
+   "braun"
+  ],
+  "bbox": [
+   -7.3,
+   0,
+   -5.713,
+   7.3,
+   17.185,
+   5.713
+  ],
+  "bbox_generator": [
+   -7.3,
+   -5.713,
+   0,
+   7.3,
+   5.713,
+   17.185
+  ],
+  "bytes": 12300,
+  "spieler": "rot",
+  "methode": "unverändert"
+ },
+ "Festung Rot": {
+  "file": "festung_rot.glb",
+  "art": "figur",
+  "tris": 3000,
+  "tris_roh": 4124,
+  "farben": [
+   "grau",
+   "rot",
+   "braun"
+  ],
+  "bbox": [
+   -9.8,
+   0,
+   -8.213,
+   9.8,
+   28.698,
+   8.213
+  ],
+  "bbox_generator": [
+   -9.8,
+   -8.213,
+   0,
+   9.8,
+   8.213,
+   28.698
+  ],
+  "bytes": 19096,
+  "spieler": "rot",
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruhm-Marker Rot": {
+  "file": "ruhm_marker_rot.glb",
+  "art": "figur",
+  "tris": 574,
+  "tris_roh": 574,
+  "farben": [
+   "rot"
+  ],
+  "bbox": [
+   -4.2,
+   0,
+   -4.2,
+   4.2,
+   12.8,
+   4.2
+  ],
+  "bbox_generator": [
+   -4.2,
+   -4.2,
+   0,
+   4.2,
+   4.2,
+   12.8
+  ],
+  "bytes": 3820,
+  "spieler": "rot",
+  "methode": "unverändert"
+ },
+ "Gehöft Blau": {
+  "file": "gehoeft_blau.glb",
+  "art": "figur",
+  "tris": 570,
+  "tris_roh": 570,
+  "farben": [
+   "grau",
+   "braun",
+   "blau"
+  ],
+  "bbox": [
+   -5.2,
+   0,
+   -3.65,
+   5.2,
+   9.735,
+   3.65
+  ],
+  "bbox_generator": [
+   -5.2,
+   -3.65,
+   0,
+   5.2,
+   3.65,
+   9.735
+  ],
+  "bytes": 5628,
+  "spieler": "blau",
+  "methode": "unverändert"
+ },
+ "Burg Blau": {
+  "file": "burg_blau.glb",
+  "art": "figur",
+  "tris": 2310,
+  "tris_roh": 2310,
+  "farben": [
+   "grau",
+   "braun",
+   "blau"
+  ],
+  "bbox": [
+   -7.3,
+   0,
+   -5.713,
+   7.3,
+   17.185,
+   5.713
+  ],
+  "bbox_generator": [
+   -7.3,
+   -5.713,
+   0,
+   7.3,
+   5.713,
+   17.185
+  ],
+  "bytes": 12304,
+  "spieler": "blau",
+  "methode": "unverändert"
+ },
+ "Festung Blau": {
+  "file": "festung_blau.glb",
+  "art": "figur",
+  "tris": 3000,
+  "tris_roh": 4124,
+  "farben": [
+   "grau",
+   "braun",
+   "blau"
+  ],
+  "bbox": [
+   -9.8,
+   0,
+   -8.213,
+   9.8,
+   28.698,
+   8.213
+  ],
+  "bbox_generator": [
+   -9.8,
+   -8.213,
+   0,
+   9.8,
+   8.213,
+   28.698
+  ],
+  "bytes": 19096,
+  "spieler": "blau",
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruhm-Marker Blau": {
+  "file": "ruhm_marker_blau.glb",
+  "art": "figur",
+  "tris": 574,
+  "tris_roh": 574,
+  "farben": [
+   "blau"
+  ],
+  "bbox": [
+   -4.2,
+   0,
+   -4.2,
+   4.2,
+   12.8,
+   4.2
+  ],
+  "bbox_generator": [
+   -4.2,
+   -4.2,
+   0,
+   4.2,
+   4.2,
+   12.8
+  ],
+  "bytes": 3820,
+  "spieler": "blau",
+  "methode": "unverändert"
+ },
+ "Gehöft Gelb": {
+  "file": "gehoeft_gelb.glb",
+  "art": "figur",
+  "tris": 570,
+  "tris_roh": 570,
+  "farben": [
+   "grau",
+   "gelb",
+   "braun"
+  ],
+  "bbox": [
+   -5.2,
+   0,
+   -3.65,
+   5.2,
+   9.735,
+   3.65
+  ],
+  "bbox_generator": [
+   -5.2,
+   -3.65,
+   0,
+   5.2,
+   3.65,
+   9.735
+  ],
+  "bytes": 5608,
+  "spieler": "gelb",
+  "methode": "unverändert"
+ },
+ "Burg Gelb": {
+  "file": "burg_gelb.glb",
+  "art": "figur",
+  "tris": 2310,
+  "tris_roh": 2310,
+  "farben": [
+   "grau",
+   "gelb",
+   "braun"
+  ],
+  "bbox": [
+   -7.3,
+   0,
+   -5.713,
+   7.3,
+   17.185,
+   5.713
+  ],
+  "bbox_generator": [
+   -7.3,
+   -5.713,
+   0,
+   7.3,
+   5.713,
+   17.185
+  ],
+  "bytes": 12284,
+  "spieler": "gelb",
+  "methode": "unverändert"
+ },
+ "Festung Gelb": {
+  "file": "festung_gelb.glb",
+  "art": "figur",
+  "tris": 3000,
+  "tris_roh": 4124,
+  "farben": [
+   "grau",
+   "gelb",
+   "braun"
+  ],
+  "bbox": [
+   -9.8,
+   0,
+   -8.213,
+   9.8,
+   28.698,
+   8.213
+  ],
+  "bbox_generator": [
+   -9.8,
+   -8.213,
+   0,
+   9.8,
+   8.213,
+   28.698
+  ],
+  "bytes": 19076,
+  "spieler": "gelb",
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruhm-Marker Gelb": {
+  "file": "ruhm_marker_gelb.glb",
+  "art": "figur",
+  "tris": 574,
+  "tris_roh": 574,
+  "farben": [
+   "gelb"
+  ],
+  "bbox": [
+   -4.2,
+   0,
+   -4.2,
+   4.2,
+   12.8,
+   4.2
+  ],
+  "bbox_generator": [
+   -4.2,
+   -4.2,
+   0,
+   4.2,
+   4.2,
+   12.8
+  ],
+  "bytes": 3800,
+  "spieler": "gelb",
+  "methode": "unverändert"
+ },
+ "Gehöft Weiß": {
+  "file": "gehoeft_weiss.glb",
+  "art": "figur",
+  "tris": 570,
+  "tris_roh": 570,
+  "farben": [
+   "weiss",
+   "grau",
+   "braun"
+  ],
+  "bbox": [
+   -5.2,
+   0,
+   -3.65,
+   5.2,
+   9.735,
+   3.65
+  ],
+  "bbox_generator": [
+   -5.2,
+   -3.65,
+   0,
+   5.2,
+   3.65,
+   9.735
+  ],
+  "bytes": 5628,
+  "spieler": "weiss",
+  "methode": "unverändert"
+ },
+ "Burg Weiß": {
+  "file": "burg_weiss.glb",
+  "art": "figur",
+  "tris": 2310,
+  "tris_roh": 2310,
+  "farben": [
+   "weiss",
+   "grau",
+   "braun"
+  ],
+  "bbox": [
+   -7.3,
+   0,
+   -5.713,
+   7.3,
+   17.185,
+   5.713
+  ],
+  "bbox_generator": [
+   -7.3,
+   -5.713,
+   0,
+   7.3,
+   5.713,
+   17.185
+  ],
+  "bytes": 12300,
+  "spieler": "weiss",
+  "methode": "unverändert"
+ },
+ "Festung Weiß": {
+  "file": "festung_weiss.glb",
+  "art": "figur",
+  "tris": 3000,
+  "tris_roh": 4124,
+  "farben": [
+   "weiss",
+   "grau",
+   "braun"
+  ],
+  "bbox": [
+   -9.8,
+   0,
+   -8.213,
+   9.8,
+   28.698,
+   8.213
+  ],
+  "bbox_generator": [
+   -9.8,
+   -8.213,
+   0,
+   9.8,
+   8.213,
+   28.698
+  ],
+  "bytes": 19092,
+  "spieler": "weiss",
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruhm-Marker Weiß": {
+  "file": "ruhm_marker_weiss.glb",
+  "art": "figur",
+  "tris": 574,
+  "tris_roh": 574,
+  "farben": [
+   "weiss"
+  ],
+  "bbox": [
+   -4.2,
+   0,
+   -4.2,
+   4.2,
+   12.8,
+   4.2
+  ],
+  "bbox_generator": [
+   -4.2,
+   -4.2,
+   0,
+   4.2,
+   4.2,
+   12.8
+  ],
+  "bytes": 3816,
+  "spieler": "weiss",
+  "methode": "unverändert"
+ },
+ "Gehöft Lavendel": {
+  "file": "gehoeft_lavendel.glb",
+  "art": "figur",
+  "tris": 570,
+  "tris_roh": 570,
+  "farben": [
+   "grau",
+   "braun",
+   "lavendel"
+  ],
+  "bbox": [
+   -5.2,
+   0,
+   -3.65,
+   5.2,
+   9.735,
+   3.65
+  ],
+  "bbox_generator": [
+   -5.2,
+   -3.65,
+   0,
+   5.2,
+   3.65,
+   9.735
+  ],
+  "bytes": 5636,
+  "spieler": "lavendel",
+  "methode": "unverändert"
+ },
+ "Burg Lavendel": {
+  "file": "burg_lavendel.glb",
+  "art": "figur",
+  "tris": 2310,
+  "tris_roh": 2310,
+  "farben": [
+   "grau",
+   "braun",
+   "lavendel"
+  ],
+  "bbox": [
+   -7.3,
+   0,
+   -5.713,
+   7.3,
+   17.185,
+   5.713
+  ],
+  "bbox_generator": [
+   -7.3,
+   -5.713,
+   0,
+   7.3,
+   5.713,
+   17.185
+  ],
+  "bytes": 12308,
+  "spieler": "lavendel",
+  "methode": "unverändert"
+ },
+ "Festung Lavendel": {
+  "file": "festung_lavendel.glb",
+  "art": "figur",
+  "tris": 3000,
+  "tris_roh": 4124,
+  "farben": [
+   "grau",
+   "braun",
+   "lavendel"
+  ],
+  "bbox": [
+   -9.8,
+   0,
+   -8.213,
+   9.8,
+   28.698,
+   8.213
+  ],
+  "bbox_generator": [
+   -9.8,
+   -8.213,
+   0,
+   9.8,
+   8.213,
+   28.698
+  ],
+  "bytes": 19104,
+  "spieler": "lavendel",
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruhm-Marker Lavendel": {
+  "file": "ruhm_marker_lavendel.glb",
+  "art": "figur",
+  "tris": 574,
+  "tris_roh": 574,
+  "farben": [
+   "lavendel"
+  ],
+  "bbox": [
+   -4.2,
+   0,
+   -4.2,
+   4.2,
+   12.8,
+   4.2
+  ],
+  "bbox_generator": [
+   -4.2,
+   -4.2,
+   0,
+   4.2,
+   4.2,
+   12.8
+  ],
+  "bytes": 3824,
+  "spieler": "lavendel",
+  "methode": "unverändert"
+ },
+ "Ork-Horde 1": {
+  "file": "ork_horde_1.glb",
+  "art": "figur",
+  "tris": 1288,
+  "tris_roh": 1288,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -6.8,
+   0,
+   -6.8,
+   6.8,
+   11,
+   6.8
+  ],
+  "bbox_generator": [
+   -6.8,
+   -6.8,
+   0,
+   6.8,
+   6.8,
+   11
+  ],
+  "bytes": 11172,
+  "methode": "unverändert"
+ },
+ "Ork-Horde 2": {
+  "file": "ork_horde_2.glb",
+  "art": "figur",
+  "tris": 1314,
+  "tris_roh": 1314,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -6.8,
+   0,
+   -6.8,
+   6.8,
+   11,
+   6.8
+  ],
+  "bbox_generator": [
+   -6.8,
+   -6.8,
+   0,
+   6.8,
+   6.8,
+   11
+  ],
+  "bytes": 11200,
+  "methode": "unverändert"
+ },
+ "Ork-Horde 3": {
+  "file": "ork_horde_3.glb",
+  "art": "figur",
+  "tris": 1278,
+  "tris_roh": 1278,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -6.8,
+   0,
+   -6.8,
+   6.8,
+   11,
+   6.8
+  ],
+  "bbox_generator": [
+   -6.8,
+   -6.8,
+   0,
+   6.8,
+   6.8,
+   11
+  ],
+  "bytes": 11368,
+  "methode": "unverändert"
+ },
+ "Leuchtfeuer": {
+  "file": "leuchtfeuer.glb",
+  "art": "figur",
+  "tris": 508,
+  "tris_roh": 508,
+  "farben": [
+   "grau"
+  ],
+  "bbox": [
+   -5.543,
+   0,
+   -5.543,
+   5.543,
+   23.55,
+   5.543
+  ],
+  "bbox_generator": [
+   -5.543,
+   -5.543,
+   0,
+   5.543,
+   5.543,
+   23.55
+  ],
+  "bytes": 4444,
+  "methode": "unverändert"
+ },
+ "Flamme": {
+  "file": "flamme.glb",
+  "art": "figur",
+  "tris": 1140,
+  "tris_roh": 1140,
+  "farben": [
+   "rot",
+   "gelb"
+  ],
+  "bbox": [
+   -3.6,
+   0,
+   -3.51,
+   3.6,
+   12.9,
+   3.51
+  ],
+  "bbox_generator": [
+   -3.6,
+   -3.51,
+   0,
+   3.6,
+   3.51,
+   12.9
+  ],
+  "bytes": 8896,
+  "methode": "unverändert"
+ },
+ "Gefährten": {
+  "file": "gefaehrten.glb",
+  "art": "figur",
+  "tris": 1798,
+  "tris_roh": 3352,
+  "farben": [
+   "weiss",
+   "grau",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -8.75,
+   0,
+   -8.75,
+   8.75,
+   17.587,
+   8.75
+  ],
+  "bbox_generator": [
+   -8.75,
+   -8.75,
+   0,
+   8.75,
+   8.75,
+   17.587
+  ],
+  "bytes": 14096,
+  "methode": "verdeckte Flächen entfernt"
+ },
+ "Startspieler": {
+  "file": "startspieler.glb",
+  "art": "figur",
+  "tris": 324,
+  "tris_roh": 324,
+  "farben": [
+   "grau",
+   "rot",
+   "gelb"
+  ],
+  "bbox": [
+   -6.5,
+   0,
+   -6.5,
+   6.5,
+   21.32,
+   6.5
+  ],
+  "bbox_generator": [
+   -6.5,
+   -6.5,
+   0,
+   6.5,
+   6.5,
+   21.32
+  ],
+  "bytes": 4964,
+  "methode": "unverändert"
+ },
+ "Holz": {
+  "file": "holz.glb",
+  "art": "figur",
+  "tris": 328,
+  "tris_roh": 328,
+  "farben": [
+   "gelb",
+   "braun"
+  ],
+  "bbox": [
+   -6.075,
+   0,
+   -4.725,
+   6.075,
+   8.409,
+   4.725
+  ],
+  "bbox_generator": [
+   -6.075,
+   -4.725,
+   0,
+   6.075,
+   4.725,
+   8.409
+  ],
+  "bytes": 3584,
+  "rohstoff": "holz",
+  "methode": "unverändert"
+ },
+ "Stein": {
+  "file": "stein.glb",
+  "art": "figur",
+  "tris": 52,
+  "tris_roh": 52,
+  "farben": [
+   "grau"
+  ],
+  "bbox": [
+   -7.56,
+   0,
+   -2.914,
+   7.56,
+   7.02,
+   2.914
+  ],
+  "bbox_generator": [
+   -7.56,
+   -2.914,
+   0,
+   7.56,
+   2.914,
+   7.02
+  ],
+  "bytes": 1664,
+  "rohstoff": "stein",
+  "methode": "unverändert"
+ },
+ "Erz": {
+  "file": "erz.glb",
+  "art": "figur",
+  "tris": 606,
+  "tris_roh": 606,
+  "farben": [
+   "schwarz",
+   "blau"
+  ],
+  "bbox": [
+   -5.541,
+   0,
+   -4.612,
+   5.541,
+   8.654,
+   4.612
+  ],
+  "bbox_generator": [
+   -5.541,
+   -4.612,
+   0,
+   5.541,
+   4.612,
+   8.654
+  ],
+  "bytes": 6560,
+  "rohstoff": "erz",
+  "methode": "unverändert"
+ },
+ "Korn": {
+  "file": "korn.glb",
+  "art": "figur",
+  "tris": 1018,
+  "tris_roh": 1018,
+  "farben": [
+   "weiss",
+   "gelb",
+   "braun"
+  ],
+  "bbox": [
+   -4.6,
+   0,
+   -4.031,
+   4.6,
+   12.555,
+   4.031
+  ],
+  "bbox_generator": [
+   -4.6,
+   -4.031,
+   0,
+   4.6,
+   4.031,
+   12.555
+  ],
+  "bytes": 9252,
+  "rohstoff": "korn",
+  "methode": "unverändert"
+ },
+ "Pferde": {
+  "file": "pferde.glb",
+  "art": "figur",
+  "tris": 580,
+  "tris_roh": 580,
+  "farben": [
+   "grau"
+  ],
+  "bbox": [
+   -6.75,
+   0,
+   -6.431,
+   6.75,
+   2.7,
+   6.431
+  ],
+  "bbox_generator": [
+   -6.75,
+   -6.431,
+   0,
+   6.75,
+   6.431,
+   2.7
+  ],
+  "bytes": 3812,
+  "rohstoff": "pferde",
+  "methode": "unverändert"
+ },
+ "Turm-Sockel": {
+  "file": "turm_sockel.glb",
+  "art": "figur",
+  "tris": 546,
+  "tris_roh": 546,
+  "farben": [
+   "grau",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -9.516,
+   0,
+   -9.516,
+   9.516,
+   12.4,
+   9.516
+  ],
+  "bbox_generator": [
+   -9.516,
+   -9.516,
+   0,
+   9.516,
+   9.516,
+   12.4
+  ],
+  "bytes": 6376,
+  "methode": "unverändert"
+ },
+ "Turm-Segment": {
+  "file": "turm_segment.glb",
+  "art": "figur",
+  "tris": 672,
+  "tris_roh": 672,
+  "farben": [
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -8.506,
+   0,
+   -8.506,
+   8.506,
+   9,
+   8.506
+  ],
+  "bbox_generator": [
+   -8.506,
+   -8.506,
+   0,
+   8.506,
+   8.506,
+   9
+  ],
+  "bytes": 6160,
+  "methode": "unverändert"
+ },
+ "Turm-Spitze": {
+  "file": "turm_spitze.glb",
+  "art": "figur",
+  "tris": 720,
+  "tris_roh": 720,
+  "farben": [
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -7.206,
+   0,
+   -7.206,
+   7.206,
+   13.3,
+   7.206
+  ],
+  "bbox_generator": [
+   -7.206,
+   -7.206,
+   0,
+   7.206,
+   7.206,
+   13.3
+  ],
+  "bytes": 6620,
+  "methode": "unverändert"
+ },
+ "Runenwürfel": {
+  "file": "runenwuerfel.glb",
+  "art": "figur",
+  "tris": 930,
+  "tris_roh": 3752,
+  "farben": [
+   "weiss",
+   "schwarz",
+   "rot"
+  ],
+  "bbox": [
+   -8,
+   0,
+   -8,
+   8,
+   16,
+   8
+  ],
+  "bbox_generator": [
+   -8,
+   -8,
+   0,
+   8,
+   8,
+   16
+  ],
+  "bytes": 7576,
+  "methode": "verdeckte Flächen entfernt"
+ },
+ "Reise-Leiste neutral": {
+  "file": "reise_leiste_neutral.glb",
+  "art": "leiste",
+  "tris": 7713,
+  "tris_roh": 7713,
+  "farben": [
+   "weiss",
+   "grau",
+   "rot",
+   "gelb",
+   "dunkelgruen",
+   "braun"
+  ],
+  "bbox": [
+   -110.25,
+   0,
+   -36,
+   110.25,
+   3.2,
+   36
+  ],
+  "bbox_generator": [
+   -110.25,
+   -36,
+   0,
+   110.25,
+   36,
+   3.2
+  ],
+  "bytes": 29664,
+  "fassung": "neutral",
+  "methode": "flach (2D vereinfacht, eps 0.03 mm)"
+ },
+ "Ruhm-Leiste": {
+  "file": "ruhm_leiste.glb",
+  "art": "leiste",
+  "tris": 8065,
+  "tris_roh": 8065,
+  "farben": [
+   "weiss",
+   "rot",
+   "gelb",
+   "braun"
+  ],
+  "bbox": [
+   -111.5,
+   0,
+   -53.5,
+   111.5,
+   3.2,
+   53.5
+  ],
+  "bbox_generator": [
+   -111.5,
+   -53.5,
+   0,
+   111.5,
+   53.5,
+   3.2
+  ],
+  "bytes": 28644,
+  "methode": "flach (2D vereinfacht, eps 0.1 mm)"
+ }
+}
