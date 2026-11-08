@@ -277,7 +277,7 @@ export const SCHICKSAL = [
   "id": "verstaerkung",
   "name": "VERSTÄRKUNG",
   "bild": "schild",
-  "text": "+3 ABWEHR BEI EINEM ÜBERFALL, WO DU ZAHLEN DARFST."
+  "text": "+3 ABWEHR (OHNE RUHM) BEI EINEM ÜBERFALL, WO DU ZAHLEN DARFST."
  }
 ];
 export const SCHICKSAL_ANZAHL = 2;
@@ -316,7 +316,7 @@ export const SCHICKSAL_EN = [
   "id": "verstaerkung",
   "name": "ALLIES",
   "bild": "schild",
-  "text": "+3 DEFENSE IN A RAID WHERE YOU MAY PAY."
+  "text": "+3 DEFENSE (NO FAME) IN A RAID WHERE YOU MAY PAY."
  }
 ];
 export const SCHICKSAL_RUECK = {
