@@ -280,19 +280,21 @@ export async function createScene(el, { onPick, onProgress } = {}) {
     const gx = reiseAt.x - rw / 2 + 3 + stepW * (s.journey + 0.5);
     const gf = inst("Gefährten");
     if (gf) layers.pieces.add(place(gf, gx, reiseAt.y + 7.0, 3.2));
-    // Ruhm-Leiste mit Markern: Stand wie am Tisch (Gebäude eingerechnet, ohne die Startgehöfte)
+    // Ruhm-Leiste mit Markern: Stand wie am Tisch (Gebäude eingerechnet). Felder aus dem Manifest (seit 8.11.2026 0–49,
+    // 10 × 5 Felder à 21,5 × 19,8 mm); fehlen sie, die alte Leiste 0–59. Bis 4 Marker 2 × 2 im Feld, weitere am unteren Rand.
     const ru = inst("Ruhm-Leiste");
     if (ru) layers.pieces.add(place(ru, ruhmAt.x, ruhmAt.y, 0));
+    const felder = meta?._versaetze?.ruhm_leiste?.felder_xy
+      || Array.from({ length: 60 }, (_, n) => [-111.5 + 4 + (n % 10 + 0.5) * 21.5, 53.5 - 4 - (Math.floor(n / 10) + 0.5) * 16.5]);
+    const feldH = felder.length > 10 ? Math.abs(felder[0][1] - felder[10][1]) : 16.5;
     const occ = {};
     s.seats.forEach((seat, i) => {
-      const n = score(s, i).leiste % 60;
+      const n = score(s, i).leiste % felder.length;
       const k = (occ[n] = (occ[n] || 0) + 1) - 1;
-      const c = n % 10;
-      const r = Math.floor(n / 10);
-      const Wd = 10 * 21.5 + 8;
-      const Hh = 6 * 16.5 + 8;
-      const x = ruhmAt.x - Wd / 2 + 4 + (c + 0.5) * 21.5 + (k % 2 ? 5 : -5) * (k ? 1 : 0);
-      const y = ruhmAt.y + Hh / 2 - 4 - (r + 0.5) * 16.5 + (k >= 2 ? 4 : 0);
+      const d = Math.min(4.5, feldH / 2 - 4.2);           // Abstand der Markermitten von der Feldmitte
+      const [dx, dy] = k < 4 ? [k % 2 ? d : -d, k < 2 ? d : -d] : [(k - 4) * 9 - 4.5, -feldH / 2];
+      const x = ruhmAt.x + felder[n][0] + dx;
+      const y = ruhmAt.y + felder[n][1] + dy;
       const mk = inst(`Ruhm-Marker ${COLOR_LABEL[seat.color]}`) || fallbackBox(COLORS[seat.color].hex, 6, 10);
       layers.pieces.add(place(mk, x, y, 3.2));
     });
