@@ -57,6 +57,7 @@ function wo(g) {                       // Kampfort aus der Engine
 const GRUND = {                        // Turmwachstum
   "keine Horde mehr im Vorrat": "no horde left in the supply", "Tor besetzt": "gate occupied", "Horden vereint": "hordes merged",
   "Belagerung verloren": "siege lost", "Überfall verloren": "raid lost", "Gefahrenfeld": "danger space",
+  "kein Ring mehr im Vorrat": "no ring left in the supply",
 };
 function ende(g) {                     // Grund für das Spielende (s.over.reason)
   if (g === "Der Turm des Schattens ist vollendet.") return "The Tower of Shadow is complete.";
@@ -116,6 +117,8 @@ const FEST = {
   "Dieser Held wirkt zu einem anderen Zeitpunkt": "This hero is used at a different time",
   "Nimm zuerst einen Würfel (oder einen Rohstoff)": "Take a die (or a resource) first",
   "Nur auf oder neben der Hauptstadt": "Only on or next to the capital",
+  "Leuchtfeuer erlöschen nicht": "Beacons don't go out",
+  "Wähle 2 Würfel": "Choose 2 dice",
   "Wähle einen der beiden Helden": "Choose one of the two heroes",
   "Wähle einen freien Heimatland-Platz": "Choose a free homeland space",
   "Nur auf freie Kanten im Heimatland": "Only on free edges in the homeland",
@@ -170,8 +173,15 @@ export const MUSTER = [
   [re(`Der Turm wächst um (\\d+) auf (\\d+) \\((.+)\\)\\.`), (n, t, w) => GRUND[w] && `The tower grows by ${n} to ${t} (${GRUND[w]}).`],
   [re(`Das Auge blickt zum (.+), aber keine Horde ist mehr im Vorrat\\.`), (g) => gate(g) && `The Eye turns to the ${gate(g)}, but no horde is left in the supply.`],
   [re(`Das Auge blickt zum (.+): Dort erscheint eine Ork-Horde\\.`), (g) => gate(g) && `The Eye turns to the ${gate(g)}: an orc horde appears there.`],
+  [re(`Das Auge blickt zum (.+), aber kein Ring ist mehr im Vorrat\\.`), (g) => gate(g) && `The Eye turns to the ${gate(g)}, but no ring is left in the supply.`],
+  [re(`Das Auge blickt zum (.+): Dort erscheint eine weitere Ork-Horde \\(ein Ring mehr\\)\\.`),
+    (g) => gate(g) && `The Eye turns to the ${gate(g)}: another orc horde appears there (one more ring).`],
+  [re(`Ruf der Leuchtfeuer! Der Turm verliert ein Segment \\((\\d+)\\)\\. (.+) erhält (\\d+) Ruhm\\.`),
+    (t, a, f) => `Call of the Beacons! The tower loses a segment (${t}). ${a} gains ${f} fame.`],
   [re(`Ruf der Leuchtfeuer! (\\d+) Horden vernichtet, der Turm verliert ein Segment \\((\\d+)\\)\\. (.+) erhält (\\d+) Ruhm\\.`),
     (n, t, a, f) => `Call of the Beacons! ${n} ${pl(n, "horde", "hordes")} destroyed, the tower loses a segment (${t}). ${a} gains ${f} fame.`],
+  [re(`Stapel auf (.+): Ein Ring fehlt, die dazukommende Horde geht zurück in den Vorrat\\.`),
+    (f) => ter(f) && `Stack on the ${ter(f)}: a ring is missing, the joining horde goes back to the supply.`],
   [re(`Die Verbündeten kommen: (\\d+) Horden vernichtet, Turm (\\d+)\\.`),
     (n, t) => `The allies arrive: ${n} ${pl(n, "horde", "hordes")} destroyed, tower ${t}.`],
   // Kämpfe
@@ -179,11 +189,13 @@ export const MUSTER = [
     (w, wer) => wo(w) && `${wo(w)} repelled: castles and fortresses are enough${wer ? `, 1 fame each for ${wer}` : ""}.`],
   [re(`${N} abgewehrt \\((\\d+) gegen (\\d+)\\)\\. (.+): 2 Ruhm und eine Schicksalskarte\\.`),
     (w, a, b, wer) => wo(w) && `${wo(w)} repelled (${a} vs. ${b}). ${wer}: 2 fame and a fate card.`],
+  [re(`${N} abgewehrt \\((\\d+) gegen (\\d+)\\)\\.`), (w, a, b) => wo(w) && `${wo(w)} repelled (${a} vs. ${b}).`],
   [re(`${N}: Abwehr gescheitert \\((\\d+) gegen (\\d+)\\)\\.`), (w, a, b) => wo(w) && `${wo(w)}: defense failed (${a} vs. ${b}).`],
   [re(`${N} gescheitert \\((\\d+) gegen (\\d+)\\)\\.`), (w, a, b) => wo(w) && `${wo(w)}: defense failed (${a} vs. ${b}).`],   // bis 7.11.2026
   [re(`Ein Gehöft von (.+) wird zerstört\\.`), (a) => `${a} loses a farm.`],
   [re(`(\\S+) von (.+) wird zu (\\S+)\\.`), (l1, a, l2) => lvl(l1) && lvl(l2) && `${a}'s ${lvl(l1)} is reduced to a ${lvl(l2)}.`],
   [re(`${N} zahlt (\\d+) Abwehr\\.`), (a, n) => `${a} pays ${n} defense.`],
+  [re(`${N} zahlt (\\d+) Abwehr \\(\\+(\\d+) Ruhm\\)\\.`), (a, n, f) => `${a} pays ${n} defense (+${f} fame).`],
   [re(`${N} wagt einen Ausfall und vernichtet die Horde \\(\\+(\\d+) Ruhm\\)\\.`), (a, f) => `${a} makes a sally and destroys the horde (+${f} fame).`],
   // Reise
   [re(`${N} führt die Gefährten auf Feld (\\d+) \\(\\+(\\d+) Ruhm\\)\\.`), (a, j, f) => `${a} leads the Companions to space ${j} (+${f} fame).`],
@@ -203,6 +215,7 @@ export const MUSTER = [
   [re(`${N} spielt Reiche Ernte\\.`), (a) => `${a} plays Rich Harvest.`],
   [re(`${N} spielt den Bannspruch: Eine Horde muss zurück aufs Turm-Tor\\.`), (a) => `${a} plays Banishment: a horde must return to the Tower Gate.`],
   [re(`${N} spielt Wachfeuer: (\\d+) Leuchtfeuer brennen wieder\\.`), (a, n) => `${a} plays Watchfire: ${n} ${pl(n, "beacon is", "beacons are")} lit again.`],
+  [re(`${N} spielt Wachfeuer und baut ein Leuchtfeuer ohne Holz \\(\\+(\\d+) Ruhm\\)\\.`), (a, f) => `${a} plays Watchfire and builds a beacon without wood (+${f} fame).`],
   [re(`${N} spielt den Handelszug \\((\\d+)-mal 1 : 1\\)\\.`), (a, n) => `${a} plays Caravan (1 for 1, ${n} ${pl(n, "time", "times")}).`],
   // Helden
   [re(`${N} nutzt den Meister der Karten\\.`), (a) => `${a} uses the Master of Cards.`],

@@ -3,7 +3,7 @@
 
 import * as E from "./engine.js";
 import * as D from "./data.js";
-import { CAPITAL_KEY, GATES, withNeighbors } from "./board.js";
+import { CAPITAL_KEY, GATES, TOWER_GATE, withNeighbors } from "./board.js";
 
 const BASE = { holz: 1, stein: 1, erz: 1.15, korn: 1, pferde: 0.9 };
 const HERO_RANK = ["wegweiserin", "tueftler", "gelehrter", "karten", "planerin", "hueterin", "chronist", "zauberin"];
@@ -86,7 +86,7 @@ function edgeValue(s, seat, edge) {
   for (const f of b.edges[edge].fields) {
     const kind = s.tiles[f]?.kind;
     const pos = b.pos[f];
-    if (!kind && pos.type === "fog") v += 0.8;                   // Erkunden: neues Land, vielleicht Schatz
+    if (!kind && pos.type === "fog") v += s.variants.fateExplore ? 1.3 : 0.8;   // Erkunden: neues Land (v0.4 vielleicht Schatz, v0.5 eine Karte)
     else if (D.TERRAIN_RES[kind]) v += 1 + (have.has(D.TERRAIN_RES[kind]) ? 0 : 0.5);
     else if (kind === "hauptstadt") {
       // Gebäude an der Hauptstadt: Handel 2 : 1 und vor allem Abwehr bei Belagerungen (sonst darf niemand zahlen)
@@ -94,8 +94,15 @@ function edgeValue(s, seat, edge) {
       v += mineThere ? 0.3 : 1.1;
       if (C(s, seat).cap && !E.buildingsAt(s, f).length) v += 1.5;   // niemand an der Hauptstadt: Belagerung wäre wehrlos
     }
-    else if (kind === "wasser") v += me(s, seat).people === "kuestenvolk" ? 0.9 : 0.1;
-    if (corr.has(f) && me(s, seat).people !== "halblinge") v -= 0.25;
+    else if (kind === "wasser") {
+      const kv = me(s, seat).people === "kuestenvolk";
+      // Fischer: Wasser erntet bei jedem eigenen Würfel mit; Prüfvariante c: jedes Gebäude am Wasser bringt 1
+      const zaehlt = !s.variants.kuesteNurEigenes || s.tiles[f]?.kueste;
+      if (kv && zaehlt && (s.variants.kuesteFischer || s.variants.kuesteWasserPlus)) v += 1.8;
+      else if (kv && (s.variants.kuesteWasserEins || s.variants.kuesteWasserImmer)) v += 1.2;
+      else v += kv ? 0.9 : 0.1;              // (nur den Hafen höher bewerten machte es schlechter)
+    }
+    if (corr.has(f) && !(me(s, seat).people === "halblinge" && s.variants.halblinge !== "A")) v -= 0.25;
   }
   return v;
 }
@@ -124,6 +131,28 @@ function payFor(s, seat, need, allowCard = true) {
   return { erz, pferde, verstaerkung: false, power: need - rest };
 }
 
+// v0.5: Jeder gezahlte Rohstoff bringt Ruhm. Gesucht ist die Zahlung, die die Lücke am weitesten schließt und dabei die
+// meisten Rohstoffe (= Ruhm) ausgibt; nie eine überzählige Einheit (Regel „nie mehr als nötig“, wie in der Engine geprüft).
+// Die Verstärkung (+3, ohne Ruhm) nur, wenn sie mehr Lücke schließt.
+function payGreedy(s, seat, need) {
+  const m = me(s, seat);
+  const hv = E.horseValue(s, seat);
+  let best = null;
+  for (const v of m.hand.includes("verstaerkung") ? [false, true] : [false]) {
+    for (let e = 0; e <= Math.min(m.res.erz, need); e++) {
+      for (let p = 0; p <= Math.min(m.res.pferde, Math.ceil(need / hv)); p++) {
+        const power = e + p * hv + (v ? 3 : 0);
+        if (power > need && ((e && power - 1 >= need) || (p && power - hv >= need) || (v && power - 3 >= need))) continue;
+        const key = [Math.min(power, need), e + p, v ? 0 : 1];
+        if (!best || key[0] > best.key[0] || (key[0] === best.key[0] && (key[1] > best.key[1] || (key[1] === best.key[1] && key[2] > best.key[2])))) {
+          best = { key, e, p, v };
+        }
+      }
+    }
+  }
+  return { type: "pay", erz: best.e, pferde: best.p, verstaerkung: best.v };
+}
+
 function bestDie(s, seat) {
   const vals = resValue(s, seat);
   let best = { i: 0, v: -1, face: null };
@@ -143,6 +172,18 @@ function bestDie(s, seat) {
   return best;
 }
 
+// Horden an eigenen Gebäuden: Was fehlt, wenn sie am Rundenende angreifen? (v0.5, ohne Ausfall)
+function threatsOf(s, seat) {
+  if (!s.variants.noAusfall) return E.ausfallTargets(s, seat);
+  const out = [];
+  for (const f of new Set(s.hordes.map((h) => h.pos))) {
+    if (f !== CAPITAL_KEY && !E.buildingsAt(s, f).some((x) => x.seat === seat)) continue;
+    const need = E.hordeStrength(s) * E.hordesAt(s, f).length - E.baseDefense(s, f) - (f === CAPITAL_KEY ? s.variants.capitalDefense || 0 : 0);
+    out.push({ field: f, need: Math.max(0, need) });
+  }
+  return out;
+}
+
 function towerDanger(s) {
   return s.variants.towerMax - s.tower;      // wie viele Segmente bis zur Niederlage
 }
@@ -150,6 +191,15 @@ function towerDanger(s) {
 function turnAction(s, seat, p, tries) {
   const m = me(s, seat);
   if (!p.dieTaken) {
+    // v0.5: Planerin im eigenen Zug, wenn die zwei besten Würfel zusammen genug bringen
+    if (s.variants.planerinTurn && s.dice.length >= 2 && s.round >= 2 && m.heroes.some((h) => h.id === "planerin" && !h.used)) {
+      const vals = resValue(s, seat);
+      const scored = s.dice.map((f, i) => {
+        const y = E.harvestYield(s, seat, f, true);
+        return { i, v: y.res ? y.n * vals[y.res] : 0 };
+      }).sort((a, b) => b.v - a.v);
+      if (scored[0].v + scored[1].v >= 4) return { type: "hero", hero: "planerin", dice: [scored[0].i, scored[1].i] };
+    }
     if (s.dice.length) {
       const b = bestDie(s, seat);
       return b.face ? { type: "takeDie", index: b.i, face: b.face } : { type: "takeDie", index: b.i };
@@ -163,8 +213,8 @@ function turnAction(s, seat, p, tries) {
   if (m.hand.includes("ernte") && (s.taken[seat] || []).some((f) => E.harvestYield(s, seat, f, true).n >= 2)) {
     return { type: "fate", card: "ernte" };
   }
-  if (m.hand.includes("wachfeuer") && Object.values(s.beacons).filter((b) => !b.lit).length >= 2) return { type: "fate", card: "wachfeuer" };
-  const threats = E.ausfallTargets(s, seat);
+  if (!s.variants.wachfeuerBau && m.hand.includes("wachfeuer") && Object.values(s.beacons).filter((b) => !b.lit).length >= 2) return { type: "fate", card: "wachfeuer" };
+  const threats = threatsOf(s, seat);
   if (m.hand.includes("bann") && threats.some((t) => t.need > 2)) {
     const h = E.hordesAt(s, threats.find((t) => t.need > 2).field)[0];
     return { type: "fate", card: "bann", horde: h.id };
@@ -184,6 +234,18 @@ function turnAction(s, seat, p, tries) {
   }
   for (const hero of ["hueterin", "chronist"]) {
     if (!m.heroes.some((h) => h.id === hero && !h.used)) continue;
+    if (s.variants.heroTurnOnly) {
+      // v0.5 nur im eigenen Zug: die Horde, die am meisten bedroht (Hauptstadt, eigene Gebäude, nah an der Hauptstadt);
+      // gegen Ende jede (+2 Ruhm, bevor das Spiel vorbei ist)
+      const b = E.board(s);
+      const near = withNeighbors(b, CAPITAL_KEY);
+      const wert = (h) => (h.pos === CAPITAL_KEY ? 3 : 0) + (b.dist[h.pos] <= 1 ? 1 : 0)
+        + E.buildingsAt(s, h.pos).filter((x) => x.seat === seat).reduce((a, x) => a + x.level, 0);
+      const ziele = s.hordes.filter((h) => (hero === "chronist" ? near.includes(h.pos) : h.pos !== TOWER_GATE)).sort((x, y) => wert(y) - wert(x));
+      // Chronist: jede Horde auf oder neben der Hauptstadt (sie bedroht die Hauptstadt); Hüterin: erst bei echter Bedrohung
+      if (ziele.length && (wert(ziele[0]) >= (hero === "chronist" ? 1 : 2) || s.journey >= 8)) return { type: "hero", hero, horde: ziele[0].id };
+      continue;
+    }
     const t = threats.find((x) => x.need > total(m.res) / 2 && x.need >= 3);
     if (t) {
       const h = E.hordesAt(s, t.field)[0];
@@ -196,8 +258,8 @@ function turnAction(s, seat, p, tries) {
     if (step && !s.journeyMoved && step.danger && E.canAfford(s, seat, step.cost) && m.people !== "halblinge"
         && s.tower + s.variants.dangerTower >= s.variants.towerMax) { s._trotzKill = seat; return { type: "reise" }; }
   }
-  // Ausfall, wenn er billig ist
-  for (const t of threats) {
+  // Ausfall, wenn er billig ist (v0.4)
+  for (const t of s.variants.noAusfall ? [] : threats) {
     if (C(s, seat).trotz && hopeless(s, seat)) break;
     const pay = payFor(s, seat, t.need, true);
     if (pay && (t.need <= 3 || pay.verstaerkung || towerDanger(s) <= 2)) {
@@ -231,11 +293,12 @@ function turnAction(s, seat, p, tries) {
     if (E.canAfford(s, seat, c) && (edgeValue(s, seat, u.edge) >= 1 || front)) return { type: "upgrade", edge: u.edge };
   }
   const corners = E.legalBeaconCorners(s, seat);
-  if (corners.length && E.canAfford(s, seat, E.costFor(s, seat, "leuchtfeuer"))) {
+  const wachfeuer = s.variants.wachfeuerBau && m.hand.includes("wachfeuer") && E.canAfford(s, seat, E.wachfeuerCost(s, seat));
+  if (corners.length && (wachfeuer || E.canAfford(s, seat, E.costFor(s, seat, "leuchtfeuer")))) {
     const corr = corridor(s);
     const b = E.board(s);
     const best = corners.sort((x, y) => b.corners[y].fields.filter((f) => corr.has(f)).length - b.corners[x].fields.filter((f) => corr.has(f)).length)[0];
-    return { type: "beacon", corner: best };
+    return wachfeuer ? { type: "fate", card: "wachfeuer", corner: best } : { type: "beacon", corner: best };
   }
   if (E.pieceUse(s, seat).gehoeft < D.PIECES.gehoeft && E.canAfford(s, seat, E.costFor(s, seat, "gehoeft"))) {
     const edges = E.legalGehoeftEdges(s, seat);
@@ -248,7 +311,7 @@ function turnAction(s, seat, p, tries) {
   const dark = Object.entries(s.beacons).filter(([, b]) => !b.lit).map(([c]) => c);
   const lit = Object.values(s.beacons).filter((b) => b.lit).length;
   const rufNeed = s.nSeats <= 3 && s.variants.rufCountSmall !== undefined ? s.variants.rufCountSmall : s.variants.rufCount;
-  if (dark.length && m.res.holz >= 2 && (!s.ruf && lit === rufNeed - 1 || s.hordes.length >= 2)) {
+  if (!s.variants.beaconsNeverOut && dark.length && m.res.holz >= 2 && (!s.ruf && lit === rufNeed - 1 || s.hordes.length >= 2)) {
     const b = E.board(s);
     const ok = dark.find((c) => !b.corners[c].fields.some((f) => E.hordesAt(s, f).length));
     if (ok) return { type: "relight", corner: ok };
@@ -283,7 +346,9 @@ function turnAction(s, seat, p, tries) {
           swaps.push([give, r]);
         }
       }
-      if (swaps.length === short) return { type: "fate", card: "handel", swaps };
+      const want = {};
+      for (const [, r] of swaps) want[r] = (want[r] || 0) + 1;
+      if (swaps.length === short && Object.entries(want).every(([r, k]) => s.supply[r] >= k)) return { type: "fate", card: "handel", swaps };
     }
   }
   if (m.hand.includes("eilbote") && step && leading(s, seat) && E.canAfford(s, seat, step.cost)
@@ -363,6 +428,12 @@ export function botAction(s, seat, tries = 0) {
     case "placeWater": {
       const b = E.board(s);
       const free = Object.values(b.pos).filter((x) => x.type === "home" && !s.tiles[x.key]);
+      if (s.variants.noKuesteErnte && !s.variants.kuesteFischer && !s.variants.kuesteWasserPlus && !s.variants.kuesteWasserEins && !s.variants.kuesteWasserImmer) {
+        // v0.5: Wasser bringt nur den Hafen (2 : 1). Nicht an die Hauptstadt (dort gibt es 2 : 1 ohnehin), sondern an den
+        // Rand, wo es keinen guten Bauplatz kostet
+        const rand = (x) => (x.nb.includes(CAPITAL_KEY) ? 10 : 0) + x.nb.length;
+        return { type: "placeWater", pos: free.slice().sort((x, y) => rand(x) - rand(y))[0].key };
+      }
       const best = free.find((x) => x.nb.includes(CAPITAL_KEY)) || free[0];
       return { type: "placeWater", pos: best.key };
     }
@@ -402,11 +473,8 @@ export function botAction(s, seat, tries = 0) {
       const cnt = (f) => E.buildingsAt(s, f).filter((x) => x.seat === seat).length;
       return { type: "hordeTie", pos: p.options.reduce((a, f) => (cnt(f) < cnt(a) ? f : a), p.options[0]) };
     }
-    case "raidOrder": {
-      // zuerst dort, wo die eigenen Gebäude stehen: Dann hat man die Rohstoffe noch für die eigene Abwehr
-      const cnt = (f) => E.buildingsAt(s, f).filter((x) => x.seat === seat).length;
-      return { type: "raidOrder", pos: p.options.reduce((a, f) => (cnt(f) > cnt(a) ? f : a), p.options[0]) };
-    }
+    case "raidOrder":                       // nur alte Spielstände: die Engine wählt die Reihenfolge selbst
+      return { type: "pass" };
     case "intervene": {
       const mineHere = E.buildingsAt(s, p.field).some((x) => x.seat === seat);
       const strength = E.hordeStrength(s) * p.hordes.length;
@@ -420,6 +488,7 @@ export function botAction(s, seat, tries = 0) {
     }
     case "pay": {
       if (p.need <= 0) return { type: "pay", erz: 0, pferde: 0 };
+      if (s.variants.payFame) return payGreedy(s, seat, p.need);
       const cf = C(s, seat);
       const lossX = p.kind === "siege" ? s.variants.siegeTower : 1;
       if (cf.trotz && hopeless(s, seat)) return { type: "pay", erz: 0, pferde: 0 };

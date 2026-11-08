@@ -1,4 +1,4 @@
-// Spiellogik „Leuchtfeuer“ nach REGELN.md v0.3. Läuft auf dem Server (maßgeblich), in den Bots und in der Simulation;
+// Spiellogik „Leuchtfeuer“ nach Regeln v0.5 (v0.4 über data.VARIANTS_V04). Läuft auf dem Server (maßgeblich), in den Bots und in der Simulation;
 // die Oberfläche nutzt die Hilfsfunktionen (legale Kanten usw.) für die Anzeige.
 //
 // Aufbau: Der Zustand ist ein reines JSON-Objekt. Ablaufschritte stehen in state.queue; braucht ein Schritt eine
@@ -67,7 +67,7 @@ export function createGame(settings) {
     beacons: {},
     hordes: [],
     nextHorde: 1,
-    tower: (n <= 3 && v.startSegmentsSmall !== undefined ? v.startSegmentsSmall : v.startSegments)
+    tower: (n <= 3 && v.startSegmentsSmall != null ? v.startSegmentsSmall : v.startSegments)
       + (settings.team ? v.teamSegment || 0 : 0),           // v0.4: im Teamspiel 1 Segment mehr
     eye: 0,
     ruf: false,
@@ -120,7 +120,7 @@ export function createGame(settings) {
   const counts = n >= 4 ? D.TILES_BIG : D.TILES_SMALL;
   for (const [kind, k] of Object.entries(counts)) {
     for (let i = 0; i < k; i++) {
-      s.bag.push({ kind, model: `${TILE_LABEL[kind]} ${i + 1}`, treasure: i === 0 && D.TREASURE_KINDS.includes(kind) });
+      s.bag.push({ kind, model: `${TILE_LABEL[kind]} ${i + 1}`, treasure: !v.noTreasure && i === 0 && D.TREASURE_KINDS.includes(kind) });
     }
   }
   shuffle(s, s.bag);
@@ -128,7 +128,7 @@ export function createGame(settings) {
   shuffle(s, s.deck);
   log(s, `Neues Spiel mit ${n} Plätzen (Startwert ${seed}).`);
   erkl(s, null, () => ({
-    k: "aufbau", n, turm: s.tower, max: v.towerMax, team: s.team,
+    k: "aufbau", n, turm: s.tower, max: v.towerMax, team: s.team, uhr: !!v.questClock, startRuhm: !!v.startRuhm,
     helden: settings.seats.every((x) => x.hero) ? "fest" : s.team ? "team" : n >= 5 ? "eins" : "zwei",
   }));
   s.queue.push({ t: "heroes" }, { t: "water" }, { t: "homeTiles" }, { t: "startPlacement" }, { t: "roundStart" });
@@ -399,8 +399,9 @@ export function bankRate(s, seat) {
     if (bl.seat !== seat) continue;
     const fs = b.edges[e].fields;
     if (fs.includes(CAPITAL_KEY)) rate = Math.min(rate, s.variants.capitalRate);
-    if (s.seats[seat].people === "kuestenvolk" && fs.some((f) => s.tiles[f]?.kind === "wasser")) rate = Math.min(rate, 2);
+    if (!s.variants.noHafen && s.seats[seat].people === "kuestenvolk" && fs.some((f) => s.tiles[f]?.kind === "wasser")) rate = Math.min(rate, 2);
   }
+  if (s.variants.kuesteImmer && s.seats[seat].people === "kuestenvolk") rate = Math.min(rate, 2);   // Prüfvariante: Hafen ohne Bedingung
   return rate;
 }
 export function journeyStep(s) {
@@ -411,6 +412,7 @@ export function journeyStep(s) {
 }
 export function ausfallTargets(s, seat) {
   const out = [];
+  if (s.variants.noAusfall) return out;                // v0.5: kein Ausfall
   const fields = new Set(s.hordes.map((h) => h.pos));
   for (const f of fields) {
     if (!buildingsAt(s, f).some((x) => x.seat === seat)) continue;
@@ -425,19 +427,37 @@ export function harvestYield(s, seat, face, own, teile = null) {
   const res = D.TERRAIN_RES[face];
   if (!res) return { res: null, n: 0 };
   const b = board(s);
+  const kv = s.seats[seat].people === "kuestenvolk";
+  const fischer = own && kv && s.variants.kuesteFischer;      // Küstenvolk: Wasser zählt wie das gewürfelte Gelände
+  // Prüfvariante: nur das eigene Wasser (beim Aufbau gelegt) zählt für die Fähigkeiten
+  const kWasser = (f) => s.tiles[f]?.kind === "wasser" && (!s.variants.kuesteNurEigenes || s.tiles[f].kueste);
   let n = 0;
   for (const [e, bl] of Object.entries(s.buildings)) {
     if (bl.seat !== seat) continue;
-    let y = 0;
-    for (const f of b.edges[e].fields) if (s.tiles[f]?.kind === face) y += bl.level;
+    let y = 0, yw = 0;
+    for (const f of b.edges[e].fields) {
+      const kind = s.tiles[f]?.kind;
+      if (kind === face) y += bl.level;
+      else if (fischer && kWasser(f)) { y += bl.level; yw += bl.level; }
+    }
     const y0 = y;
     if (y > 0 && s.variants.capitalDouble && b.edges[e].fields.includes(CAPITAL_KEY)) y += bl.level;
     if (y > 0 && own && s.variants.capitalPlus && b.edges[e].fields.includes(CAPITAL_KEY)) y += 1;    // Hauptstadt: eigene Ernte +1   // Hauptstadt zählt wie das Nachbarfeld
     const y1 = y;
-    if (y > 0 && (own || s.variants.kuesteShared) && s.seats[seat].people === "kuestenvolk" && b.edges[e].fields.some((f) => s.tiles[f]?.kind === "wasser")) y += 1;
-    if (teile && y > 0) teile.push({ lvl: bl.level, fs: edgeKinds(s, e), basis: y0, haupt: y1 - y0, kueste: y - y1 });
+    const amWasser = kv && b.edges[e].fields.some(kWasser);
+    if (y > 0 && !s.variants.noKuesteErnte && (own || s.variants.kuesteShared) && amWasser) y += 1;          // v0.4 (Seefahrer)
+    if (own && amWasser && s.variants.kuesteWasserPlus) y += s.variants.kuesteWasserPlus;                  // Prüfvariante c
+    if (teile && y > 0) teile.push({ lvl: bl.level, fs: edgeKinds(s, e), basis: y0, wasser: yw, haupt: y1 - y0, kueste: y - y1 });
     n += y;
   }
+  // Prüfvarianten Küstenvolk: mit Gebäude am Wasser bringt der eigene Würfel 1 mehr (d: nur wenn er etwas bringt, d2: immer)
+  if (own && kv && (s.variants.kuesteWasserEins || s.variants.kuesteWasserImmer) && Object.entries(s.buildings)
+    .some(([e, bl]) => bl.seat === seat && b.edges[e].fields.some(kWasser))) {
+    if (s.variants.kuesteWasserImmer) n += s.variants.kuesteWasserImmer;
+    else if (n > 0) n += s.variants.kuesteWasserEins;
+  }
+  // v0.5: Bringt der eigene Würfel etwas, gibt es 1 Rohstoff mehr (nicht bei der gemeinsamen Ernte)
+  if (own && n > 0 && s.variants.ownPlus) n += s.variants.ownPlus;
   return { res, n };
 }
 /** quelle (nur für die Erklärung): "wuerfel", "planerin", "karte"; null = gemeinsame Ernte (erklärt roundEnd) */
@@ -446,12 +466,14 @@ function harvest(s, seat, face, own, quelle = null) {
   const { res, n } = harvestYield(s, seat, face, own, teile);
   const geb = () => Object.values(s.buildings).filter((bl) => bl.seat === seat).length;
   if (!res || !n) {
-    if (quelle) erkl(s, seat, () => ({ k: "ernte", quelle, face, res, soll: 0, ist: 0, teile: [], geb: geb() }));
+    if (quelle) erkl(s, seat, () => ({ k: "ernte", quelle, face, res, soll: 0, ist: 0, teile: [], geb: geb(),
+      fischer: own && s.seats[seat].people === "kuestenvolk" && !!s.variants.kuesteFischer }));
     return 0;
   }
   const k = gain(s, seat, res, n);
   if (k) log(s, `${seatName(s, seat)} erntet ${k} ${D.RES_NAME[res]}${k < n ? " (Vorrat reicht nicht)" : ""}.`, seat);
-  if (quelle) erkl(s, seat, () => ({ k: "ernte", quelle, face, res, soll: n, ist: k, teile, geb: geb() }));
+  if (quelle) erkl(s, seat, () => ({ k: "ernte", quelle, face, res, soll: n, ist: k, teile, geb: geb(), plus: own ? s.variants.ownPlus || 0 : 0,
+    fischer: own && s.seats[seat].people === "kuestenvolk" && !!s.variants.kuesteFischer }));
   return k;
 }
 export const START_GEHOEFTE = 2;   // je Platz, sie bringen keinen Ruhm (REGELN.md, Aufbau 7)
@@ -465,7 +487,8 @@ export function score(s, seat) {
   const x = s.seats[seat];
   let bau = 0;
   for (const bl of Object.values(s.buildings)) if (bl.seat === seat) bau += bl.level;
-  const leiste = Math.max(0, x.fame + bau - START_GEHOEFTE + (x.leisteAusgleich || 0));
+  // v0.5 (startRuhm): Startgehöfte bringen Ruhm wie jedes Gehöft, die Leiste kann dann nicht unter 0 fallen
+  const leiste = Math.max(0, x.fame + bau - (s.variants.startRuhm ? 0 : START_GEHOEFTE) + (x.leisteAusgleich || 0));
   return { fame: x.fame, bau, bauRuhm: leiste - x.fame, leiste, total: x.fame + bau, res: D.RES.reduce((a, r) => a + x.res[r], 0) };
 }
 
@@ -483,11 +506,39 @@ function towerGrow(s, n, why) {
   }));
   if (s.tower >= s.variants.towerMax) endGame(s, true, "Der Turm des Schattens ist vollendet.");
 }
+/** Hordenteile auf dem Brett (v0.5): Ein Stapel ist 1 Figur, jede weitere Horde darauf 1 Ring. */
+export function hordePieces(s) {
+  const figuren = new Set(s.hordes.map((h) => h.pos)).size;
+  return { figuren, ringe: s.hordes.length - figuren };
+}
 /** info (nur für die Erklärung): {i, n} = Auge i von n eines Runenwurfs, sonst {anlass} */
 function spawnHorde(s, info = null) {
   const von = GATES[s.eye];
   s.eye = (s.eye + 1) % GATES.length;
   const gate = GATES[s.eye];
+  if (s.variants.rings) {
+    // v0.5: Auf ein freies Tor kommt eine Figur, auf ein besetztes ein Ring. Fehlt das Teil: Turm +1.
+    const besetzt = s.hordes.some((h) => h.pos === gate);
+    const t = hordePieces(s);
+    if (besetzt ? t.ringe >= s.variants.rings : t.figuren >= s.variants.hordes) {
+      log(s, `Das Auge blickt zum ${GATE_NAMES[gate]}, aber ${besetzt ? "kein Ring" : "keine Horde"} ist mehr im Vorrat.`);
+      erkl(s, null, () => ({ k: "auge", von, nach: gate, leer: true, teil: besetzt ? "ring" : "figur", max: besetzt ? s.variants.rings : s.variants.hordes,
+        i: info?.i ?? null, n: info?.n ?? null }));
+      towerGrow(s, 1, besetzt ? "kein Ring mehr im Vorrat" : "keine Horde mehr im Vorrat");
+      return;
+    }
+    s.hordes.push({ id: s.nextHorde++, pos: gate });
+    s.stats.spawned++;
+    log(s, besetzt ? `Das Auge blickt zum ${GATE_NAMES[gate]}: Dort erscheint eine weitere Ork-Horde (ein Ring mehr).`
+      : `Das Auge blickt zum ${GATE_NAMES[gate]}: Dort erscheint eine Ork-Horde.`);
+    erkl(s, null, () => {
+      const nachher = hordePieces(s);
+      return { k: "auge", von, nach: gate, teil: besetzt ? "ring" : "figur", figuren: s.variants.hordes - nachher.figuren,
+        ringe: s.variants.rings - nachher.ringe, maxF: s.variants.hordes, maxR: s.variants.rings, dort: hordesAt(s, gate).length,
+        i: info?.i ?? null, n: info?.n ?? null };
+    });
+    return;
+  }
   if (s.hordes.length >= s.variants.hordes) {
     log(s, `Das Auge blickt zum ${GATE_NAMES[gate]}, aber keine Horde ist mehr im Vorrat.`);
     erkl(s, null, () => ({ k: "auge", von, nach: gate, leer: true, max: s.variants.hordes, i: info?.i ?? null, n: info?.n ?? null }));
@@ -524,21 +575,22 @@ function checkRuf(s, seat) {
   }
   const b = board(s);
   const fields = new Set(lit.flatMap(([c]) => b.corners[c].fields));
-  const gone = s.hordes.filter((h) => fields.has(h.pos)).map((h) => h.id);
+  const gone = s.variants.rufNoKill ? [] : s.hordes.filter((h) => fields.has(h.pos)).map((h) => h.id);   // v0.5: keine Horden mehr
   removeHordes(s, gone);
   const vor = s.tower;
   s.tower = Math.max(0, s.tower - (s.variants.rufTower || 1));
   addFame(s, seat, 3, "leuchtfeuer");
   s.stats.ruf = s.round;
-  log(s, `Ruf der Leuchtfeuer! ${gone.length} Horden vernichtet, der Turm verliert ein Segment (${s.tower}). ${seatName(s, seat)} erhält 3 Ruhm.`, seat);
-  erkl(s, seat, () => ({ k: "ruf", n: lit.length, weg: gone.length, minus: vor - s.tower, turm: s.tower, ruhm: 3 }));
+  if (s.variants.rufNoKill) log(s, `Ruf der Leuchtfeuer! Der Turm verliert ein Segment (${s.tower}). ${seatName(s, seat)} erhält 3 Ruhm.`, seat);
+  else log(s, `Ruf der Leuchtfeuer! ${gone.length} Horden vernichtet, der Turm verliert ein Segment (${s.tower}). ${seatName(s, seat)} erhält 3 Ruhm.`, seat);
+  erkl(s, seat, () => ({ k: "ruf", n: lit.length, weg: s.variants.rufNoKill ? null : gone.length, minus: vor - s.tower, turm: s.tower, ruhm: 3 }));
 }
 /** Jedes Gebäude am Feld verliert eine Stufe. -> Liste für die Erklärung: {seat, von, nach (0 = zerstört), geschont, null0} */
 function knockDown(s, field) {
   const out = [];
   for (const bl of buildingsAt(s, field)) {
     const seat = bl.seat;
-    if (bl.level === 1 && s.seats[seat].people === "halblinge") {
+    if (bl.level === 1 && s.seats[seat].people === "halblinge" && s.variants.halblinge !== "A") {
       out.push({ seat, von: 1, nach: 1, geschont: true });
       continue;
     }
@@ -668,6 +720,7 @@ const STEPS = {
     erkl(s, s.start, () => ({
       k: "wurf", n: s.rolled.length, sp: s.nSeats, basis: s.nSeats === 2 ? s.variants.diceTwoPlayers : s.nSeats + 1,
       min: s.variants.minDice || 0, faces: s.rolled.slice(), augen: s.rolled.filter((d) => d === "auge").length,
+      plus: s.variants.ownPlus || 0,
     }));
     s.queue.unshift({ t: "reactRoll" }, { t: "eyes" }, { t: "planerin" }, { t: "turns" }, { t: "roundEnd" });
   },
@@ -693,6 +746,7 @@ const STEPS = {
     for (let k = 0; k < eyes && !s.over; k++) spawnHorde(s, { i: k + 1, n: eyes });
   },
   planerin(s, st) {
+    if (s.variants.planerinTurn) return;               // v0.5: die Planerin wirkt im eigenen Zug (TURN_ACTIONS.hero)
     if (!st.order) {
       st.order = order(s);
       st.i = 0;
@@ -727,7 +781,8 @@ const STEPS = {
       }
     });
     if (s.dice.length) log(s, `Gemeinsame Ernte: ${s.dice.map((d) => D.TERRAIN_NAME[d]).join(", ")}.`);
-    erkl(s, null, () => ({ k: "gemeinsam", dice: s.dice.slice(), teile }));
+    erkl(s, null, () => ({ k: "gemeinsam", dice: s.dice.slice(), teile, plus: s.variants.ownPlus || 0,
+      kuesteBonus: (!s.variants.noKuesteErnte || s.variants.kuesteFischer || s.variants.kuesteWasserPlus) && s.seats.some((x) => x.people === "kuestenvolk") }));
     s.dice = [];
     s.queue.unshift({ t: "moveHordes" }, { t: "siege" }, { t: "overfalls" }, { t: "extinguish" }, { t: "quest" }, { t: "closeRound" });
   },
@@ -735,14 +790,16 @@ const STEPS = {
     const b = board(s);
     if (!st.ids) {
       st.ids = s.hordes.map((h) => h.id);
-      if (s.variants.hordeStack === "warten") st.ids.sort((a, c) => b.dist[s.hordes.find((x) => x.id === a).pos] - b.dist[s.hordes.find((x) => x.id === c).pos]);
+      // vorn zuerst (nah an der Hauptstadt): So ist ein Feld frei, bevor der nächste Stapel hineinzieht (v0.5: Ringe zählen erst danach)
+      if (s.variants.hordeStack === "warten" || s.variants.rings) st.ids.sort((a, c) => b.dist[s.hordes.find((x) => x.id === a).pos] - b.dist[s.hordes.find((x) => x.id === c).pos]);
       st.i = 0;
       // Horden auf demselben Feld ziehen gemeinsam (REGELN.md, Rundenende 2): Ziel je Startfeld merken
       st.from = Object.fromEntries(s.hordes.map((h) => [h.id, h.pos]));
       st.dest = {};
       erkl(s, null, () => {
         const n = s.hordes.filter((h) => h.pos !== CAPITAL_KEY).length;
-        return n && { k: "hordenStart", n, felder: new Set(s.hordes.map((h) => h.pos)).size };
+        return n && { k: "hordenStart", n, felder: new Set(s.hordes.map((h) => h.pos)).size, tie: s.variants.hordeTie, ringe: !!s.variants.rings,
+          maxR: s.variants.rings || 0 };
       });
     }
     st.dest ||= {};
@@ -755,6 +812,8 @@ const STEPS = {
         dist: b.dist[dest], grund, n: st.ids.filter((id) => st.from[id] === origin && s.hordes.some((x) => x.id === id)).length,
         // gleich weite Nachbarn: [Gelände, Gebäude dort, Richtung, ist das Ziel]
         opts: alle.length > 1 ? alle.map((f) => [kindOf(s, f), buildingsAt(s, f).length, richtung(s, origin, f), f === dest ? 1 : 0]) : null,
+        tie: s.variants.hordeTie, ringe: !!s.variants.rings,
+        dazu: s.hordes.filter((x) => x.pos === dest && st.from[x.id] !== origin).length,   // dort schon stehende Horden (Stapel)
       };
     });
     const busy = (f, me) => s.hordes.some((x) => x.id !== me && x.pos === f);
@@ -763,6 +822,15 @@ const STEPS = {
         s.stats.stackBlocked = (s.stats.stackBlocked || 0) + 1;
         removeHordes(s, [h.id]);
         towerGrow(s, 1, "Horden vereint");
+        return;
+      }
+      // v0.5: Braucht der Stapel einen Ring, den es nicht mehr gibt, geht die dazukommende Horde zurück in den Vorrat, Turm +1
+      if (s.variants.rings && hordePieces(s).ringe > s.variants.rings) {
+        removeHordes(s, [h.id]);
+        s.stats.ringFehlt = (s.stats.ringFehlt || 0) + 1;
+        log(s, `Stapel auf ${D.TERRAIN_NAME[s.tiles[h.pos]?.kind] || "Nebel"}: Ein Ring fehlt, die dazukommende Horde geht zurück in den Vorrat.`);
+        erkl(s, null, () => ({ k: "ringFehlt", f: kindOf(s, h.pos), max: s.variants.rings, dort: hordesAt(s, h.pos).length }));
+        towerGrow(s, 1, "kein Ring mehr im Vorrat");
       }
     };
     while (st.i < st.ids.length) {
@@ -839,26 +907,23 @@ const STEPS = {
       if (h.pos === CAPITAL_KEY || seen.includes(h.pos)) continue;
       if (buildingsAt(s, h.pos).length) seen.push(h.pos);
     }
+    // Reihenfolge: automatisch, die nächsten an der Hauptstadt zuerst (die Hauptstadt selbst kam schon in siege dran)
+    const b = board(s);
+    seen.sort((x, y) => b.dist[x] - b.dist[y] || (x < y ? -1 : 1));
     erkl(s, null, () => {
       const ohne = [...new Set(s.hordes.map((h) => h.pos))].filter((f) => f !== CAPITAL_KEY && !seen.includes(f));
       if (!seen.length && !ohne.length) return null;            // keine Horde auf dem Brett: nichts zu sagen
-      return { k: "ueberfaelle", mit: seen.map((f) => kindOf(s, f)), ohne: ohne.map((f) => [kindOf(s, f), hordesAt(s, f).length]) };
+      return { k: "ueberfaelle", mit: seen.map((f) => kindOf(s, f)), ohne: ohne.map((f) => [kindOf(s, f), hordesAt(s, f).length]), auto: true };
     });
     if (seen.length) s.queue.unshift({ t: "raidPick", fields: seen });
   },
   raidPick(s, st) {
-    // Reihenfolge der Überfälle wählt der Startspieler (REGELN.md, Rundenende 3); sie zählt, wenn der Turm dabei Höhe 6
-    // erreicht oder jemand in zwei Kämpfen zahlen will
+    // Überfälle der Reihe nach (bis 7.11.2026 wählte der Startspieler die Reihenfolge; die Entscheidung gibt es nicht mehr)
     const left = st.fields.filter((f) => hordesAt(s, f).length && buildingsAt(s, f).length);
     if (!left.length) return;
-    let next = left.length === 1 ? left[0] : left.includes(st.choice) ? st.choice : null;
+    const next = left.includes(st.choice) ? st.choice : left[0];
     st.choice = null;
-    if (!next) {
-      s.pending = { type: "raidOrder", seat: s.start, options: left, step: st };
-      return;
-    }
     const rest = left.filter((f) => f !== next);
-    if (left.length > 1) erkl(s, s.start, () => ({ k: "reihenfolge", f: kindOf(s, next), rest: rest.map((x) => kindOf(s, x)) }));
     s.queue.unshift({ t: "fight", field: next, kind: "overfall" }, ...(rest.length ? [{ t: "raidPick", fields: rest }] : []));
   },
   fight(s, st) {
@@ -871,7 +936,7 @@ const STEPS = {
     }
     const near = withNeighbors(board(s), CAPITAL_KEY);
     if (st.stage === "intervene") {
-      while (st.i < st.order.length) {
+      while (st.i < st.order.length && !s.variants.heroTurnOnly) {     // v0.5: Helden nur im eigenen Zug
         if (!hordesAt(s, f).length) break;
         const seat = st.order[st.i];
         const can = { hueterin: hasHero(s, seat, "hueterin"), chronist: hasHero(s, seat, "chronist") && near.includes(f) };
@@ -905,7 +970,8 @@ const STEPS = {
           haupt: st.kind === "siege" ? s.variants.capitalDefense || 0 : 0, basis: st.base, zahler: st.payers.slice(),
           warum: st.base >= st.strength ? "reicht" : st.kind === "siege" && s.variants.siegeAllPay ? "alle"
             : litBeaconNear(s, f) ? "leuchtfeuer" : "besitzer",
-          besitzer: [...new Set(bs.map((x) => x.seat))],
+          besitzer: [...new Set(bs.map((x) => x.seat))], lohn: !s.variants.noFightReward, payFame: s.variants.payFame || 0,
+          turmPlus: st.kind === "siege" ? s.variants.siegeTower : 1,
         };
       });
     }
@@ -929,17 +995,21 @@ const STEPS = {
     const hs = hordesAt(s, f).map((h) => h.id);
     const total = st.base + Object.values(st.paid).reduce((a, x) => a + x, 0);
     const fname = D.TERRAIN_NAME[s.tiles[f]?.kind] || "Nebel";
-    const where = st.kind === "siege" ? `Belagerung der Hauptstadt (${hs.length} Horde${hs.length > 1 ? "n" : ""})`
+    // v0.5 (noFightReward): eine Regel für alle Überfälle, auch an der Hauptstadt; das Wort „Belagerung“ gibt es nicht mehr
+    const where = st.kind === "siege" && !s.variants.noFightReward ? `Belagerung der Hauptstadt (${hs.length} Horde${hs.length > 1 ? "n" : ""})`
       : `Überfall auf ${fname} (${hs.length} Horde${hs.length > 1 ? "n" : ""})`;
     // für die Erklärung: Ort, Stärke, Abwehr und wer was gezahlt hat (in der Reihenfolge ab dem Startspieler)
     const ende = (x) => ({
       k: "kampfEnde", art: st.kind, f: kindOf(s, f), horden: hs.length, staerke: st.strength, basis: st.base, summe: total,
-      gezahlt: st.order.filter((k) => st.paid[k] > 0).map((k) => [k, st.paid[k]]), ...x,
+      gezahlt: st.order.filter((k) => st.paid[k] > 0).map((k) => [k, st.paid[k]]), lohn: !s.variants.noFightReward, ...x,
     });
     if (total >= st.strength) {
       removeHordes(s, hs);
       const paidSeats = Object.entries(st.paid).filter(([, x]) => x > 0).map(([k, x]) => [Number(k), x]);
-      if (!paidSeats.length) {
+      if (s.variants.noFightReward) {                  // v0.5: Ruhm gab es schon beim Zahlen, sonst nichts
+        log(s, `${where} abgewehrt (${total} gegen ${st.strength}).`);
+        erkl(s, null, () => ende({ sieg: true }));
+      } else if (!paidSeats.length) {
         const owners = [...new Set(buildingsAt(s, f).filter((x) => x.level >= 2).map((x) => x.seat))];
         for (const o of owners) addFame(s, o, 1, "abwehr");
         log(s, `${where} abgewehrt: Burgen und Festungen reichen${owners.length ? `, je 1 Ruhm für ${owners.map((o) => seatName(s, o)).join(", ")}` : ""}.`);
@@ -966,7 +1036,7 @@ const STEPS = {
       if (st.kind === "siege") {
         removeHordes(s, hs);
         s.stats.siegesLost++;
-        towerGrow(s, s.variants.siegeTower, "Belagerung verloren");
+        towerGrow(s, s.variants.siegeTower, s.variants.noFightReward ? "Überfall verloren" : "Belagerung verloren");
       } else {
         s.stats.overfallsLost++;
         towerGrow(s, 1, "Überfall verloren");
@@ -976,6 +1046,7 @@ const STEPS = {
     if (st.kind === "siege") s.roundStats.sieges++;
   },
   extinguish(s) {
+    if (s.variants.beaconsNeverOut) return;             // v0.5: Leuchtfeuer brennen immer
     const b = board(s);
     for (const [c, bc] of Object.entries(s.beacons)) {
       if (bc.lit && b.corners[c].fields.some((f) => hordesAt(s, f).length)) {
@@ -995,10 +1066,18 @@ const STEPS = {
     if (s.variants.questFrom && s.round < s.variants.questFrom) return;
     s.idleRounds = 0;
     s.stats.questAuto = (s.stats.questAuto || 0) + 1;
+    // Reise-Uhr (v0.5): ohne Kosten und ohne Ruhm; ein Gefahrenfeld lässt den Turm wachsen, vollendet ihn aber nie
     const step = journeyStep(s);
     s.journey = step.field;
     log(s, `Niemand hat die Gefährten unterstützt: Sie ziehen allein auf Feld ${s.journey}.`);
-    if (step.danger) { if (s.variants.dangerHorde) spawnHorde(s); else towerGrow(s, s.variants.dangerTower, "Gefahrenfeld"); }
+    const deckel = step.danger && !s.variants.dangerHorde && s.variants.dangerCap && s.tower + s.variants.dangerTower >= s.variants.towerMax;
+    erkl(s, null, () => ({ k: "reiseUhr", feld: s.journey, gefahr: step.danger, deckel, plus: s.variants.dangerTower, turm: s.tower,
+      max: s.variants.towerMax, ziel: s.journey >= 10 }));
+    if (step.danger) {
+      if (s.variants.dangerHorde) spawnHorde(s);
+      else if (deckel) log(s, "Gefahrenfeld: Der Turm wächst nicht über die letzte Stufe.");
+      else towerGrow(s, s.variants.dangerTower, "Gefahrenfeld");
+    }
     if (s.journey >= 10) s.endAfterRound = true;
   },
   closeRound(s) {
@@ -1006,7 +1085,7 @@ const STEPS = {
       round: s.round, tower: s.tower, journey: s.journey, eyes: s.roundStats.eyes, hordes: s.hordes.length,
       overfallsWon: s.roundStats.overfallsWon, overfallsLost: s.roundStats.overfallsLost, sieges: s.roundStats.sieges,
       beaconsLit: Object.values(s.beacons).filter((b) => b.lit).length,
-      fame: s.seats.map((_, i) => score(s, i).leiste),
+      fame: s.seats.map((_, i) => score(s, i).leiste), ringe: hordePieces(s).ringe,
     });
     if (s.endAfterRound || s.journey >= 10) {
       endGame(s, false, "Die Gefährten haben den Feuerberg erreicht.");
@@ -1049,19 +1128,41 @@ function explore(s, seat, edge) {
     s.tiles[f] = { kind: t.kind, model: t.model };
     log(s, `${seatName(s, seat)} erkundet den Nebel: ${D.TERRAIN_NAME[t.kind]}${t.treasure ? " mit Schatz" : ""}.`, seat);
     const karten = s.seats[seat].hand.length;
-    if (t.kind === "ruine") {
+    if (t.kind === "ruine" && !s.variants.noRuinReward) {   // v0.4: Ruine 1 Ruhm, 1 Karte; v0.5: eine Kachel ohne Ertrag
       addFame(s, seat, 1, "ruine");
       giveFate(s, seat);
     }
+    if (s.variants.fateExplore) giveFate(s, seat);          // v0.5: wer erkundet, zieht 1 Schicksalskarte
     erkl(s, seat, () => ({
       k: "erkunden", kind: t.kind, schatz: !!t.treasure, horde: hordesAt(s, f).length,
-      karte: s.seats[seat].hand.length > karten,
+      karte: s.seats[seat].hand.length > karten || s.pending?.type === "discard", fuersErkunden: !!s.variants.fateExplore,
+      ruinLohn: !s.variants.noRuinReward,
     }));
     if (t.treasure) interrupt(s, { type: "treasure", seat });
   }
 }
 function placeGehoeft(s, seat, edge) {
   s.buildings[edge] = { seat, level: 1 };
+}
+/** Leuchtfeuer bauen (Platz und Kosten sind geprüft). karte: mit dem Wachfeuer (v0.5, ohne Holz) */
+function buildBeacon(s, seat, corner, c, karte) {
+  payRes(s, seat, c);
+  s.beacons[corner] = { lit: true };
+  addFame(s, seat, 2, "leuchtfeuer");
+  log(s, karte ? `${seatName(s, seat)} spielt Wachfeuer und baut ein Leuchtfeuer ohne Holz (+2 Ruhm).`
+    : `${seatName(s, seat)} baut ein Leuchtfeuer (+2 Ruhm).`, seat);
+  erkl(s, seat, () => ({
+    k: "leuchtfeuer", fs: cornerKinds(s, corner), kosten: { ...c }, rabatt: (D.COSTS.leuchtfeuer.stein || 0) - (c.stein || 0),
+    brennen: litCount(s), gebaut: Object.keys(s.beacons).length, max: s.variants.beacons, ruf: s.ruf ? 0 : rufNeed(s),
+    leiste: score(s, seat).leiste, immer: !!s.variants.beaconsNeverOut, karte: !!karte,
+  }));
+  checkRuf(s, seat);
+}
+/** Kosten eines Leuchtfeuers mit dem Wachfeuer (v0.5): ohne Holz, Zwerge zusätzlich 1 Stein weniger */
+export function wachfeuerCost(s, seat) {
+  const c = costFor(s, seat, "leuchtfeuer");
+  delete c.holz;
+  return c;
 }
 
 /** quelle (nur für die Erklärung): "reise", "eilbote" oder "wegweiserin" */
@@ -1075,13 +1176,13 @@ function doJourney(s, seat, how, quelle = "reise") {
   erkl(s, seat, () => ({
     k: "reise", wie: quelle, feld: s.journey, kosten: how === "weg" ? {} : { ...step.cost }, ruhm: step.fame, gefahr: step.danger,
     // Folge eines Gefahrenfelds, so wie sie gleich darunter eintritt
-    folge: !step.danger ? null : how === "weg" ? "weg" : s.seats[seat].people === "halblinge" ? "halblinge"
+    folge: !step.danger ? null : how === "weg" ? "weg" : s.seats[seat].people === "halblinge" && s.variants.halblinge !== "B" ? "halblinge"
       : s.variants.dangerHorde ? "horde"
       : s.variants.dangerCap && s.tower + s.variants.dangerTower >= s.variants.towerMax ? "deckel" : "turm",
     plus: s.variants.dangerTower, turm: s.tower, max: s.variants.towerMax, ziel: s.journey >= 10, leiste: score(s, seat).leiste,
   }));
   if (step.danger && how !== "weg") {
-    if (s.seats[seat].people === "halblinge") log(s, "Die Halblinge schleichen vorbei: Der Turm wächst nicht.", seat);
+    if (s.seats[seat].people === "halblinge" && s.variants.halblinge !== "B") log(s, "Die Halblinge schleichen vorbei: Der Turm wächst nicht.", seat);
     else if (s.variants.dangerHorde) spawnHorde(s);
     else if (s.variants.dangerCap && s.tower + s.variants.dangerTower >= s.variants.towerMax) log(s, "Gefahrenfeld: Der Turm wächst nicht über die letzte Stufe.");
     else towerGrow(s, s.variants.dangerTower, "Gefahrenfeld");
@@ -1169,18 +1270,10 @@ const TURN_ACTIONS = {
     if (!legalBeaconCorners(s, seat).includes(a.corner)) throw new Error("Hier darf kein Leuchtfeuer stehen");
     const c = costFor(s, seat, "leuchtfeuer");
     if (!canAfford(s, seat, c)) throw new Error("Zu wenig Rohstoffe");
-    payRes(s, seat, c);
-    s.beacons[a.corner] = { lit: true };
-    addFame(s, seat, 2, "leuchtfeuer");
-    log(s, `${seatName(s, seat)} baut ein Leuchtfeuer (+2 Ruhm).`, seat);
-    erkl(s, seat, () => ({
-      k: "leuchtfeuer", fs: cornerKinds(s, a.corner), kosten: { ...c }, rabatt: (D.COSTS.leuchtfeuer.stein || 0) - (c.stein || 0),
-      brennen: litCount(s), gebaut: Object.keys(s.beacons).length, max: s.variants.beacons, ruf: s.ruf ? 0 : rufNeed(s),
-      leiste: score(s, seat).leiste,
-    }));
-    checkRuf(s, seat);
+    buildBeacon(s, seat, a.corner, c, false);
   },
   relight(s, seat, a) {
+    if (s.variants.beaconsNeverOut) throw new Error("Leuchtfeuer erlöschen nicht");
     const bc = s.beacons[a.corner];
     if (!bc || bc.lit) throw new Error("Dieses Leuchtfeuer brennt schon");
     if (!canAfford(s, seat, D.COSTS.flamme)) throw new Error("Es fehlt Holz");
@@ -1233,7 +1326,7 @@ const TURN_ACTIONS = {
         if (bl.seat !== seat) continue;
         const fs = b.edges[e].fields;
         if (fs.includes(CAPITAL_KEY) && s.variants.capitalRate < s.variants.bankRate) haupt = true;
-        if (s.seats[seat].people === "kuestenvolk" && fs.some((f) => s.tiles[f]?.kind === "wasser") && 2 < s.variants.bankRate) kueste = true;
+        if (!s.variants.noHafen && s.seats[seat].people === "kuestenvolk" && fs.some((f) => s.tiles[f]?.kind === "wasser") && 2 < s.variants.bankRate) kueste = true;
       }
       return { k: "tausch", kurs: rate, basis: s.variants.bankRate, haupt, kueste, gib: a.give, nimm: a.get };
     });
@@ -1280,6 +1373,14 @@ const TURN_ACTIONS = {
         break;
       }
       case "wachfeuer": {
+        if (s.variants.wachfeuerBau) {                  // v0.5: ein Leuchtfeuer ohne Holz bauen
+          if (!legalBeaconCorners(s, seat).includes(a.corner)) throw new Error("Hier darf kein Leuchtfeuer stehen");
+          const c = wachfeuerCost(s, seat);
+          if (!canAfford(s, seat, c)) throw new Error("Zu wenig Rohstoffe");
+          takeCard(s, seat, "wachfeuer");
+          buildBeacon(s, seat, a.corner, c, true);
+          break;
+        }
         const dark = Object.values(s.beacons).filter((b) => !b.lit);
         if (!dark.length) throw new Error("Kein Leuchtfeuer ist erloschen");
         takeCard(s, seat, "wachfeuer");
@@ -1315,9 +1416,24 @@ const TURN_ACTIONS = {
         throw new Error("Diese Karte wirkt nur bei einem Kampf");
     }
   },
-  hero(s, seat, a) {
+  hero(s, seat, a, p) {
     if (!hasHero(s, seat, a.hero)) throw new Error("Diesen Helden hast du nicht (mehr)");
     switch (a.hero) {
+      case "planerin": {                                // v0.5: im eigenen Zug 2 Würfel statt 1, beide ernten
+        if (!s.variants.planerinTurn) throw new Error("Dieser Held wirkt zu einem anderen Zeitpunkt");
+        if (p.dieTaken) throw new Error("Du hast schon einen Würfel");
+        const idx = [...new Set((a.dice || []).map((x) => x | 0))].filter((i) => i >= 0 && i < s.dice.length).slice(0, 2);
+        if (!idx.length || idx.length < Math.min(2, s.dice.length)) throw new Error("Wähle 2 Würfel");
+        useHero(s, seat, "planerin");
+        const faces = idx.map((i) => s.dice[i]);
+        s.dice = s.dice.filter((_, i) => !idx.includes(i));
+        s.taken[seat] = [...(s.taken[seat] || []), ...faces];
+        p.dieTaken = true;
+        log(s, `${seatName(s, seat)} nutzt die Planerin und nimmt ${faces.map((f) => D.TERRAIN_NAME[f]).join(" und ")}.`, seat);
+        erkl(s, seat, { k: "planerin", faces: faces.slice(), imZug: true });
+        for (const f of faces) harvest(s, seat, f, true, "planerin");
+        break;
+      }
       case "karten": {
         const got = drawFate(s, seat, 3);
         useHero(s, seat, "karten");
@@ -1372,16 +1488,17 @@ function heroHorde(s, seat, hero, hordeId, kampf = null) {
   if (!h) throw new Error("Diese Horde gibt es nicht");
   if (hero === "chronist" && !withNeighbors(board(s), CAPITAL_KEY).includes(h.pos)) throw new Error("Nur auf oder neben der Hauptstadt");
   const pos = h.pos;
+  const ruhm = hero === "hueterin" ? s.variants.hueterinFame ?? 2 : s.variants.chronistFame ?? 2;
   useHero(s, seat, hero);
-  addFame(s, seat, 2, "held");
+  if (ruhm) addFame(s, seat, ruhm, "held");
   if (hero === "hueterin") {
     h.pos = TOWER_GATE;
-    log(s, `${seatName(s, seat)} ruft die Hüterin der Natur: Eine Horde kehrt ohne Kampf aufs Turm-Tor zurück (+2 Ruhm).`, seat);
+    log(s, `${seatName(s, seat)} ruft die Hüterin der Natur: Eine Horde kehrt ohne Kampf aufs Turm-Tor zurück (+${ruhm} Ruhm).`, seat);
   } else {
     removeHordes(s, [h.id]);
-    log(s, `${seatName(s, seat)} ruft den Chronisten: Eine Horde zieht ab (+2 Ruhm).`, seat);
+    log(s, `${seatName(s, seat)} ruft den Chronisten: Eine Horde zieht ab (+${ruhm} Ruhm).`, seat);
   }
-  erkl(s, seat, () => ({ k: "held", id: hero, von: kindOf(s, pos), rest: pos === TOWER_GATE ? 0 : hordesAt(s, pos).length, kampf }));
+  erkl(s, seat, () => ({ k: "held", id: hero, von: kindOf(s, pos), rest: pos === TOWER_GATE ? 0 : hordesAt(s, pos).length, kampf, ruhm }));
 }
 
 function clean(o) {
@@ -1404,9 +1521,12 @@ const DECISIONS = {
     if (!b.pos[a.pos] || b.pos[a.pos].type !== "home" || s.tiles[a.pos]) throw new Error("Wähle einen freien Heimatland-Platz");
     const i = s.bag.findIndex((t) => t.kind === "wasser");
     const t = s.bag.splice(i, 1)[0];
-    s.tiles[a.pos] = { kind: "wasser", model: t.model };
+    s.tiles[a.pos] = { kind: "wasser", model: t.model, kueste: true };      // das eigene Wasser des Küstenvolks
     log(s, `Das Küstenvolk (${seatName(s, p.seat)}) legt sein Wasser ins Heimatland.`, p.seat);
-    erkl(s, p.seat, { k: "wasser" });
+    // Prüfvariante: Küstenvolk bekommt beim Aufbau Rohstoffe (z. B. {holz: 1, korn: 1})
+    for (const [r, k] of Object.entries(s.variants.kuesteStart || {})) gain(s, p.seat, r, k);
+    erkl(s, p.seat, { k: "wasser", ernte: !s.variants.noKuesteErnte, fischer: !!s.variants.kuesteFischer, wasserPlus: s.variants.kuesteWasserPlus || 0,
+      hafen: !s.variants.noHafen, start: { ...(s.variants.kuesteStart || {}) } });
     p.step.done = true;
     finishPending(s, p.step);
   },
@@ -1422,7 +1542,8 @@ const DECISIONS = {
         if (r) ertrag[r] = (ertrag[r] || 0) + gain(s, p.seat, r, 1);
       }
     }
-    erkl(s, p.seat, () => ({ k: "startGehoeft", zweites: !!p.second, fs: edgeKinds(s, a.edge), ertrag }));
+    erkl(s, p.seat, () => ({ k: "startGehoeft", zweites: !!p.second, fs: edgeKinds(s, a.edge), ertrag, ruhm: s.variants.startRuhm ? 1 : 0,
+      leiste: score(s, p.seat).leiste }));
     p.step.i++;
     finishPending(s, p.step);
   },
@@ -1477,11 +1598,6 @@ const DECISIONS = {
     p.step.choice = a.pos;
     finishPending(s, p.step);
   },
-  raidOrder(s, p, a) {
-    if (!p.options.includes(a.pos)) throw new Error("Wähle eines der markierten Felder");
-    p.step.choice = a.pos;
-    finishPending(s, p.step);
-  },
   intervene(s, p, a) {
     if (a.type === "hueterin" || a.type === "chronist") {
       if (!p.can[a.type]) throw new Error("Nicht möglich");
@@ -1502,10 +1618,13 @@ const DECISIONS = {
     }
     spendFight(s, p.seat, a);
     p.step.paid[p.seat] = (p.step.paid[p.seat] || 0) + power;
-    if (power) log(s, `${seatName(s, p.seat)} zahlt ${power} Abwehr.`, p.seat);
+    // v0.5: Jeder gezahlte Rohstoff bringt Ruhm (die Verstärkung nicht), auch wenn die Abwehr am Ende nicht reicht
+    const ruhm = ((a.erz | 0) + (a.pferde | 0)) * (s.variants.payFame || 0);
+    if (ruhm) addFame(s, p.seat, ruhm, "horden");
+    if (power) log(s, `${seatName(s, p.seat)} zahlt ${power} Abwehr${ruhm ? ` (+${ruhm} Ruhm)` : ""}.`, p.seat);
     erkl(s, p.seat, () => ({
       k: "zahlung", art: p.kind, f: kindOf(s, p.field), erz: a.erz | 0, pferde: a.pferde | 0, verst: !!a.verstaerkung,
-      hv: horseValue(s, p.seat), wert: power, fehlte: p.need,
+      hv: horseValue(s, p.seat), wert: power, fehlte: p.need, ruhm, leiste: score(s, p.seat).leiste,
     }));
     p.step.i++;
     finishPending(s, p.step);
@@ -1573,10 +1692,18 @@ export function act(s, seat, a) {
   const p = s.pending;
   if (!p) throw new Error("Gerade ist nichts zu entscheiden");
   if (p.seat !== seat) throw new Error(`${seatName(s, p.seat)} ist dran`);
+  if (p.type === "raidOrder") {                       // nur alte Spielstände (bis 7.11.2026): Reihenfolge jetzt automatisch
+    p.step.choice = p.options[0];
+    finishPending(s, p.step);
+    s.rev++;
+    return s;
+  }
   if (p.type === "turn") {
     const fn = TURN_ACTIONS[a.type];
     if (!fn) throw new Error("Unbekannte Aktion");
-    if (!p.dieTaken && !["takeDie", "takeResource"].includes(a.type)) throw new Error("Nimm zuerst einen Würfel (oder einen Rohstoff)");
+    if (!p.dieTaken && !["takeDie", "takeResource"].includes(a.type) && !(a.type === "hero" && a.hero === "planerin")) {
+      throw new Error("Nimm zuerst einen Würfel (oder einen Rohstoff)");
+    }
     fn(s, seat, a, p);
   } else {
     const fn = DECISIONS[p.type];

@@ -1,4 +1,4 @@
-// Spielwerte nach REGELN.md v0.4 (6.11.2026). Texte der Karten stehen in texte.js (aus dem Generator erzeugt).
+// Spielwerte nach Regeln v0.5 (8.11.2026; v0.4 über VARIANTS_V04). Texte der Karten stehen in texte.js (aus dem Generator erzeugt).
 
 export const RES = ["holz", "stein", "erz", "korn", "pferde"];
 export const RES_NAME = { holz: "Holz", stein: "Stein", erz: "Erz", korn: "Korn", pferde: "Pferde" };
@@ -50,57 +50,95 @@ export const TILES_SMALL = { wald: 3, feld: 3, weide: 3, huegel: 3, gebirge: 3, 
 export const TREASURE_KINDS = ["wald", "feld", "weide", "huegel"];
 
 export const PEOPLES = {
-  menschen: { name: "Menschen", short: "Reiter: Pferde zählen bei Horden doppelt." },
+  menschen: { name: "Menschen", short: "Reiter: Pferde zählen bei Überfällen doppelt." },
   elben: { name: "Elben", short: "Weitsicht: für 1 Korn den genommenen Würfel auf ein beliebiges Gelände drehen." },
-  zwerge: { name: "Zwerge", short: "Steinmetze: Festung und Leuchtfeuer kosten 1 Stein weniger." },
-  halblinge: { name: "Halblinge", short: "Unauffällig: Überfälle verschonen deine Gehöfte. Schleichen: ziehst du die Gefährten aufs Gefahrenfeld, wächst der Turm nicht." },
-  kuestenvolk: { name: "Küstenvolk", short: "Legt beim Aufbau 1 Wasser ins Heimatland. Gebäude am Wasser: eigene Ernte +1, Handel 2 : 1." },
+  zwerge: { name: "Zwerge", short: "Steinmetze: Ein Leuchtfeuer kostet dich 1 Stein weniger." },
+  halblinge: { name: "Halblinge", short: "Schleichen: Ziehst du die Gefährten auf ein Gefahrenfeld, wächst der Turm nicht." },
+  kuestenvolk: { name: "Küstenvolk", short: "Legt beim Aufbau 1 Wasser ins Heimatland. Hafen: Mit einem Gebäude am Wasser handelst du 2 : 1." },
 };
 export const PEOPLE_ORDER = ["menschen", "elben", "zwerge", "halblinge", "kuestenvolk"];
 
 export const HERO_IDS = ["karten", "zauberin", "tueftler", "planerin", "hueterin", "gelehrter", "wegweiserin", "chronist"];
 export const FATE_IDS = ["eilbote", "ernte", "bann", "wachfeuer", "handel", "verstaerkung"];
 
-// Regelvarianten: Standard = Regeln v0.4 (6.11.2026, Gesamtprüfung)
+// Regelvarianten: Standard = Regeln v0.5 (8.11.2026: weniger Regeln, 45–60 Minuten). Die alten Werte stehen in
+// VARIANTS_V04. Neue Schalter sind so benannt, dass „fehlt“ das Verhalten von v0.4 bedeutet: Gespeicherte Spiele
+// (ihre variants stammen von damals) spielen also nach den Regeln weiter, mit denen sie begonnen wurden.
 export const DEFAULT_VARIANTS = {
-  startSegments: 2,       // Turm zu Beginn
+  startSegments: 5,       // Turm zu Beginn (v0.4: 2); v0.5 abgestimmt: 4–5 Spieler 5 …
+  startSegmentsSmall: 4,  // … 2–3 Spieler 4 (Simulation 8.11.2026: Turm gewinnt 14 / 18 / 23 / 21 %)
   towerMax: 8,            // vollendet: alle verlieren
   hordeStrength: 2,
   hordeStrengthHigh: 3,
-  strongFrom: 6,          // ab dieser Turmhöhe Stärke 3 (v0.3: 5)
-  hordes: 8,              // Horden im Vorrat
+  strongFrom: 99,         // ab dieser Turmhöhe Stärke 3; v0.5: nie (v0.4: 6, v0.3: 5)
+  hordes: 8,              // Horden im Vorrat (v0.5: Figuren)
   beacons: 6,
   rufCount: 3,            // so viele brennende Leuchtfeuer lösen den Ruf aus (0 = aus; v0.3: 4)
   rufCountSmall: 3,       // ... bei 2–3 Spielern (Ausgleich dafür, dass Leuchtfeuer nur auf Ecken mit 3 Kacheln stehen)
   randplaetze: false,     // Gebäude am Kartenrand und Leuchtfeuer an Ecken mit weniger als 3 Kacheln (bis 5.11.2026 erlaubt)
   journey: "v03",         // Reisekosten: v03 (Felder 1–3 je 1 Rohstoff) oder v02
   journeyStart: 0,        // Startfeld der Gefährten
-  questClock: false,      // Gefährten ziehen von selbst, wenn niemand zahlt
   defenseTie: "v03",      // Gleichstand bei der Abwehr: v03 (der Erste 2 Ruhm + Karte, die anderen 1) oder alle
   payOrder: "v03",        // v03: reihum, nie mehr als nötig; frei: beliebig viel
-  hordeTie: "gebaeude",   // gleich kurze Wege: gebaeude (meiste Gebäude) oder start (Startspieler wählt)
+  hordeTie: "start",      // gleich kurze Wege: start (Startspieler wählt; v0.5) oder gebaeude (meiste Gebäude, v0.4)
   hordeTieRandom: false,  // true: stehen auf keinem der gleich weiten Felder Gebäude, zufällig statt Rückfrage; seit 7.11.2026 wie am Tisch: der Startspieler wählt
   handLimit: 3,
   supply: 15,
   diceTwoPlayers: 4,
   dangerTower: 1,
-  siegeTower: 2,
+  siegeTower: 1,          // verlorener Kampf an der Hauptstadt: Turm + (v0.4: 2)
   bankRate: 3,
   capitalRate: 2,
   // neu in v0.4
   minDice: 5,             // mindestens so viele Runenwürfel (2–4 Spieler 5, 5 Spieler 6)
-  capitalDefense: 1,      // die Hauptstadt wehrt bei einer Belagerung 1 selbst ab
+  capitalDefense: 0,      // Grundabwehr der Hauptstadt (v0.4: 1)
   dangerCap: true,        // ein Gefahrenfeld vollendet den Turm nie
   catchupStart: true,     // Startspieler wird, wer am wenigsten Ruhm hat
-  zwergeOn: ["festung", "leuchtfeuer"],   // Zwerge sparen den Stein nur hier
+  zwergeOn: ["leuchtfeuer"],              // Zwerge sparen den Stein nur hier (v0.4: Festung und Leuchtfeuer)
   elbenCost: 1,           // Elben drehen für 1 Korn
   tueftlerCost: { stein: 1, erz: 1 },     // Tüftler: Burg für 1 Stein + 1 Erz
   zauberinFame: 2,        // Spürzauberin bringt 2 Ruhm
   teamSegment: 1,         // Teamspiel: Turm startet mit 1 Segment mehr
+  // neu in v0.5 (fehlt der Schalter, gilt v0.4)
+  questClock: true,       // Reise-Uhr: ist niemand gereist, ziehen die Gefährten am Rundenende 1 Feld von selbst
+  ownPlus: 1,             // eigener Würfel: bringt er etwas, 1 Rohstoff mehr (nicht bei der gemeinsamen Ernte)
+  rings: 6,               // Hordenringe: Stapel = 1 Figur + Ringe; fehlt das Teil, Turm +1 (v0.4: nur „hordes“ Horden insgesamt)
+  payFame: 1,             // Ruhm je gezahltem Rohstoff bei Überfällen
+  noFightReward: true,    // keine Belohnung für Abwehr (v0.4: Meiste Zahlung 2 Ruhm + Karte, Burgen reichen: je 1 Ruhm)
+  noAusfall: true,        // kein Ausfall
+  beaconsNeverOut: true,  // Leuchtfeuer brennen immer (kein Erlöschen, kein Neu-Entzünden)
+  rufNoKill: true,        // Ruf: nur Turm −1 und 3 Ruhm (v0.4: auch Horden an brennenden Leuchtfeuern in den Vorrat)
+  fateExplore: true,      // Schicksalskarte fürs Erkunden (v0.4: für Siege in Kämpfen und die Ruine)
+  noTreasure: true,       // keine Schatz-Plättchen
+  noRuinReward: true,     // die Ruine bringt nichts (v0.4: 1 Ruhm und 1 Karte)
+  wachfeuerBau: true,     // Wachfeuer: Leuchtfeuer ohne Holz bauen (v0.4: alle erloschenen entzünden)
+  heroTurnOnly: true,     // Hüterin und Chronist nur im eigenen Zug (v0.4: auch vor einem Kampf)
+  planerinTurn: true,     // Planerin: im eigenen Zug 2 Würfel statt 1 (v0.4: vor dem Zug des Startspielers)
+  startRuhm: true,        // Startgehöfte bringen Ruhm wie jedes Gehöft
+  halblinge: "A",         // A: Gefahrenfeld ohne Turmwachstum (v0.5, Siegquote 1,01), B: Überfälle verschonen Gehöfte (1,10–1,17); v0.4: beides
+  noKuesteErnte: true,    // Küstenvolk ohne den Ernte-Bonus von v0.4 (+1 je erntendem Gebäude am Wasser)
+  hueterinFame: 1,        // Hüterin der Natur: +1 Ruhm (v0.4: 2)
 };
+
+// Regeln v0.4 (7.11.2026) zum gepaarten Vergleich: createGame({variants: VARIANTS_V04})
+export const VARIANTS_V04 = {
+  startSegments: 2, startSegmentsSmall: null, strongFrom: 6, hordeTie: "gebaeude", siegeTower: 2, capitalDefense: 1,
+  questClock: false, ownPlus: 0, rings: null, payFame: 0, noFightReward: false, noAusfall: false, beaconsNeverOut: false,
+  rufNoKill: false, fateExplore: false, noTreasure: false, noRuinReward: false, wachfeuerBau: false, heroTurnOnly: false,
+  planerinTurn: false, startRuhm: false, halblinge: null, noKuesteErnte: false, hueterinFame: 2, zwergeOn: ["festung", "leuchtfeuer"],
+  kuesteFischer: false, noHafen: false, kuesteWasserPlus: 0,
+};
+
+// Weitere Prüfschalter (Simulation 8.11.2026): chronistFame (Standard 2), kuesteImmer (Küstenvolk handelt immer 2 : 1),
+// kuesteStart (Rohstoffe für das Küstenvolk beim Aufbau, z. B. {holz: 1, korn: 1}), kuesteFischer (bei eigenem Würfel zählt
+// Wasser wie das gewürfelte Gelände), noHafen (kein 2 : 1 am Wasser), kuesteWasserPlus (eigener Würfel: je Gebäude am Wasser +n),
+// kuesteWasserEins / kuesteWasserImmer (eigener Würfel +1 mit Gebäude am Wasser), kuesteNurEigenes (nur das beim Aufbau gelegte Wasser).
+// Küstenvolk-Siegquote 2/3/4/5 Spieler (8.11.2026, Küstenvolk in jeder Partie): Hafen 0,86/0,79/1,04/0,94 (Standard),
+// Fischer 1,11/1,58/2,71/3,05, Fischer + Hafen 1,13/1,67/2,86/3,31, je Gebäude am Wasser +1 0,88/1,15/1,96/2,18.
 
 export const VARIANT_INFO = {
   startSegments: ["Turmsegmente zu Beginn", "zahl", 0, 7],
+  ownPlus: ["Eigener Würfel: Rohstoffe mehr", "zahl", 0, 2],
   towerMax: ["Turm vollendet bei", "zahl", 3, 12],
   hordeStrength: ["Hordenstärke", "zahl", 1, 5],
   hordeStrengthHigh: ["Hordenstärke ab Turmhöhe …", "zahl", 1, 6],

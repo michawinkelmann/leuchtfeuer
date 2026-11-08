@@ -29,7 +29,7 @@ export const HELDEN = [
   "datei": "Planerin",
   "titel": "DIE PLANERIN",
   "bild": "klemmbrett",
-  "text": "NIMM IN EINER RUNDE ALS ERSTE 2 WÜRFEL STATT 1.",
+  "text": "NIMM IN DEINEM ZUG 2 WÜRFEL STATT 1 UND ERNTE BEIDE.",
   "persoenlich": null
  },
  {
@@ -37,7 +37,7 @@ export const HELDEN = [
   "datei": "Hüterin der Natur",
   "titel": "DIE HÜTERIN DER NATUR",
   "bild": "blatt",
-  "text": "SCHICKE EINE HORDE OHNE KAMPF ZURÜCK AUFS TURM-TOR. +2 RUHM.",
+  "text": "SCHICKE EINE HORDE OHNE KAMPF ZURÜCK AUFS TURM-TOR. +1 RUHM.",
   "persoenlich": null
  },
  {
@@ -92,14 +92,14 @@ export const HELDEN_EN = [
   "datei": "Planner",
   "titel": "PLANNER",
   "bild": "klemmbrett",
-  "text": "IN ONE ROUND, TAKE 2 DICE INSTEAD OF 1, BEFORE ANYONE ELSE."
+  "text": "ON YOUR TURN, TAKE 2 DICE INSTEAD OF 1 AND HARVEST BOTH."
  },
  {
   "id": "hueterin",
   "datei": "Warden of Nature",
   "titel": "WARDEN OF NATURE",
   "bild": "blatt",
-  "text": "SEND A HORDE BACK TO THE TOWER GATE WITHOUT A FIGHT. +2 FAME."
+  "text": "SEND A HORDE BACK TO THE TOWER GATE WITHOUT A FIGHT. +1 FAME."
  },
  {
   "id": "gelehrter",
@@ -126,14 +126,14 @@ export const HELDEN_EN = [
 export const HELD_RUECK = {
  "titel": "HELD",
  "absaetze": [
-  "EINMAL IM SPIEL, AUCH IM ZUG ANDERER.",
+  "EINMAL IM SPIEL, IM EIGENEN ZUG ODER WIE AUF DER KARTE.",
   "DANN QUER LEGEN."
  ]
 };
 export const HELD_RUECK_EN = {
  "titel": "HERO",
  "absaetze": [
-  "ONCE PER GAME, EVEN ON OTHER PLAYERS' TURNS.",
+  "ONCE PER GAME, ON YOUR OWN TURN OR AS THE CARD SAYS.",
   "THEN TURN IT SIDEWAYS."
  ]
 };
@@ -265,7 +265,7 @@ export const SCHICKSAL = [
   "id": "wachfeuer",
   "name": "WACHFEUER",
   "bild": "wachfeuer",
-  "text": "ENTZÜNDE ALLE ERLOSCHENEN LEUCHTFEUER OHNE KOSTEN."
+  "text": "BAUE EIN LEUCHTFEUER OHNE HOLZ."
  },
  {
   "id": "handel",
@@ -277,7 +277,7 @@ export const SCHICKSAL = [
   "id": "verstaerkung",
   "name": "VERSTÄRKUNG",
   "bild": "schild",
-  "text": "+3 ABWEHR BEI ÜBERFALL ODER AUSFALL, WO DU ZAHLEN DARFST; ZÄHLT ALS ZAHLUNG."
+  "text": "+3 ABWEHR BEI EINEM ÜBERFALL, WO DU ZAHLEN DARFST, AUCH AM RUNDENENDE."
  }
 ];
 export const SCHICKSAL_ANZAHL = 2;
@@ -304,7 +304,7 @@ export const SCHICKSAL_EN = [
   "id": "wachfeuer",
   "name": "WATCHFIRE",
   "bild": "wachfeuer",
-  "text": "RELIGHT ALL UNLIT BEACONS FOR FREE."
+  "text": "BUILD A BEACON WITHOUT WOOD."
  },
  {
   "id": "handel",
@@ -316,20 +316,20 @@ export const SCHICKSAL_EN = [
   "id": "verstaerkung",
   "name": "ALLIES",
   "bild": "schild",
-  "text": "+3 DEFENSE IN A RAID OR SALLY WHERE YOU MAY PAY; COUNTS AS PAYING."
+  "text": "+3 DEFENSE IN A RAID WHERE YOU MAY PAY, EVEN AT THE END OF THE ROUND."
  }
 ];
 export const SCHICKSAL_RUECK = {
  "titel": "SCHICKSAL",
  "absaetze": [
-  "FÜR 2 RUHM IM KAMPF ODER DIE RUINE: 1 KARTE.",
+  "FÜRS ERKUNDEN: 1 KARTE.",
   "HÖCHSTENS 3. NUR IM EIGENEN ZUG, DANN UNTER DEN STAPEL."
  ]
 };
 export const SCHICKSAL_RUECK_EN = {
  "titel": "FATE",
  "absaetze": [
-  "FOR 2 FAME IN BATTLE OR THE RUIN: 1 CARD.",
+  "EXPLORING: 1 CARD.",
   "AT MOST 3. ONLY ON YOUR OWN TURN, THEN TO THE BOTTOM OF THE DECK."
  ]
 };
