@@ -37,7 +37,7 @@ export const HELDEN = [
   "datei": "Hüterin der Natur",
   "titel": "DIE HÜTERIN DER NATUR",
   "bild": "blatt",
-  "text": "SCHICKE EINE HORDE OHNE KAMPF ZURÜCK AUFS TURM-TOR. +1 RUHM.",
+  "text": "SCHICKE EINE HORDE ZURÜCK AUFS TURM-TOR. +1 RUHM.",
   "persoenlich": null
  },
  {
@@ -61,7 +61,7 @@ export const HELDEN = [
   "datei": "Chronist",
   "titel": "DER CHRONIST",
   "bild": "stammbaum",
-  "text": "EINE HORDE AUF ODER NEBEN DER HAUPTSTADT KOMMT IN DEN VORRAT. +2 RUHM.",
+  "text": "EINE HORDE NEBEN DER HAUPTSTADT KOMMT IN DEN VORRAT. +2 RUHM.",
   "persoenlich": null
  }
 ];
@@ -99,7 +99,7 @@ export const HELDEN_EN = [
   "datei": "Warden of Nature",
   "titel": "WARDEN OF NATURE",
   "bild": "blatt",
-  "text": "SEND A HORDE BACK TO THE TOWER GATE WITHOUT A FIGHT. +1 FAME."
+  "text": "SEND A HORDE BACK TO THE TOWER GATE. +1 FAME."
  },
  {
   "id": "gelehrter",
@@ -120,7 +120,7 @@ export const HELDEN_EN = [
   "datei": "Chronicler",
   "titel": "CHRONICLER",
   "bild": "stammbaum",
-  "text": "A HORDE ON OR NEXT TO THE CAPITAL GOES BACK TO THE SUPPLY. +2 FAME."
+  "text": "A HORDE NEXT TO THE CAPITAL GOES BACK TO THE SUPPLY. +2 FAME."
  }
 ];
 export const HELD_RUECK = {
@@ -277,7 +277,7 @@ export const SCHICKSAL = [
   "id": "verstaerkung",
   "name": "VERSTÄRKUNG",
   "bild": "schild",
-  "text": "+3 ABWEHR BEI EINEM ÜBERFALL, WO DU ZAHLEN DARFST, AUCH AM RUNDENENDE."
+  "text": "+3 ABWEHR BEI EINEM ÜBERFALL, WO DU ZAHLEN DARFST."
  }
 ];
 export const SCHICKSAL_ANZAHL = 2;
@@ -316,7 +316,7 @@ export const SCHICKSAL_EN = [
   "id": "verstaerkung",
   "name": "ALLIES",
   "bild": "schild",
-  "text": "+3 DEFENSE IN A RAID WHERE YOU MAY PAY, EVEN AT THE END OF THE ROUND."
+  "text": "+3 DEFENSE IN A RAID WHERE YOU MAY PAY."
  }
 ];
 export const SCHICKSAL_RUECK = {
