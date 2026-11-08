@@ -23,24 +23,24 @@ function erklaerenSpeichern(an) {
   } catch { /* ohne Speicher */ }
 }
 
-// Kartentexte: aus dem Generator (texte.js), sonst dieser Stand vom 5.11.2026
+// Kartentexte: aus dem Generator (texte.js), sonst dieser Stand (Regeln v0.5, 8.11.2026)
 const FALLBACK_HELDEN = {
   karten: ["Meister der Karten", "Ziehe 3 Schicksalskarten und behalte 2."],
-  zauberin: ["Die Spürzauberin", "Sofort nach dem Runenwurf: Drehe bis zu 2 Würfel beliebig."],
+  zauberin: ["Die Spürzauberin", "Sofort nach dem Runenwurf: Bis zu 2 Würfel frei drehen. +2 Ruhm."],
   tueftler: ["Der Tüftler", "Baue eine Burg für 1 Stein und 1 Erz."],
-  planerin: ["Die Planerin", "Nimm in einer Runde als Erste 2 Würfel statt 1."],
+  planerin: ["Die Planerin", "Nimm in deinem Zug 2 Würfel statt 1 und ernte beide."],
   hueterin: ["Die Hüterin der Natur", "Schicke eine Horde ohne Kampf zurück aufs Turm-Tor. +2 Ruhm."],
   gelehrter: ["Der Gelehrte", "Pax vobiscum: Die Augen eines Runenwurfs zählen nicht. +2 Ruhm."],
-  wegweiserin: ["Die Wegweiserin", "Die Gefährten ziehen 1 Feld, ohne Kosten und Gefahr, mit Ruhm. Nicht auf 10."],
-  chronist: ["Der Chronist", "Eine Horde an der Hauptstadt zieht ab, der Turm wächst nicht. +2 Ruhm."],
+  wegweiserin: ["Die Wegweiserin", "Als Reise der Runde: 1 Feld, ohne Kosten und Gefahr, mit Ruhm. Nicht auf 10."],
+  chronist: ["Der Chronist", "Eine Horde auf oder neben der Hauptstadt kommt in den Vorrat. +2 Ruhm."],
 };
 const FALLBACK_SCHICKSAL = {
   eilbote: ["Eilbote", "Die Gefährten ziehen sofort 1 Feld, auch zusätzlich. Du zahlst und erhältst den Ruhm."],
   ernte: ["Reiche Ernte", "Ernte deinen Würfel ein zweites Mal."],
   bann: ["Bannspruch", "Schicke eine Horde zurück aufs Turm-Tor."],
-  wachfeuer: ["Wachfeuer", "Entzünde alle erloschenen Leuchtfeuer ohne Kosten."],
+  wachfeuer: ["Wachfeuer", "Baue ein Leuchtfeuer ohne Holz."],
   handel: ["Handelszug", "Tausche bis zu 3-mal 1 : 1 mit dem Vorrat."],
-  verstaerkung: ["Verstärkung", "+3 Abwehr bei einem Überfall oder Ausfall, als hättest du gezahlt."],
+  verstaerkung: ["Verstärkung", "+3 Abwehr bei einem Überfall, wo du zahlen darfst, auch am Rundenende."],
 };
 const TXT = { helden: { ...FALLBACK_HELDEN }, schicksal: { ...FALLBACK_SCHICKSAL } };
 const NOUNS = new Set(["schicksalskarten", "schicksalskarte", "karten", "karte", "runenwurf", "runenwurfs", "würfel", "burg", "kosten",
@@ -194,6 +194,7 @@ export async function startGame(root, gameId) {
         if (JSON.stringify(prevPending) !== JSON.stringify(st.view.pending)) {
           st.mode = null;
           st.sel = [];
+          st.planer = false;
         }
         render();
         scene?.update(st.view);
@@ -234,7 +235,7 @@ export async function startGame(root, gameId) {
           const b = E.board(st.view);
           return scene.setTargets("field", Object.values(b.pos).filter((x) => x.type === "home" && !st.view.tiles[x.key]).map((x) => x.key));
         }
-        if (p.type === "hordeTie" || p.type === "raidOrder") return scene.setTargets("field", p.options, true);
+        if (p.type === "hordeTie") return scene.setTargets("field", p.options, true);
       }
       return scene.clearTargets();
     }
@@ -248,7 +249,6 @@ export async function startGame(root, gameId) {
       if (p.type === "placeStart" && kind === "edge") act(p.seat, { type: "placeStart", edge: key });
       if (p.type === "placeWater" && kind === "field") act(p.seat, { type: "placeWater", pos: key });
       if (p.type === "hordeTie" && kind === "field") act(p.seat, { type: "hordeTie", pos: key });
-      if (p.type === "raidOrder" && kind === "field") act(p.seat, { type: "raidOrder", pos: key });
       return;
     }
     const m = st.mode;
@@ -408,7 +408,8 @@ export async function startGame(root, gameId) {
       const botText = who.bot && st.schritt ? `<small>${t("g.botWartet")}</small>` : `<small>${t("g.botDenkt")}</small>`;
       return `<div class="section prompt wait">${head}${who.bot ? botText : !st.claims[p.seat] ? `<button data-claim="${p.seat}">${t("g.platzSpielen")}</button>` : ""}</div>`;
     }
-    const body = PROMPTS[p.type]?.(s, p) ?? `<p>${p.type}</p>`;
+    // gibt es die Entscheidung nicht mehr (alter Spielstand, z. B. Held vor dem Kampf), geht es mit „Weiter“ (passen) weiter
+    const body = PROMPTS[p.type]?.(s, p) ?? `<button data-a='{"type":"pass"}'>${t("g.weiter")}</button>`;
     return `<div class="section prompt mine">${head}${body}</div>`;
   }
 
@@ -427,18 +428,13 @@ export async function startGame(root, gameId) {
     turn: (s, p) => renderTurn(s, p),
     hordeTie: (s, p) => `<p>${t("g.hordeTie", esc(fieldIn(s, p.from)))}</p>
       ${p.options.map((f) => `<button data-a='${JSON.stringify({ type: "hordeTie", pos: f })}'>${esc(fieldName(s, f))} (${dirName(s, p.from, f)}, ${t("g.nGebaeude", E.buildingsAt(s, f).length)})</button>`).join(" ")}`,
-    raidOrder: (s, p) => `<p>${t("g.raidOrder")}</p>
-      ${p.options.map((f) => `<button data-a='${JSON.stringify({ type: "raidOrder", pos: f })}'>${esc(fieldName(s, f))} (${t("g.nHorden", E.hordesAt(s, f).length)}, ${t("g.nGebaeude", E.buildingsAt(s, f).length)})</button>`).join(" ")}`,
-    intervene: (s, p) => `<p>${p.kind === "siege" ? t("g.belagerungHauptstadt") : t("g.ueberfallAuf", esc(fieldIn(s, p.field)))}: ${t("g.nHorden", p.hordes.length)}. ${t("g.heldRufen")}</p>
-      ${p.can.hueterin ? `<button data-a='${JSON.stringify({ type: "hueterin", horde: p.hordes[0] })}'>${t("g.hueterinKnopf")}</button>` : ""}
-      ${p.can.chronist ? `<button data-a='${JSON.stringify({ type: "chronist", horde: p.hordes[0] })}'>${t("g.chronistKnopf")}</button>` : ""}
-      <button data-a='{"type":"pass"}'>${t("g.keinHeld")}</button>`,
     pay: (s, p) => {
       const x = s.seats[p.seat];
       const hv = E.horseValue(s, p.seat);
       const mineHere = E.buildingsAt(s, p.field).filter((b) => b.seat === p.seat).length;
-      return `<p>${p.kind === "siege" ? t("g.belagerung") : t("g.ueberfallAuf", esc(fieldIn(s, p.field)))}: ${t("g.zahlenLage", p.strength, p.base, p.paidSoFar, p.need)}
-        ${mineHere ? t("g.duHastHier", mineHere) : ""}</p>
+      const ort = p.kind === "siege" && !s.variants.noFightReward ? t("g.belagerung") : t("g.ueberfallAuf", esc(fieldIn(s, p.field)));
+      return `<p>${ort}: ${t("g.zahlenLage", p.strength, p.base, p.paidSoFar, p.need)}
+        ${mineHere ? t("g.duHastHier", mineHere) : ""}${s.variants.payFame ? ` ${t("g.zahlenRuhm", s.variants.payFame)}` : ""}</p>
         <div class="pay">
           <label>${icon("erz")} ${rohstoff("erz")} <input type="number" min="0" max="${x.res.erz}" value="0" id="payErz"></label>
           <label>${icon("pferde")} ${rohstoff("pferde")}${hv === 2 ? ` (${t("g.zaehlenDoppelt")})` : ""} <input type="number" min="0" max="${x.res.pferde}" value="0" id="payPf"></label>
@@ -460,10 +456,17 @@ export async function startGame(root, gameId) {
     const seat = p.seat;
     const x = s.seats[seat];
     if (!p.dieTaken) {
+      // v0.5: Planerin im eigenen Zug: Würfel oben auswählen (st.planer), dann nehmen
+      const planerin = s.variants.planerinTurn && s.dice.length && x.heroes.some((hh) => hh.id === "planerin" && !hh.used);
+      if (st.planer && planerin) {
+        return `<p>${t("g.planerinZugText")}</p>
+          <button data-cmd="planerinNehmen" class="primary">${t("g.planerinNehmen")}</button> <button data-cmd="planerinAus">${t("g.abbrechen")}</button>`;
+      }
       if (s.dice.length) {
         const ek = s.variants.elbenCost ?? 2;
         const elben = x.people === "elben" && x.res.korn >= ek;
         return `<p>${t("g.wuerfelNehmen")}${elben ? " " + t("g.elbenDrehen", ek) : ""}</p>
+          ${planerin ? `<p><button data-cmd="planerinAn" title="${esc(TXT.helden.planerin?.[1] || "")}">${t("g.held")}: ${esc(heroTitle("planerin", seat))}</button></p>` : ""}
           ${elben ? `<select id="elbenFace"><option value="">${t("g.nichtDrehen")}</option>${["wald", "feld", "weide", "huegel", "gebirge"].map((f) => `<option value="${f}">${gelaende(f)}</option>`).join("")}</select>` : ""}
           <div class="preview">${s.dice.map((d, i) => { const y = E.harvestYield(s, seat, d, true); return `<button data-take="${i}">${icon(d)} ${y.res ? `+${y.n} ${rohstoffSatz(y.res, y.n)}` : ""}</button>`; }).join(" ")}</div>
           <button data-cmd="hint">${t("g.tipp")}</button>`;
@@ -491,9 +494,9 @@ export async function startGame(root, gameId) {
         ${btn("burg", `${t("g.burg")} ${resIcons(E.costFor(s, seat, "burg"))}`, canBurg)}
         ${btn("festung", `${t("g.festung")} ${resIcons(E.costFor(s, seat, "festung"))}`, canFest)}
         ${btn("beacon", `${t("g.leuchtfeuerBau")} ${resIcons(E.costFor(s, seat, "leuchtfeuer"))}`, corners.length && E.canAfford(s, seat, E.costFor(s, seat, "leuchtfeuer")))}
-        ${btn("relight", `${t("g.entzuenden")} ${resIcons(D.COSTS.flamme)}`, dark.length && x.res.holz >= 1)}
+        ${s.variants.beaconsNeverOut ? "" : btn("relight", `${t("g.entzuenden")} ${resIcons(D.COSTS.flamme)}`, dark.length && x.res.holz >= 1)}
         ${btn("reise", step ? `${t("g.reise")} → ${t("g.feld")} ${step.field} ${resIcons(step.cost)} +${step.fame}${step.danger ? " ⚠" : ""}` : t("g.reiseBeendet"), step && !s.journeyMoved && E.canAfford(s, seat, step.cost), s.journeyMoved ? t("g.schonGezogen") : "")}
-        ${btn("ausfall", `${t("g.ausfall")}${aus.length ? ` (${aus.length})` : ""}`, aus.length)}
+        ${s.variants.noAusfall ? "" : btn("ausfall", `${t("g.ausfall")}${aus.length ? ` (${aus.length})` : ""}`, aus.length)}
         ${btn("bank", `${t("g.tauschen")} ${E.bankRate(s, seat)} : 1`, true)}
         ${btn("trade", t("g.handelSpieler"), true)}
       </div>
@@ -529,6 +532,10 @@ export async function startGame(root, gameId) {
     }));
     side.querySelectorAll("[data-die]").forEach((b) => (b.onclick = () => {
       const i = Number(b.dataset.die);
+      if (p?.type === "turn" && !p.dieTaken && st.seats.includes(p.seat) && st.planer) {
+        st.sel = st.sel.includes(i) ? st.sel.filter((k) => k !== i) : [...st.sel, i].slice(-2);
+        return render();
+      }
       if (p?.type === "turn" && !p.dieTaken && st.seats.includes(p.seat)) {
         const face = side.querySelector("#elbenFace")?.value;
         return act(p.seat, face ? { type: "takeDie", index: i, face } : { type: "takeDie", index: i });
@@ -578,6 +585,18 @@ export async function startGame(root, gameId) {
       case "planerin":
         if (st.sel.length < 1) return toast(t("g.planerinWaehle"));
         return act(seat, { type: "planerin", dice: st.sel });
+      case "planerinAn":
+        st.planer = true;
+        st.sel = [];
+        return render();
+      case "planerinAus":
+        st.planer = false;
+        st.sel = [];
+        return render();
+      case "planerinNehmen":
+        if (st.sel.length < Math.min(2, s.dice.length)) return toast(t("g.planerinWaehle"));
+        st.planer = false;
+        return act(seat, { type: "hero", hero: "planerin", dice: st.sel });
       case "pay": case "payMin": {
         let erz = Number(side.querySelector("#payErz")?.value || 0);
         let pferde = Number(side.querySelector("#payPf")?.value || 0);
@@ -624,6 +643,10 @@ export async function startGame(root, gameId) {
     const seat = s.pending.seat;
     if (card === "bann") return boardMode("horde", s.hordes.map((x) => x.id), t("g.lblBann"), (k) => act(seat, { type: "fate", card, horde: Number(k) }), true);
     if (card === "handel") return handelDialog(seat);
+    if (card === "wachfeuer" && s.variants.wachfeuerBau) {
+      if (!E.canAfford(s, seat, E.wachfeuerCost(s, seat))) return toast(t("g.zuWenig"));
+      return boardMode("corner", E.legalBeaconCorners(s, seat), t("g.lblWachfeuer"), (k) => act(seat, { type: "fate", card, corner: k }));
+    }
     act(seat, { type: "fate", card });
   }
 
