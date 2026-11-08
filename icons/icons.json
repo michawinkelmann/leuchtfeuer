@@ -290,5 +290,50 @@
    "schwarz"
   ],
   "quelle": "regeltafel.ICONS['Flamme']"
+ },
+ "bau_farm": {
+  "file": "bau_farm.svg",
+  "mono": "bau_farm_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Farm']"
+ },
+ "bau_castle": {
+  "file": "bau_castle.svg",
+  "mono": "bau_castle_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Castle']"
+ },
+ "bau_fortress": {
+  "file": "bau_fortress.svg",
+  "mono": "bau_fortress_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Fortress']"
+ },
+ "bau_beacon": {
+  "file": "bau_beacon.svg",
+  "mono": "bau_beacon_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Beacon']"
+ },
+ "bau_flame": {
+  "file": "bau_flame.svg",
+  "mono": "bau_flame_mono.svg",
+  "gruppe": "bau",
+  "farben": [
+   "schwarz"
+  ],
+  "quelle": "regeltafel.ICONS['Flame']"
  }
 }
