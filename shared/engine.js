@@ -128,7 +128,8 @@ export function createGame(settings) {
   shuffle(s, s.deck);
   log(s, `Neues Spiel mit ${n} Plätzen (Startwert ${seed}).`);
   erkl(s, null, () => ({
-    k: "aufbau", n, turm: s.tower, max: v.towerMax, team: s.team, uhr: !!v.questClock, startRuhm: !!v.startRuhm,
+    k: "aufbau", n, turm: s.tower, max: v.towerMax, team: s.team, uhr: !!v.questClock, startRuhm: !!v.startRuhm, start: s.start,
+    klein: v.startSegmentsSmall ?? null, gross: v.startSegments, teamPlus: s.team ? v.teamSegment || 0 : 0,
     helden: settings.seats.every((x) => x.hero) ? "fest" : s.team ? "team" : n >= 5 ? "eins" : "zwei",
   }));
   s.queue.push({ t: "heroes" }, { t: "water" }, { t: "homeTiles" }, { t: "startPlacement" }, { t: "roundStart" });
@@ -152,7 +153,7 @@ function log(s, msg, seat = null) {
 // (k = Art, dazu die echten Zahlen). Text daraus macht shared/i18n_erklaer.js auf Deutsch oder Englisch.
 // Erklärungen ändern den Spielablauf nie: Sie lesen nur den Zustand, ziehen keinen Zufall, und ein Fehler beim
 // Zusammenstellen wird verschluckt. s.erklaeren === false (createGame({erklaeren: false})) schaltet sie ab.
-// Verdeckte Angaben (Schicksalskarten auf der Hand, ungenutzte Helden) kommen nie hinein: Den Verlauf sehen alle.
+// Verdeckte Angaben (Schicksalskarten auf der Hand) kommen nie hinein: Den Verlauf sehen alle. Helden liegen offen (REGELN.md, Aufbau 7).
 function erklVor(s, bau) {
   if (s.erklaeren === false) return null;
   try {
@@ -649,17 +650,21 @@ const STEPS = {
     while (st.i < s.nSeats) {
       const seat = s.seats[st.i];
       if (seat.heroes.length) {
+        const ids = seat.heroes.map((h) => h.id);
+        erkl(s, st.i, { k: "heldWahl", art: "fest", ids });
         st.i++;
         continue;
       }
       if (s.team) {
         const k = seat.persons ? seat.persons.length : 2;
         seat.heroes = st.pool.splice(0, k).map((id) => ({ id, used: false }));
+        erkl(s, st.i, { k: "heldWahl", art: "team", ids: seat.heroes.map((h) => h.id) });
         st.i++;
         continue;
       }
       if (s.nSeats >= 5 || st.pool.length < 2) {
         seat.heroes = st.pool.splice(0, 1).map((id) => ({ id, used: false }));
+        erkl(s, st.i, { k: "heldWahl", art: "eins", ids: seat.heroes.map((h) => h.id) });
         st.i++;
         continue;
       }
@@ -675,6 +680,8 @@ const STEPS = {
   },
   homeTiles(s) {
     const b = board(s);
+    const gezogen = {};          // nur für die Erklärung
+    let ruine = 0, schatz = 0;
     for (const [c, r] of HOME) {
       const key = `${c},${r}`;
       if (!b.pos[key] || s.tiles[key]) continue;
@@ -682,12 +689,22 @@ const STEPS = {
       let guard = 0;
       // Ruine oder Schatz-Plättchen zurück in die Dose, dann neu ziehen (REGELN.md, Aufbau 3)
       while ((t.kind === "ruine" || t.treasure) && guard++ < 50) {
+        if (t.kind === "ruine") ruine++;
+        else schatz++;
         s.bag.splice(1 + rint(s, s.bag.length), 0, t);
         t = s.bag.shift();
       }
       s.tiles[key] = { kind: t.kind, model: t.model };
+      gezogen[t.kind] = (gezogen[t.kind] || 0) + 1;
     }
     log(s, "Das Heimatland ist ausgelegt, der Nebel liegt noch über dem Osten.");
+    erkl(s, null, () => {
+      const typ = (x) => Object.values(b.pos).filter((p) => p.type === x).length;
+      const dose = Object.values(s.nSeats >= 4 ? D.TILES_BIG : D.TILES_SMALL).reduce((a, x) => a + x, 0);
+      return { k: "heimatland", n: s.nSeats, gross: s.nSeats >= 4, dose, alle: Object.values(D.TILES_BIG).reduce((a, x) => a + x, 0),
+        plaetze: typ("home"), nebel: typ("fog"), gezogen, ruine, schatz, wasser: Object.values(s.tiles).filter((x) => x.kueste).length,
+        rest: s.bag.length, turm: s.tower, team: s.team };
+    });
   },
   startPlacement(s, st) {
     if (!st.order) {
@@ -1478,6 +1495,10 @@ const TURN_ACTIONS = {
   endTurn(s, seat, a, p) {
     if (!p.dieTaken) throw new Error("Nimm zuerst einen Würfel (oder einen Rohstoff)");
     log(s, `${seatName(s, seat)} beendet den Zug.`, seat);
+    erkl(s, seat, () => {
+      const next = (seat + 1) % s.nSeats;
+      return { k: "zugEnde", next: next === s.start ? null : next, dice: s.dice.slice(), planerin: !!s.planerinTook?.[next], ende: !!s.endAfterRound };
+    });
     finishPending(s, null);
   },
 };
@@ -1513,6 +1534,7 @@ const DECISIONS = {
     if (!p.offer.includes(a.hero)) throw new Error("Wähle einen der beiden Helden");
     s.seats[p.seat].heroes = [{ id: a.hero, used: false }];
     s.seats[p.seat].heroOffer = null;
+    erkl(s, p.seat, { k: "heldWahl", art: "zwei", ids: [a.hero] });
     p.step.i++;
     finishPending(s, p.step);
   },
@@ -1715,6 +1737,8 @@ export function act(s, seat, a) {
 }
 
 // ------------------------------------------------------------------ Sicht eines Spielers (versteckte Infos entfernt)
+// Verdeckt: Schicksalskarten auf der Hand und die zwei gezogenen Helden, solange einer gewählt wird. Die Helden selbst
+// liegen offen vor ihrem Besitzer (REGELN.md, Aufbau 7), wie am Tisch.
 export function view(s, seats = []) {
   const mine = new Set(seats);
   const v = JSON.parse(JSON.stringify(s));
@@ -1727,7 +1751,6 @@ export function view(s, seats = []) {
     delete v.seats[i].wantHero;
     if (!mine.has(i) && !s.over) {
       v.seats[i].hand = x.hand.length;
-      v.seats[i].heroes = x.heroes.map((h) => (h.used ? h : { id: null, used: false }));
       v.seats[i].heroOffer = x.heroOffer ? x.heroOffer.length : null;
     }
   });

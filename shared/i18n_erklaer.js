@@ -25,6 +25,23 @@ const STUFE_DE = { 1: "das Gehöft", 2: "die Burg", 3: "die Festung" };
 const ZU_DE = { 1: "zum Gehöft", 2: "zur Burg" };
 const EIN_AKK = { wald: "einen Wald", feld: "einen Acker", weide: "eine Weide", huegel: "einen Hügel", gebirge: "ein Gebirge" };
 
+// Helden: Akkusativ und was die Karte kann (wie auf den Heldenkarten, v0.5)
+const HELD_DE = {
+  karten: ["den Meister der Karten", "zieht 3 Schicksalskarten und behält 2"],
+  zauberin: ["die Spürzauberin", "dreht sofort nach dem Runenwurf bis zu 2 Würfel frei, +2 Ruhm"],
+  tueftler: ["den Tüftler", "baut eine Burg für 1 Stein und 1 Erz"],
+  planerin: ["die Planerin", "nimmt im eigenen Zug 2 Würfel statt 1 und erntet beide"],
+  hueterin: ["die Hüterin der Natur", "schickt eine Horde zurück aufs Turm-Tor, +1 Ruhm"],
+  gelehrter: ["den Gelehrten", "„Pax vobiscum“: Die Augen eines Runenwurfs zählen nicht, +2 Ruhm"],
+  wegweiserin: ["die Wegweiserin", "führt die Gefährten als Reise der Runde 1 Feld weiter, ohne Kosten und Gefahr, mit Ruhm, nicht auf Feld 10"],
+  chronist: ["den Chronisten", "schickt eine Horde neben der Hauptstadt in den Vorrat, +2 Ruhm"],
+};
+const heldDe = (id) => (HELD_DE[id] ? `${HELD_DE[id][0]} (${HELD_DE[id][1]})` : id);
+// Kacheln gezählt: „2 Äcker“
+const KACHEL_DE = { wald: ["Wald", "Wälder"], feld: ["Acker", "Äcker"], weide: ["Weide", "Weiden"], huegel: ["Hügel", "Hügel"],
+  gebirge: ["Gebirge", "Gebirge"], wasser: ["Wasser", "Wasser"], ruine: ["Ruine", "Ruinen"] };
+const ARTEN_REIHE = ["wald", "feld", "weide", "huegel", "gebirge", "wasser", "ruine"];
+
 function listeDe(a) {
   a = a.filter((x) => x !== "" && x != null);
   return a.length <= 1 ? a[0] ?? "" : `${a.slice(0, -1).join(", ")} und ${a.at(-1)}`;
@@ -69,16 +86,82 @@ function hilfenDe(s) {
 
 // ---------------------------------------------------------------- Deutsch: Erklärungen je Art
 const DE = {
-  aufbau(e) {
+  aufbau(e, A, c) {
     const zu = { 2: "zu zweit", 3: "zu dritt", 4: "zu viert", 5: "zu fünft" }[e.n] || `mit ${e.n} Plätzen`;
-    const held = { zwei: "Jeder zieht 2 Helden und behält 1", eins: "Zu fünft zieht jeder nur 1 Helden",
-      team: "Im Teamspiel zieht jede Person 1 Helden", fest: "Jeder spielt mit seinem festen Helden" }[e.helden] || "Jeder bekommt einen Helden";
-    return `Neues Spiel ${zu}. Ziel: Die Gefährten ziehen über die Reise-Leiste bis Feld 10 zum Feuerberg; dann gewinnt, wer am meisten Ruhm hat. `
+    const held = { zwei: "Jeder zieht 2 Helden und behält 1, der andere kommt aus dem Spiel", eins: "Zu fünft zieht jeder nur 1 Helden",
+      team: "Im Teamspiel zieht jede Person 1 Helden, beide gehören der Farbe", fest: "Jeder spielt mit seinem festen Helden" }[e.helden]
+      || "Jeder bekommt einen Helden";
+    let turm = `Gegner ist der Turm des Schattens: Er beginnt mit ${e.turm} Segmenten, bei ${e.max} ist er vollendet und alle verlieren. `
+      + `Er steht also von Anfang an halb fertig da, als sichtbare Drohung: Bis zum Ende fehlen nur ${e.max - e.turm}. `
+      + "Er wächst, wenn ein Überfall verloren geht, wenn für ein Auge die nötige Horde oder der Ring nicht mehr im Vorrat ist "
+      + "und wenn die Gefährten ein Feld mit Auge der Reise-Leiste betreten; einmal im Spiel nimmt ihm der Ruf der Leuchtfeuer 1 Segment. ";
+    if (e.klein != null && e.gross != null && e.klein !== e.gross) {
+      turm += `Zu zweit und zu dritt beginnt er mit ${e.klein}, zu viert und zu fünft mit ${e.gross}: Mit mehr Spielern kommen mehr Rohstoffe `
+        + "gegen die Horden zusammen, so bleibt es ähnlich knapp. ";
+    }
+    if (e.teamPlus) turm += `Im Teamspiel kommt ${e.teamPlus === 1 ? "1 Segment" : `${e.teamPlus} Segmente`} dazu. `;
+    const neu = e.team ? `Neues Teamspiel mit ${e.n} Farben, je zwei Personen spielen zusammen` : `Neues Spiel ${zu}`;
+    return `${neu}. Ziel: Die Gefährten ziehen über die Reise-Leiste bis Feld 10 zum Feuerberg; dann gewinnt, wer am meisten Ruhm hat. `
       + (e.uhr ? "Reist in einer Runde niemand, ziehen sie am Rundenende von selbst ein Feld weiter. " : "")
-      + `Gegner ist der Turm des Schattens: Er beginnt mit ${e.turm} Segmenten, bei ${e.max} ist er vollendet und alle verlieren. `
-      + `${held} (hier bleibt er verdeckt, bis er wirkt). Dann setzt jeder reihum ein Start-Gehöft und rückwärts ein zweites`
-      + `${e.startRuhm ? ", jedes bringt 1 Ruhm" : ""}.`;
+      + turm
+      + `${held}. Die Helden liegen offen vor ihrem Besitzer, jeder wirkt einmal im Spiel. `
+      + `Dann setzt jeder reihum ein Start-Gehöft und rückwärts ein zweites${e.startRuhm ? ", jedes bringt 1 Ruhm" : ""}. `
+      + (e.start !== undefined && e.start !== null ? `${c.name(e.start)} beginnt (am Tisch der Jüngste) und bekommt die Fahne des Startspielers.` : "");
   },
+  heldWahl(e, A) {
+    const k = "Die Heldenkarte liegt offen vor dem Besitzer und wirkt einmal im Spiel; danach wird sie quer gelegt.";
+    switch (e.art) {
+      case "zwei": return `${A} hat 2 Helden gezogen und behält ${heldDe(e.ids[0])}. Der andere kommt aus dem Spiel. ${k}`;
+      case "eins": return `Zu fünft zieht jeder nur 1 Helden: ${A} bekommt ${heldDe(e.ids[0])}. ${k}`;
+      case "team": return `Im Teamspiel zieht jede Person 1 Helden, beide gehören der Farbe: ${A} hat ${listeDe(e.ids.map(heldDe))}. `
+        + "Die Heldenkarten liegen offen, jede wirkt einmal im Spiel (egal, wer von beiden am Zug ist); danach wird sie quer gelegt.";
+      default: return `${A} spielt mit ${e.ids.length === 1 ? "dem festen Helden" : "den festen Helden"}: ${listeDe(e.ids.map(heldDe))}. ${k}`;
+    }
+  },
+  heimatland(e) {
+    const n = ARTEN_REIHE.reduce((a, k) => a + (e.gezogen[k] || 0), 0) + e.wasser;
+    const liste = ARTEN_REIHE.map((k) => {
+      const z = (e.gezogen[k] || 0) + (k === "wasser" ? e.wasser : 0);
+      return z ? `${z} ${KACHEL_DE[k][z === 1 ? 0 : 1]}` : "";
+    });
+    const dose = e.gross
+      ? `Zu viert und zu fünft kommen alle ${e.dose} Gelände-Plättchen in die Nebeldose, und alle Plätze werden belegt, auch die nur für 4–5 Spieler. `
+      : `Zu zweit und zu dritt kommen nur ${e.dose} der ${e.alle} Gelände-Plättchen in die Nebeldose (je 3 Wald, Acker, Weide, Hügel und Gebirge, `
+        + "1 Wasser und die Ruine); die übrigen Kacheln bleiben in der Schachtel, die Plätze nur für 4–5 Spieler bleiben leer. ";
+    const ruine = e.ruine
+      ? `Die Ruine darf nicht ins Heimatland: Sie wurde ${e.ruine === 1 ? "einmal" : `${e.ruine}-mal`} gezogen, kam zurück in die Dose, und es wurde neu gezogen. `
+      : "Nur die Ruine dürfte nicht ins Heimatland (zurück in die Dose, neu ziehen); sie wurde diesmal nicht gezogen. ";
+    return "Die Karte wird ausgelegt (Aufbau 1 bis 6 auf den Tafeln). Die Hauptstadt liegt in der Mitte des Heimatlands im Westen, "
+      + "ganz im Osten das Schattenland mit Nord-Tor, Turm-Tor und Süd-Tor samt Feuerberg, dazwischen der Nebel. "
+      + dose
+      + (e.wasser ? "Das Wasser des Küstenvolks liegt schon, sein Plättchen ist aus der Dose. " : "")
+      + `Für jeden freien Heimatland-Platz (${e.plaetze - e.wasser}) zieht einer blind ein Plättchen aus der Dose: Darauf ist das Gelände abgebildet, `
+      + "die passende Kachel kommt auf den Platz, das Plättchen ist danach weg. Das ist reiner Zufall; wer zieht, ist egal. "
+      + ruine
+      + (e.schatz ? `Ebenso kamen ${e.schatz === 1 ? "1 Schatz-Plättchen" : `${e.schatz} Schatz-Plättchen`} zurück. ` : "")
+      + `Jetzt liegen ${n} Heimatland-Kacheln: ${listeDe(liste)}. `
+      + `Die übrigen ${e.rest} Plättchen werden verdeckt gemischt und je eins auf jeden der ${e.nebel} Nebel-Plätze gelegt. `
+      + "Welches Gelände darunter liegt, weiß niemand, bis dort jemand ein Gehöft baut (Erkunden). "
+      + `Zuletzt kommt der Turm mit ${e.turm} Segmenten aufs Turm-Tor, die Turmspitze mit dem Auge blickt zum Nord-Tor, `
+      + "die Gefährten stehen auf dem Start der Reise-Leiste und die Schicksalskarten werden gemischt.";
+  },
+  zugEnde(e, A, c) {
+    const w = e.dice.map(c.wuerfel);
+    if (e.next === null) {
+      const ernte = w.length ? `${w.length === 1 ? "Der übrige Würfel" : `Die ${w.length} übrigen Würfel`} (${listeDe(w)}) ${w.length === 1 ? "erntet" : "ernten"} alle`
+        : "Kein Würfel ist übrig, die gemeinsame Ernte entfällt";
+      return `${A} beendet den Zug. Damit waren alle am Zug, jetzt folgt das Rundenende: ${ernte}; dann ziehen die Horden, `
+        + "es folgen die Überfälle, die Reise-Uhr und die Wahl des neuen Startspielers."
+        + (e.ende ? " Die Gefährten haben den Feuerberg erreicht: Nach diesem Rundenende ist das Spiel vorbei." : "");
+    }
+    const B = c.name(e.next);
+    const darf = `${B} darf beliebig oft bauen, handeln, reisen, Schicksalskarten spielen und den Helden nutzen, in beliebiger Reihenfolge.`;
+    if (e.planerin) return `${A} beendet den Zug. Jetzt ist ${B} dran, hat die Würfel dieser Runde aber schon mit der Planerin genommen und erntet nicht noch einmal. ${darf}`;
+    if (!w.length) return `${A} beendet den Zug. Jetzt ist ${B} dran. Es ist kein Würfel mehr übrig, darum nimmt ${B} stattdessen 1 beliebigen Rohstoff aus dem Vorrat. Danach ${darf.replace(`${B} darf`, `darf ${B}`)}`;
+    return `${A} beendet den Zug. Jetzt ist ${B} dran: ${B} nimmt ${w.length === 1 ? `den letzten Würfel (${w[0]})` : `1 der ${w.length} übrigen Würfel (${listeDe(w)})`} `
+      + `und erntet. Danach ${darf.replace(`${B} darf`, `darf ${B}`)}`;
+  },
+
   wasser: (e, A, c) => `${A} spielt das Küstenvolk und legt beim Aufbau 1 Wasser auf einen freien Heimatland-Platz. `
     + (e.ernte !== false ? "Gebäude des Küstenvolks am Wasser bringen bei der eigenen Ernte je 1 mehr, und mit einem Gebäude am Wasser tauscht es 2 : 1 mit dem Vorrat."
       : [e.fischer ? "Fischer: Bei seinem eigenen Würfel zählt Wasser für seine Gebäude wie das gewürfelte Gelände (Gehöft 1, Burg 2, Festung 3)." : "",
@@ -469,6 +552,20 @@ function listeEn(a) {
 }
 const plEn = (n, eins, mehr) => (Number(n) === 1 ? eins : mehr);
 
+const HELD_EN = {
+  karten: ["the Master of Cards", "draw 3 fate cards and keep 2"],
+  zauberin: ["the Diviner", "right after the rune roll, turn up to 2 dice to any side, +2 fame"],
+  tueftler: ["the Tinkerer", "build a castle for 1 stone and 1 ore"],
+  planerin: ["the Planner", "on their turn, take 2 dice instead of 1 and harvest both"],
+  hueterin: ["the Warden of Nature", "send a horde back to the Tower Gate, +1 fame"],
+  gelehrter: ["the Scholar", "“Pax vobiscum”: the Eyes of one rune roll do not count, +2 fame"],
+  wegweiserin: ["the Pathfinder", "as the journey of the round, move the Companions 1 space, free and safe, with fame, not onto space 10"],
+  chronist: ["the Chronicler", "a horde next to the capital goes back to the supply, +2 fame"],
+};
+const heldEn = (id) => (HELD_EN[id] ? `${HELD_EN[id][0]} (${HELD_EN[id][1]})` : id);
+const KACHEL_EN = { wald: ["forest", "forests"], feld: ["fields", "fields"], weide: ["pasture", "pastures"], huegel: ["hills", "hills"],
+  gebirge: ["mountains", "mountains"], wasser: ["water", "water"], ruine: ["ruin", "ruins"] };
+
 function hilfenEn(s) {
   const h = {
     name: (i) => s.seats?.[i]?.name ?? "?",
@@ -502,15 +599,81 @@ function hilfenEn(s) {
 
 // ---------------------------------------------------------------- Englisch: Erklärungen je Art
 const EN = {
-  aufbau(e) {
-    const held = { zwei: "Each player draws 2 heroes and keeps 1", eins: "With 5 players, each draws just 1 hero",
-      team: "In the team game, each person draws 1 hero", fest: "Everyone plays their fixed hero" }[e.helden] || "Everyone gets a hero";
-    return `New game with ${e.n} players. Goal: the Companions travel along the journey track to space 10 at the Fire Mountain; then whoever has the most fame wins. `
+  aufbau(e, A, c) {
+    const held = { zwei: "Each player draws 2 heroes and keeps 1, the other leaves the game", eins: "With 5 players, each draws just 1 hero",
+      team: "In the team game, each person draws 1 hero, both belong to the color", fest: "Everyone plays their fixed hero" }[e.helden]
+      || "Everyone gets a hero";
+    let turm = `The enemy is the Tower of Shadow: it starts with ${e.turm} segments, and at ${e.max} it is complete and everyone loses. `
+      + `So it stands half built from the start, a visible threat: only ${e.max - e.turm} are missing. `
+      + "It grows when a raid is lost, when an Eye needs a horde or ring that is no longer in the supply, "
+      + "and when the Companions enter a space with an Eye on the journey track; once per game the Call of the Beacons takes 1 segment away. ";
+    if (e.klein != null && e.gross != null && e.klein !== e.gross) {
+      turm += `With 2 or 3 players it starts with ${e.klein}, with 4 or 5 with ${e.gross}: more players bring more resources against the hordes, `
+        + "so it stays about as tight. ";
+    }
+    if (e.teamPlus) turm += `In the team game it gets ${e.teamPlus === 1 ? "1 more segment" : `${e.teamPlus} more segments`}. `;
+    const neu = e.team ? `New team game with ${e.n} colors, two people playing together on each` : `New game with ${e.n} players`;
+    return `${neu}. Goal: the Companions travel along the journey track to space 10 at the Fire Mountain; then whoever has the most fame wins. `
       + (e.uhr ? "If nobody travels in a round, they move on 1 space by themselves at the end of the round. " : "")
-      + `The enemy is the Tower of Shadow: it starts with ${e.turm} segments, and at ${e.max} it is complete and everyone loses. `
-      + `${held} (it stays hidden here until it is used). Then everyone places a starting farm in turn order, and a second one in reverse order`
-      + `${e.startRuhm ? "; each gives 1 fame" : ""}.`;
+      + turm
+      + `${held}. Heroes lie face up in front of their owner; each works once per game. `
+      + `Then everyone places a starting farm in turn order, and a second one in reverse order${e.startRuhm ? "; each gives 1 fame" : ""}. `
+      + (e.start !== undefined && e.start !== null ? `${c.name(e.start)} starts (at the table: the youngest) and takes the start player flag.` : "");
   },
+  heldWahl(e, A) {
+    const k = "The hero card lies face up in front of its owner and works once per game; then it is turned sideways.";
+    switch (e.art) {
+      case "zwei": return `${A} drew 2 heroes and keeps ${heldEn(e.ids[0])}. The other one leaves the game. ${k}`;
+      case "eins": return `With 5 players, each draws just 1 hero: ${A} gets ${heldEn(e.ids[0])}. ${k}`;
+      case "team": return `In the team game, each person draws 1 hero, both belong to the color: ${A} has ${listeEn(e.ids.map(heldEn))}. `
+        + "The hero cards lie face up; each works once per game (whichever of the two is taking the turn); then it is turned sideways.";
+      default: return `${A} plays with ${plEn(e.ids.length, "the fixed hero", "the fixed heroes")}: ${listeEn(e.ids.map(heldEn))}. ${k}`;
+    }
+  },
+  heimatland(e) {
+    const n = ARTEN_REIHE.reduce((a, k) => a + (e.gezogen[k] || 0), 0) + e.wasser;
+    const liste = ARTEN_REIHE.map((k) => {
+      const z = (e.gezogen[k] || 0) + (k === "wasser" ? e.wasser : 0);
+      return z ? `${z} ${KACHEL_EN[k][z === 1 ? 0 : 1]}` : "";
+    });
+    const dose = e.gross
+      ? `With 4 or 5 players, all ${e.dose} terrain tokens go into the mist container, and every space is used, including those for 4–5 players only. `
+      : `With 2 or 3 players, only ${e.dose} of the ${e.alle} terrain tokens go into the mist container (3 each of forest, fields, pasture, hills `
+        + "and mountains, 1 water and the ruin); the other tiles stay in the box, the spaces for 4–5 players only stay empty. ";
+    const ruine = e.ruine
+      ? `The ruin may not go into the homeland: it was drawn ${e.ruine === 1 ? "once" : `${e.ruine} times`}, went back into the container, and a new token was drawn. `
+      : "Only the ruin may not go into the homeland (back into the container, draw again); it was not drawn this time. ";
+    return "The map is laid out (setup 1 to 6 on the boards). The capital lies in the middle of the homeland in the west, "
+      + "in the far east the Shadowland with North Gate, Tower Gate and South Gate with the Fire Mountain, the mist in between. "
+      + dose
+      + (e.wasser ? "The Coastfolk's water is already there, its token removed from the container. " : "")
+      + `For each free homeland space (${e.plaetze - e.wasser}) someone draws a token blind from the container: it shows the terrain, `
+      + "the matching tile goes on the space, then the token is removed. This is pure chance; it doesn't matter who draws. "
+      + ruine
+      + (e.schatz ? `Likewise ${plEn(e.schatz, "1 treasure token went", `${e.schatz} treasure tokens went`)} back. ` : "")
+      + `Now ${n} homeland tiles lie there: ${listeEn(liste)}. `
+      + `The remaining ${e.rest} tokens are shuffled face down, one on each of the ${e.nebel} mist spaces. `
+      + "Nobody knows which terrain lies beneath until someone builds a farm there (exploring). "
+      + `Finally the tower with ${e.turm} segments goes on the Tower Gate, the tower top with the Eye faces the North Gate, `
+      + "the Companions stand on START of the journey track, and the fate cards are shuffled.";
+  },
+  zugEnde(e, A, c) {
+    const w = e.dice.map(c.wuerfel);
+    if (e.next === null) {
+      const ernte = w.length ? `${plEn(w.length, "the remaining die", `the ${w.length} remaining dice`)} (${listeEn(w)}) ${plEn(w.length, "harvests", "harvest")} for everyone`
+        : "no die is left, so there is no shared harvest";
+      return `${A} ends the turn. Everyone has had a turn, now comes the end of the round: ${ernte}; then the hordes move, `
+        + "followed by the raids, the journey clock and choosing the new start player."
+        + (e.ende ? " The Companions have reached the Fire Mountain: after this end of round the game is over." : "");
+    }
+    const B = c.name(e.next);
+    const darf = `${B} may then build, trade, travel, play fate cards and use their hero as often as they like, in any order.`;
+    if (e.planerin) return `${A} ends the turn. Now it's ${B}'s turn, but ${B} already took dice with the Planner this round and does not harvest again. ${darf.replace(" then", "")}`;
+    if (!w.length) return `${A} ends the turn. Now it's ${B}'s turn. No die is left, so ${B} takes 1 resource of their choice from the supply instead. ${darf}`;
+    return `${A} ends the turn. Now it's ${B}'s turn: ${B} takes ${w.length === 1 ? `the last die (${w[0]})` : `1 of the ${w.length} remaining dice (${listeEn(w)})`} `
+      + `and harvests. ${darf}`;
+  },
+
   wasser: (e, A, c) => `${A} plays the Coastfolk and places 1 water tile on a free homeland space during setup. `
     + (e.ernte !== false ? "Coastfolk buildings at the water yield 1 more with their own die, and with a building at the water they trade 2 : 1 with the supply."
       : [e.fischer ? "Fishers: with their own die, water counts for their buildings as the rolled terrain (farm 1, castle 2, fortress 3)." : "",
