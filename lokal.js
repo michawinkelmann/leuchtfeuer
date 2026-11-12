@@ -2,7 +2,7 @@
 // versteht wie server/index.js (join, setBot, botDelay, schritt, weiter, act, hint). Alle Menschen-Plätze spielen an
 // diesem Gerät. „Schritt für Schritt“ (schritt): Bots ziehen erst, wenn jemand „Weiter“ schickt.
 import * as E from "./shared/engine.js";
-import { botAction, runBots } from "./shared/bot.js";
+import { botAction, runBots, ersatzZug } from "./shared/bot.js";
 
 const SPEICHER = "leuchtfeuer-lokal";
 
@@ -21,8 +21,9 @@ export function vergessen() {
   } catch { /* kein Speicher */ }
 }
 
-export function neuesSpiel(seats, startSeat = 0) {
-  return E.createGame({ seats, startSeat, personal: false, team: false });
+/** opt.team: Teamspiel (2–4 Farben, seats[i].persons); opt.erste: erste Partie (ohne Völker, Turm 1 Segment niedriger) */
+export function neuesSpiel(seats, startSeat = 0, opt = {}) {
+  return E.createGame({ seats, startSeat, personal: false, team: !!opt.team, erstePartie: !!opt.erste, ohneVoelker: !!opt.erste });
 }
 
 // -> Objekt mit socket(): ein Ersatz für den WebSocket in game.js
@@ -53,7 +54,7 @@ export function lokalerRaum(state, botDelay = 700, schritt = false) {
     // Ersatzzug wie im Server, falls der Bot einen ungültigen Zug vorschlägt
     const before = s.pending;
     runBots(s, (i) => s.seats[i].bot && s.pending === before, 1);
-    if (s.pending === before && before.type === "turn") E.act(s, before.seat, before.dieTaken ? { type: "endTurn" } : { type: "takeResource", res: "holz" });
+    if (s.pending === before && before.type === "turn") E.act(s, before.seat, ersatzZug(s, before));
   }
 
   // Eine Aktion des Bots, der gerade dran ist (mit Ersatzzug). -> false bei einem Fehler, den auch der Ersatz nicht löst

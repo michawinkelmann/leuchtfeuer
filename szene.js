@@ -8,7 +8,7 @@ import { makeBoard, GATES, TOWER_GATE } from "./shared/board.js";
 import { COLORS } from "./shared/data.js";
 import { score } from "./shared/engine.js";
 
-const COLOR_LABEL = { rot: "Rot", blau: "Blau", gelb: "Gelb", weiss: "Weiß", lavendel: "Lavendel", lila: "Lila" };
+const COLOR_LABEL = { rot: "Rot", blau: "Blau", gelb: "Gelb", weiss: "Weiß", indigo: "Indigo", lavendel: "Lavendel", lila: "Lila" };
 const DEG = Math.PI / 180;
 
 function W(x, y, z = 0) {
@@ -117,10 +117,11 @@ export async function createScene(el, { onPick, onProgress } = {}) {
   const fogMat = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 1, transparent: true, opacity: 0.55 });
   const fogGeo = new THREE.ExtrudeGeometry(hexShape(R * 0.96), { depth: 3, bevelEnabled: false });
   fogGeo.rotateX(-Math.PI / 2);
-  // Nebel-Plättchen (seit dem Tisch-Durchlauf 7.11.2026): auf jedem leeren Nebel-Platz verdeckt, Wirbel oben;
-  // grau 32 mm Schlüsselweite, 3 mm dick wie zubehoer.nebel_plaettchen. Horden im Nebel stehen darauf.
-  const CHIP_R = 16 / Math.cos(30 * DEG);
-  const chipGeo = new THREE.ExtrudeGeometry(hexShape(CHIP_R), { depth: 3, bevelEnabled: false });
+  // Nebel-Plättchen (seit dem Tisch-Durchlauf 7.11.2026): auf jedem leeren Nebel-Platz verdeckt, Wirbel oben; Horden im
+  // Nebel stehen darauf. Seit 12.11.2026 52 mm Schlüsselweite und 2,6 mm dick (vorher 32 × 3 mm), ohne Nebeldose.
+  const CHIP_SW = C.NEBEL_SW ?? 52, CHIP_H = C.NEBEL_H ?? 2.6;      // aus dem Manifest, falls der Generator sie liefert
+  const CHIP_R = CHIP_SW / 2 / Math.cos(30 * DEG);
+  const chipGeo = new THREE.ExtrudeGeometry(hexShape(CHIP_R), { depth: CHIP_H, bevelEnabled: false });
   chipGeo.rotateX(-Math.PI / 2);
   const chipMats = (() => {
     const c = document.createElement("canvas");
@@ -130,11 +131,11 @@ export async function createScene(el, { onPick, onProgress } = {}) {
     g.fillStyle = "#9b9ea0";
     g.fillRect(0, 0, 256, 256);
     g.strokeStyle = "#f2f0ea";
-    g.lineWidth = 1.2 * k;
+    g.lineWidth = 1.6 * k;
     g.lineCap = "round";
     g.beginPath();
     for (let i = 0; i <= 120; i++) {
-      const t = i / 120, a = t * 2.4 * 2 * Math.PI + 1.3, rr = (1.5 + t * 10.5) * k;
+      const t = i / 120, a = t * 2.4 * 2 * Math.PI + 1.3, rr = (2.4 + t * 17) * k;      // Wirbel mit dem Plättchen mitgewachsen
       const px = 128 + rr * Math.cos(a), py = 128 + rr * Math.sin(a);
       if (i) g.lineTo(px, py);
       else g.moveTo(px, py);
@@ -243,7 +244,7 @@ export async function createScene(el, { onPick, onProgress } = {}) {
       const t = s.tiles[f];
       const spot = (t && models[t.model]?.spot) || [0, 0];
       // wie am Tisch: eine Figur, für jede weitere Horde ein roter Hordenring darunter (figuren.hordenring)
-      const z = t ? Z_INSERT + INSERT_H + 0.4 : Z_CHIP + 3;            // im Nebel auf dem Plättchen
+      const z = t ? Z_INSERT + INSERT_H + 0.4 : Z_CHIP + CHIP_H;       // im Nebel auf dem Plättchen
       for (let k = 0; k < hs.length - 1; k++) {
         const ring = new THREE.Mesh(ringGeo, ringMat);
         ring.position.copy(W(x + spot[0], y + spot[1], z + RING_H * (k + 0.5)));
@@ -260,17 +261,20 @@ export async function createScene(el, { onPick, onProgress } = {}) {
     if (tg) {
       const [tx, ty0] = mm(tg);
       const ty = ty0 + 4.5;
-      let z = Z_INSERT + INSERT_H + 0.6;
+      // Fuß des Sockels und Segmenthöhen aus dem Manifest (seit 12.11.2026: Aufnahme 6,5 mm tief, Sockel 16,4 mm hoch)
+      const tv = meta?._versaetze || {};
+      const z = Z_INSERT + (tv.turm_sockel?.z != null ? tv.turm_sockel.z - (tv.einsatz_z ?? Z_INSERT) : INSERT_H - 1.0);
+      const z0 = tv.turm_segment_z0 ?? 16.4, zh = tv.turm_segment_h ?? 9.0;
       const sock = inst("Turm-Sockel");
       if (sock) layers.pieces.add(place(sock, tx, ty, z));
       for (let k = 0; k < s.tower; k++) {
         const seg = inst("Turm-Segment");
-        if (seg) layers.pieces.add(place(seg, tx, ty, z + 12.4 + 9.0 * k));
+        if (seg) layers.pieces.add(place(seg, tx, ty, z + z0 + zh * k));
       }
       const gate = GATES[s.eye];
       const rot = { "6,1": 0, "6,3": 180, "6,2": 90 }[gate] ?? 0;      // Auge blickt im Modell nach Norden (+y)
       const sp = inst("Turm-Spitze");
-      if (sp) layers.pieces.add(place(sp, tx, ty, z + 12.4 + 9.0 * s.tower, rot));
+      if (sp) layers.pieces.add(place(sp, tx, ty, z + z0 + zh * s.tower, rot));
     }
     // Reise-Leiste mit Gefährten
     const rl = inst(s.personal ? "Reise-Leiste persönlich" : "Reise-Leiste neutral") || inst("Reise-Leiste");

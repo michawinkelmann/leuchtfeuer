@@ -156,3 +156,6 @@ body.ingame { overflow: hidden; }
 .loglines div.erkl.c-gelb { color: #c7e3cf; border-left-color: #f5d77a; }
 .loglines div.erkl.c-weiss { color: #c7e3cf; border-left-color: #ffffff; }
 .loglines div.erkl.c-lila, .loglines div.erkl.c-lavendel { color: #c7e3cf; border-left-color: #d1b1ee; }
+/* Fähigkeit des Volks unter dem Namen in der Spielerliste (12.11.2026) */
+.seat .volk { text-decoration: underline dotted; text-underline-offset: 2px; cursor: help; }
+.seat .volkinfo { color: var(--muted); font-size: 0.85rem; margin: 1px 0 2px; line-height: 1.25; }

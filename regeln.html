@@ -15,60 +15,81 @@
     .regeln ul.karten { list-style: none; padding: 0; margin: 8px 0 4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 10px 18px; }
     .regeln ul.karten li { display: flex; gap: 10px; align-items: flex-start; }
     .regeln ul.karten img { flex: none; width: 42px; height: 42px; padding: 5px; background: #fff; border-radius: 6px; }
-    .regeln ul.karten strong { display: block; }</style>
+    .regeln ul.karten strong { display: block; } .regeln #koop :is(ol, ul) { max-width: 46em; padding-left: 1.4em; } .regeln #koop li { margin: 4px 0; }</style>
 </head>
 <body>
   <div class="page regeln">
-    <header><nav><a href="./?lang=de">← Zur Startseite</a> · <a href="rules.html" lang="en" hreflang="en">English</a></nav><h1>Leuchtfeuer – Kurzregeln</h1><p>So stehen die Regeln auf den Tafeln im Deckel der Spielbox. In der Browser-Fassung baut das Spiel die Karte selbst auf.</p></header>
+    <header><nav><a href="./?lang=de">← Zur Startseite</a> · <a href="#koop">Die Reise (kooperativ) und Hausregeln</a> · <a href="rules.html" lang="en" hreflang="en">English</a></nav><h1>Leuchtfeuer – Kurzregeln</h1><p>So stehen die Regeln auf den Tafeln im Deckel der Spielbox. In der Browser-Fassung baut das Spiel die Karte selbst auf.</p></header>
     <section class="card">
 <h2>Aufbau</h2>
 <figure class="plan"><img src="aufbau.png" alt="Aufbauplan: Hauptstadt, Heimatland, Nebel und Schattenland"></figure>
-<p>Mit Magneten: 1. Hauptstadt hinlegen. Jeder wählt Farbe und Volk (jedes nur einmal, erste Partie ohne). Küstenvolk: wählt einen Heimatland-Platz für 1 Wasser (anlegen, sobald ein Nachbar liegt), sein Plättchen weg.</p>
-<p>Mit Grundplatte: 1. Grundplatte zusammenstecken, Hauptstadt in ihr Feld. Jeder wählt Farbe und Volk (jedes nur einmal, erste Partie ohne). Küstenvolk: 1 Wasser auf einen Heimatland-Platz seiner Wahl, sein Plättchen weg.</p>
+<p>Mit Magneten: 1. Hauptstadt hinlegen. Jeder wählt Farbe und Volk (je einmal, erste Partie ohne; Teams: siehe „Teamspiel“).</p>
+<p>Mit Grundplatte: 1. Grundplatte zusammenstecken, Hauptstadt in ihr Feld. Jeder wählt Farbe und Volk (je einmal, erste Partie ohne; Teams: siehe „Teamspiel“).</p>
 <p>2. Zu zweit oder dritt nur je 3 Wald, Acker, Weide, Hügel, Gebirge, 1 Wasser, die Ruine und ihre Plättchen.</p>
-<p>Mit Magneten: 3. Plättchen in die Nebeldose. Je freien Heimatland-Platz blind eins ziehen, Kachel anlegen, Plättchen weg; Ruine zurück, neu ziehen. Stößt eine Kachel ab: 60° drehen.</p>
-<p>Mit Grundplatte: 3. Plättchen in die Nebeldose. Je freien Heimatland-Platz blind eins ziehen, Kachel in das Feld, Plättchen weg; Ruine zurück, neu ziehen.</p>
+<p>Mit Magneten: 3. Küstenvolk: wählt einen Heimatland-Platz für 1 Wasser (anlegen, sobald ein Nachbar liegt), sein Plättchen weg. Übrige Plättchen verdeckt mischen. Je freien Heimatland-Platz eins umdrehen, Kachel anlegen, Plättchen weg; Ruine zurück, neu ziehen. Stößt eine Kachel ab: 60° drehen.</p>
+<p>Mit Grundplatte: 3. Küstenvolk: 1 Wasser auf einen Heimatland-Platz seiner Wahl, sein Plättchen weg. Übrige Plättchen verdeckt mischen. Je freien Heimatland-Platz eins umdrehen, Kachel in das Feld, Plättchen weg; Ruine zurück, neu ziehen.</p>
 <p class="legende"><span><img class="ic" src="icons/holz.svg" alt=""> Wald: Holz</span> <span><img class="ic" src="icons/korn.svg" alt=""> Acker: Korn</span> <span><img class="ic" src="icons/pferde.svg" alt=""> Weide: Pferde</span> <span><img class="ic" src="icons/stein.svg" alt=""> Hügel: Stein</span> <span><img class="ic" src="icons/erz.svg" alt=""> Gebirge: Erz</span></p>
-<p>Mit Magneten: 4. Als Abstand 3 übrige Kacheln vom Heimatland zum Turm-Tor legen, Schattenland anschnappen (oben Nord-Tor, unten Süd-Tor mit Feuerberg), die 3 wieder weg.</p>
+<p>Mit Magneten: 4. 3 übrige Kacheln als Abstand vom Heimatland zum Turm-Tor, Schattenland daran (oben Nord-Tor, unten Süd-Tor mit Feuerberg) anschnappen, die 3 weg.</p>
 <p>Mit Grundplatte: 4. Schattenland in die Felder N, T, S: Nord-Tor, Turm-Tor, Süd-Tor mit Feuerberg.</p>
-<p>5. Übrige Plättchen verdeckt mischen, je eins auf jeden Nebel-Platz.</p>
-<p>6. Turm mit 4 Segmenten aufs Turm-Tor (zu viert, fünft 5), Auge zum Nord-Tor. Gefährten auf Start. Schicksalskarten („Karten“) mischen.</p>
-<p>7. 2 Helden ziehen, 1 offen behalten (zu fünft 1).</p>
-<p>8. Der Jüngste beginnt (Fahne): reihum 1 Gehöft zwischen zwei Heimatland-Kacheln (Hauptstadt zählt mit), rückwärts ein zweites, dafür 1 Rohstoff je Geländefeld daran. Ruhm-Marker auf 2.</p>
+<p>5. Übrige Plättchen verdeckt je eins auf jeden Nebel-Platz.</p>
+<p>6. Turm mit 4 Segmenten aufs Turm-Tor (zu viert, fünft 5; Team +1; erste Partie −1), Auge zum Nord-Tor. Gefährten auf Feld 0. Schicksalskarten („Karten“) mischen.</p>
+<p>7. 2 Helden ziehen (zu fünft 1), 1 offen behalten.</p>
+<p>8. Der Jüngste beginnt (Fahne): reihum 1 Gehöft zwischen zwei Heimatland-Kacheln (Hauptstadt zählt mit), rückwärts ein zweites; es bringt 1 Rohstoff je Geländefeld daran. Ruhm-Marker auf 2.</p>
 <h2>Ziel und Ende</h2>
-<p>2–5 Spieler, im Team 4, 6 oder 8. Turm vollendet (8 Segmente): Alle verlieren. Gefährten auf Feld 10: Runde samt Rundenende fertig spielen; der meiste Ruhm gewinnt (Gleichstand: mehr Rohstoffe, sonst gemeinsam).</p>
+<p>2–5 Spieler. Hat der Turm 8 Segmente, verlieren alle sofort. Gefährten auf Feld 10: Runde samt Rundenende fertig spielen; dann siegen alle, Held des Westens wird, wer am meisten Ruhm hat (Gleichstand: mehr Rohstoffe, sonst gemeinsam).</p>
 <h2>Völker</h2>
 <p>Menschen: Bei Überfällen bringt jedes deiner Pferde 2 Abwehr (Ruhm 1).</p>
-<p>Elben: Für 1 Korn den genommenen Würfel auf ein Gelände drehen.</p>
+<p>Elben: Genommene Würfel beim Nehmen für je 1 Korn auf ein Gelände drehen.</p>
 <p>Zwerge: Leuchtfeuer kosten 1 Stein weniger.</p>
 <p>Halblinge: Ziehst du die Gefährten auf ein Feld mit Auge, wächst der Turm nicht.</p>
-<p>Küstenvolk: Mit Gebäude am Wasser: Handel 2 : 1.</p>
+<p>Küstenvolk: Mit Gebäude am Wasser Handel 2 : 1.</p>
 <h2>Teamspiel</h2>
-<p>Je zwei teilen Farbe und Volk, sind abwechselnd am Zug und gewinnen gemeinsam; jede Farbe zählt als ein Spieler (auch für Kacheln, Würfel und Turm). Jede Person zieht 1 Helden, beide gehören der Farbe. Turm startet mit 1 Segment mehr.</p>
+<p>Zu 4, 6 oder 8: Je zwei teilen Farbe, Volk, Rohstoffe und Karten, spielen den Zug ihrer Farbe abwechselnd (jede Runde der andere), beraten und gewinnen gemeinsam; jede Farbe zählt als ein Spieler (auch für Kacheln, Würfel und Turm). Jede Person zieht 1 Helden, beide gehören der Farbe. Turm startet mit 1 Segment mehr (zu acht: 6, erste Partie 5).</p>
 <h2>Helden und Karten</h2>
-<p>Helden wirken einmal im Spiel, im eigenen Zug (Spürzauberin und Gelehrter nach dem Runenwurf, reihum ab dem Startspieler); dann quer legen. Karten: höchstens 3 auf der Hand, mehr unter den Stapel; ausspielen im eigenen Zug (Verstärkung beim Überfall), dann unter den Stapel. Der Eilbote ist keine Reise der Runde (die Gefährten können am Rundenende trotzdem von selbst ziehen).</p>
+<p>Helden wirken einmal im Spiel, im eigenen Zug (Spürzauberin und Gelehrter nach dem Runenwurf, reihum ab dem Startspieler); dann quer legen. Karten: höchstens 3 auf der Hand, mehr unter den Stapel; ausspielen im eigenen Zug (Verstärkung beim Überfall), dann unter den Stapel. Der Eilbote ist keine Reise der Runde (die Gefährten können am Rundenende trotzdem von selbst ziehen). Den Gelehrten nur, wenn ein Auge liegt.</p>
 <h2>Tipps</h2>
-<p>Erste Partie: Erz und Pferde für Überfälle bereithalten, sie bringen auch Ruhm. Ein Gehöft an der Hauptstadt erlaubt Handel 2 : 1. Auf den Reise-Feldern 4 und 8 wächst der Turm sicher: früh an Leuchtfeuer und den Ruf denken.</p>
+<p>Erste Partie: Helden und Karten nicht aufsparen. Erz und Pferde bereithalten: Zahlen bringt Ruhm, auch für fremde Gebäude. Gehöft an der Hauptstadt: Handel 2 : 1. Reise-Felder 4 und 8: Turm +1, also früh an Leuchtfeuer und den Ruf (siehe „Leuchtfeuer“) denken. Vom Tor zur Hauptstadt sind es 5 Felder.</p>
 <h2>Runde</h2>
-<p>1. Der Startspieler würfelt 5 Würfel (zu fünft 6) im umgedrehten Deckel. Spürzauberin und Gelehrter wirken jetzt. Dann je Auge: Turmspitze im Uhrzeigersinn zum nächsten Tor (Nord, Süd, Turm-Tor = Blick nach Westen), dort erscheint eine Horde. Augen beiseite.</p>
-<p>2. Reihum ab dem Startspieler: 1 Würfel nehmen und ernten: Deine Gebäude bringen je Feld dieses Geländes Gehöft 1, Burg 2, Festung 3; bringt der Würfel etwas, 1 mehr. Kein Würfel mehr: 1 beliebiger Rohstoff. Dann beliebig oft bauen, handeln, reisen, Karten, Held.</p>
-<p>3. Rundenende: Übrige Würfel ernten alle (ohne 1 mehr). Horden ziehen, vorderste zuerst, 1 Feld zur Hauptstadt; gleich kurz: der Startspieler wählt. Überfälle, die nächsten zuerst. Ist niemand gereist, ziehen die Gefährten 1 Feld von selbst (ohne Kosten und Ruhm). Startspieler wird, wer am wenigsten Ruhm hat (Gleichstand: von ihnen der Nächste links).</p>
+<p>1. Der Startspieler würfelt 5 Würfel (zu fünft 6) im umgedrehten Deckel. Spürzauberin und Gelehrter wirken jetzt. Dann je Auge: Turmspitze im Uhrzeigersinn zum nächsten Tor (Nord, Süd, West = Turm-Tor selbst); dort erscheint eine Horde. Augen beiseite.</p>
+<p>2. Reihum ab dem Startspieler: 1 Würfel nehmen und ernten: Deine Gebäude bringen je Feld dieses Geländes Gehöft 1, Burg 2, Festung 3; bringt der Würfel etwas, 1 mehr. Kein Würfel oder kein Ertrag: 1 beliebiger Rohstoff. Dann beliebig oft bauen, handeln, reisen, Karten, Held.</p>
+<p>3. Rundenende: Übrige Würfel erntet jeder (ohne 1 mehr). Horden ziehen, vorderste zuerst, 1 Feld zur Hauptstadt; gleich kurz: der Startspieler wählt. Überfälle, die nächsten zuerst (gleich nah: der Startspieler wählt). Ist niemand gereist, ziehen die Gefährten 1 Feld von selbst (ohne Kosten und Ruhm). Startspieler wird, wer am wenigsten Ruhm hat (Gleichstand: von ihnen der Nächste links vom alten).</p>
 <h2>Bauen</h2>
-<p>Gebäude (Gehöft, Burg, Festung) stehen auf Kanten zwischen zwei Kacheln, eins je Kante, nie am Schattenland. Dein Reich: alle Felder an deinen Gebäuden; neue Gehöfte an seine freien Kanten. Burg auf eigenes Gehöft, Festung auf eigene Burg. Kosten: Spielhilfe-Leiste.</p>
-<p>Erkunden: Gehöft an einem Nebel-Plättchen: erst umdrehen, Kachel dorthin (unter eine Horde), Plättchen weg, 1 Karte ziehen.</p>
-<p>Ruhm sofort auf die Leiste: Gehöft 1, Ausbau +1, Leuchtfeuer 2. Verliert ein Gebäude eine Stufe (bis vom Brett): −1. Alle verloren: nächstes Gehöft zwischen zwei Heimatland-Kacheln.</p>
+<p>Gebäude (Gehöft, Burg, Festung) stehen auf Kanten zwischen zwei Kacheln, eins je Kante, nie am Schattenland. Neue Gehöfte an freie Kanten der Felder, an denen du Gebäude hast (dein Reich). Burg auf eigenes Gehöft, Festung auf eigene Burg. Kosten: Spielhilfe-Leiste.</p>
+<p>Erkunden: Gehöft an einem Nebel-Plättchen: bezahlen, umdrehen, Kachel dorthin (unter eine Horde), Plättchen weg, 1 Karte ziehen.</p>
+<p>Ruhm sofort auf die Leiste: Leuchtfeuer 2, Gehöft 1, Ausbau +1. Jede verlorene Stufe (auch ein Gehöft vom Brett): −1. Alle verloren: nächstes Gehöft zwischen zwei Heimatland-Kacheln.</p>
 <h2>Handeln</h2>
-<p>Mit dem Spieler am Zug frei; mit dem Vorrat 3 gleiche gegen 1, mit Gebäude an der Hauptstadt 2 gegen 1. Was nicht im Vorrat ist, gibt es nicht; reicht er für eine Ernte nicht: reihum ab dem Startspieler. Horden blockieren keine Ernte.</p>
+<p>Nur wer am Zug ist, handelt: mit Mitspielern frei, mit dem Vorrat 3 gleiche gegen 1, mit Gebäude an der Hauptstadt 2 gegen 1. Was nicht im Vorrat ist, gibt es nicht; reicht er für eine Ernte nicht: reihum ab dem Startspieler. Horden blockieren keine Ernte. Wasser und Ruine bringen nichts.</p>
 <h2>Schatten</h2>
-<p>Horden ziehen nur über Kacheln und Plättchen. Mehrere Horden auf einem Feld: eine Figur, je weitere ein Ring darunter, ihre Figur zurück in den Vorrat; jede Figur und jeder Ring ist eine Horde. Fehlt Figur oder Ring: Turm +1. Im Nebel stehen Horden auf dem Plättchen. Wächst der Turm: Spitze gleich ausgerichtet aufsetzen.</p>
-<p>Überfall an Feldern mit Gebäuden, an der Hauptstadt immer. Stärke 2 je Horde. Abwehr: je Burg 1, je Festung 2 (egal wem). Fehlt Abwehr, dürfen reihum ab dem Startspieler die Besitzer am Feld zahlen, bei Leuchtfeuer alle, nur mit Erz und Pferden: je 1 Abwehr und 1 Ruhm. Jeder sagt einmal an, zusammen nie mehr als nötig (Verstärkung und Pferd der Menschen dürfen überzahlen). Gezahltes geht in den Vorrat.</p>
+<p>Horden ziehen nur über Kacheln und Plättchen, im Nebel stehen sie darauf. Mehrere Horden auf einem Feld: oben 1 Figur, jede weitere Horde ist ein Ring darunter (ihre Figur in den Vorrat); sie ziehen zusammen. Fehlt Figur oder Ring, entfällt die Horde. Wächst der Turm: Spitze gleich ausgerichtet aufsetzen.</p>
+<p>Überfall an Feldern mit Gebäuden und immer an der Hauptstadt. Je Horde Stärke 2. Abwehr: je Burg 1, je Festung 2 (egal, wem). Fehlt Abwehr, darf reihum ab Startspieler zahlen, wer am Feld ein Gebäude hat (bei Leuchtfeuer und an der Hauptstadt jeder), nur mit Erz und Pferden: je 1 Abwehr und 1 Ruhm, auch wenn es nicht reicht. Jeder sagt einmal an, zusammen nie mehr als nötig (Verstärkung, Pferd der Menschen dürfen überzahlen). Gezahltes in den Vorrat.</p>
 <p>Reicht es: Horden in den Vorrat. Sonst: Turm +1, jedes Gebäude am Feld verliert eine Stufe, die Horden bleiben. An der Hauptstadt kommen sie danach immer in den Vorrat.</p>
 <h2>Leuchtfeuer</h2>
 <p>Bauen: freie Ecke mit drei Kacheln an einem Gebirge oder Hügel deines Reichs, nicht am Schattenland; je Gebirge und Hügel höchstens eins. Es gehört niemandem und brennt immer: Bei Überfällen an seinen drei Feldern und deren Nachbarn dürfen alle zahlen.</p>
-<p>Ruf: Mit dem dritten Leuchtfeuer kommen einmal im Spiel die Verbündeten: Turm −1, wer es baut: 3 Ruhm.</p>
+<p>Ruf: Mit dem dritten Leuchtfeuer kommen einmal im Spiel die Verbündeten: Turm −1, wer es baut: +1 Ruhm.</p>
 <p>Beispiel Überfall: 2 Horden (Stärke 4) am Wald, dort Rots Burg (Abwehr 1): Es fehlen 3. Rot ist Startspieler und zahlt 1 Erz (1 Ruhm). Am Nachbarfeld brennt ein Leuchtfeuer, also darf auch Blau zahlen: 2 Pferde (2 Ruhm). Abgewehrt: Horden in den Vorrat.</p>
 <h2>Reise</h2>
-<p>Höchstens 1 Feld pro Runde, im eigenen Zug, wer zuerst zahlt; Kosten und Ruhm auf der Leiste. Felder mit Auge (4, 8), auch von selbst: Turm +1, vollendet ihn aber nie. Gereist? Gefährten quer stellen, ganz am Rundenende gerade.</p>
+<p>Höchstens 1 Feld pro Runde, im eigenen Zug, wer zuerst zahlt; Kosten und Ruhm des neuen Feldes auf der Leiste. Felder mit Auge (4, 8), auch von selbst: Turm +1, vollendet ihn aber nie. Gereist? Gefährten quer stellen, ganz am Rundenende gerade.</p>
+    </section>
+    <section class="card" id="koop">
+<h2>Die Reise – alle gemeinsam gegen den Schatten</h2>
+<p>Kooperativ, auch allein: für 1–5 Farben, auch im Teamspiel. Es gelten die Grundregeln mit diesen Änderungen (Kurzfassung auf den zwei Koop-Karten):</p>
+<ol>
+<li><strong>Ziel:</strong> Ihr gewinnt gemeinsam, wenn die Gefährten Feld 10 erreichen <strong>und</strong> der Ruf der Leuchtfeuer gekommen ist. Wird der Turm vollendet, verliert ihr alle. Erreichen die Gefährten Feld 10 ohne Ruf, habt ihr ebenfalls verloren.</li>
+<li><strong>Ruf:</strong> Bei 1–3 Farben kommt der Ruf schon mit dem <strong>zweiten</strong> Leuchtfeuer (sonst mit dem dritten wie immer).</li>
+<li><strong>Ruhm zählt nicht.</strong> Der Startspieler wechselt jede Runde reihum nach links, die Fahne wandert mit.</li>
+<li><strong>Geschenke:</strong> Im eigenen Zug darfst du Mitspielern Rohstoffe schenken. Handeln darf man wie immer nur mit dem Spieler am Zug.</li>
+<li><strong>Schwierigkeit:</strong> Der Turm startet mit <strong>4 Segmenten (leicht), 5 (normal) oder 6 (schwer)</strong>; im Teamspiel mit 1 mehr.</li>
+<li><strong>Allein:</strong> Spiel zwei Farben (je mit eigenen Helden und Rohstoffen), abwechselnd wie zwei Spieler.</li>
+<li><strong>Glanz des Sieges</strong> (zum Vergleich zwischen Abenden): 8 minus Turmhöhe am Ende.</li>
+<li><em>Heldenhaft (für Geübte):</em> ohne Reise-Uhr. Reist in einer Runde niemand, wächst der Turm um 1; nach Runde 12 ist die Reise verloren.</li>
+</ol>
+<p>Mit Bots abgestimmt, am Tisch noch nicht gespielt. In der Browser-Fassung lässt sich die Reise (noch) nicht spielen.</p>
+<h2>Hausregeln</h2>
+<p>Nicht auf den Tafeln und nur mit Bots erprobt; wer mag, spielt sie ausdrücklich angesagt.</p>
+<ul>
+<li><strong>Startkarte:</strong> Jeder beginnt mit 1 Schicksalskarte (es werden mehr Karten gespielt, der Turm wird leichter; Startglück möglich).</li>
+<li><strong>Gemütlicher Abend</strong> (z. B. zu viert oder fünft mit Einsteigern): Der Turm startet mit 4 Segmenten, und es wird mit 6 Runenwürfeln gewürfelt. Weniger Züge ohne Aktion, der Turm wächst seltener.</li>
+</ul>
     </section>
     <section class="card">
 <p class="muted">Am Tisch stehen diese Angaben auf der Spielhilfe-Leiste, der Reise-Leiste und den Karten.</p>
@@ -98,24 +119,24 @@
 <h2>Heldenkarten</h2>
 <p><strong>Rückseite jeder Karte:</strong> Einmal im Spiel, im eigenen Zug oder wie auf der Karte. Dann quer legen.</p>
 <ul class="karten">
-<li><img src="icons/faecher.svg" alt=""><div><strong>Meister der Karten</strong>Ziehe 3 Schicksalskarten und behalte 2.</div></li>
+<li><img src="icons/faecher.svg" alt=""><div><strong>Meister der Karten</strong>Ziehe 3 Schicksalskarten und behalte 2. +1 Ruhm.</div></li>
 <li><img src="icons/lupe.svg" alt=""><div><strong>Die Spürzauberin</strong>Sofort nach dem Runenwurf: bis zu 2 Würfel frei drehen. +2 Ruhm.</div></li>
-<li><img src="icons/zahnrad.svg" alt=""><div><strong>Der Tüftler</strong>Baue eine Burg für 1 Stein und 1 Erz.</div></li>
-<li><img src="icons/klemmbrett.svg" alt=""><div><strong>Die Planerin</strong>Nimm in deinem Zug 2 Würfel statt 1 und ernte beide.</div></li>
-<li><img src="icons/blatt.svg" alt=""><div><strong>Die Hüterin der Natur</strong>Schicke eine Horde zurück aufs Turm-Tor. +1 Ruhm.</div></li>
+<li><img src="icons/zahnrad.svg" alt=""><div><strong>Der Tüftler</strong>Baue eine Burg auf ein eigenes Gehöft für 1 Stein und 1 Erz.</div></li>
+<li><img src="icons/klemmbrett.svg" alt=""><div><strong>Die Planerin</strong>Nimm in deinem Zug 2 Würfel statt 1 und ernte beide (je +1).</div></li>
+<li><img src="icons/blatt.svg" alt=""><div><strong>Die Hüterin der Natur</strong>Schicke eine Horde (Figur oder Ring) zurück aufs Turm-Tor. +1 Ruhm.</div></li>
 <li><img src="icons/buch.svg" alt=""><div><strong>Der Gelehrte</strong>Pax vobiscum: Die Augen eines Runenwurfs zählen nicht. +2 Ruhm.</div></li>
-<li><img src="icons/wegweiser.svg" alt=""><div><strong>Wegweiserin</strong>Als Reise der Runde: 1 Feld, ohne Kosten und Gefahr, mit Ruhm. Nicht auf 10.</div></li>
-<li><img src="icons/stammbaum.svg" alt=""><div><strong>Der Chronist</strong>Eine Horde neben der Hauptstadt kommt in den Vorrat. +2 Ruhm.</div></li>
+<li><img src="icons/wegweiser.svg" alt=""><div><strong>Wegweiserin</strong>Als Reise der Runde: 1 Feld gratis, mit Ruhm, ohne Turm +1. Nicht auf 10.</div></li>
+<li><img src="icons/stammbaum.svg" alt=""><div><strong>Der Chronist</strong>Eine Horde bis 3 Felder vor der Hauptstadt kommt in den Vorrat. +1 Ruhm.</div></li>
 </ul>
 <h2>Schicksalskarten (je 2)</h2>
-<p><strong>Rückseite jeder Karte:</strong> Fürs Erkunden: 1 Karte. Höchstens 3. Nur im eigenen Zug, dann unter den Stapel.</p>
+<p><strong>Rückseite jeder Karte:</strong> Fürs Erkunden: 1 Karte. Höchstens 3. Im eigenen Zug spielen, dann unter den Stapel.</p>
 <ul class="karten">
 <li><img src="icons/pfeil_fluegel.svg" alt=""><div><strong>Eilbote</strong>Die Gefährten ziehen sofort 1 Feld, auch zusätzlich. Du zahlst und erhältst den Ruhm.</div></li>
-<li><img src="icons/garbe.svg" alt=""><div><strong>Reiche Ernte</strong>Ernte deinen Würfel ein zweites Mal.</div></li>
-<li><img src="icons/auge_bann.svg" alt=""><div><strong>Bannspruch</strong>Schicke eine Horde zurück aufs Turm-Tor.</div></li>
+<li><img src="icons/garbe.svg" alt=""><div><strong>Reiche Ernte</strong>Ernte deinen Würfel ein zweites Mal (mit +1). Hast du 2 Würfel: einen davon.</div></li>
+<li><img src="icons/auge_bann.svg" alt=""><div><strong>Bannspruch</strong>Schicke eine Horde (Figur oder Ring) zurück aufs Turm-Tor.</div></li>
 <li><img src="icons/wachfeuer.svg" alt=""><div><strong>Wachfeuer</strong>Baue ein Leuchtfeuer ohne Holz.</div></li>
 <li><img src="icons/pfeile.svg" alt=""><div><strong>Handelszug</strong>Tausche bis zu 3-mal 1 : 1 mit dem Vorrat.</div></li>
-<li><img src="icons/schild.svg" alt=""><div><strong>Verstärkung</strong>+3 Abwehr (ohne Ruhm) bei einem Überfall, wo du zahlen darfst.</div></li>
+<li><img src="icons/schild.svg" alt=""><div><strong>Verstärkung</strong>+3 Abwehr (ohne Ruhm) bei einem Überfall, bei dem du zahlen darfst.</div></li>
 </ul>
     </section>
   </div>

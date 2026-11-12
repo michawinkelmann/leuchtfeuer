@@ -31,14 +31,18 @@ export function setzeSprache(l) {
 }
 
 // ---------------------------------------------------------------- Namen aus data.js
-const FARBEN_EN = { rot: "Red", blau: "Blue", gelb: "Yellow", weiss: "White", lavendel: "Lavender", lila: "Purple" };
-const VOELKER_EN = { menschen: "Humans", elben: "Elves", zwerge: "Dwarves", halblinge: "Halflings", kuestenvolk: "Coastfolk" };
+const FARBEN_EN = { rot: "Red", blau: "Blue", gelb: "Yellow", weiss: "White", indigo: "Indigo", lavendel: "Lavender", lila: "Purple" };
+const VOELKER_EN = { menschen: "Humans", elben: "Elves", zwerge: "Dwarves", halblinge: "Halflings", kuestenvolk: "Coastfolk", keins: "no people" };
 
 export function farbName(c) {
   return SPRACHE === "en" ? FARBEN_EN[c] || c : D.COLORS[c]?.name || c;
 }
 export function volkName(p) {
-  return SPRACHE === "en" ? VOELKER_EN[p] || p : D.PEOPLES[p]?.name || p;
+  return SPRACHE === "en" ? VOELKER_EN[p] || D.PEOPLES[p]?.en || p : D.PEOPLES[p]?.name || p;
+}
+/** Fähigkeit eines Volks in einem Satz (data.PEOPLES), für die Spielerliste */
+export function volkFaehigkeit(p) {
+  return (SPRACHE === "en" ? D.PEOPLES[p]?.short_en : D.PEOPLES[p]?.short) || "";
 }
 
 // ---------------------------------------------------------------- Texte
@@ -66,11 +70,17 @@ const TEXTE = {
     tempo: "Bot-Tempo",
     sofort: "sofort", schnell: "schnell", normal: "normal", langsam: "langsam",
     name: "Name", farbe: "Farbe", volk: "Volk", wer: "Spielt",
-    zufaellig: "zufällig", mensch: "Mensch", bot: "Bot", ich: "Ich", spieler: "Spieler",
+    zufaellig: "zufällig", mensch: "Mensch", bot: "Bot", ich: "Ich", spieler: "Spieler", ohneVolk: "ohne Volk",
     beginnt: "Der erste Platz beginnt. Helden werden gezogen wie im Spiel.",
+    team: "Teamspiel (je 2 Personen pro Farbe, 2–4 Farben)",
+    teamTitel: "Je zwei spielen zusammen eine Farbe, abwechselnd jede Runde; jede Person zieht 1 Helden, beide gehören der Farbe. Der Turm startet mit 1 Segment mehr.",
+    erste: "Erste Partie (ohne Völker, Turm 1 Segment niedriger)",
+    ersteTitel: "Für Einsteiger: ohne Völker, die Helden sind dabei, und der Turm startet mit 1 Segment weniger.",
+    person2: "2. Person",
+    teamZuGross: "Teamspiel geht mit 2 bis 4 Farben.",
     starten: "Spiel starten",
     farbedoppelt: "Jede Farbe nur einmal, bitte.",
-    volkdoppelt: "Jedes Volk nur einmal, bitte (oder „zufällig“).",
+    volkdoppelt: "Jedes Volk nur einmal, bitte (oder „zufällig“ oder „ohne Volk“).",
     sogehts: "So geht's",
     hilfe: [
       "Alle Menschen-Plätze spielen abwechselnd an diesem Gerät (Hot-Seat). Bots ziehen von selbst.",
@@ -103,11 +113,17 @@ const TEXTE = {
     tempo: "Bot speed",
     sofort: "instant", schnell: "fast", normal: "normal", langsam: "slow",
     name: "Name", farbe: "Color", volk: "People", wer: "Played by",
-    zufaellig: "random", mensch: "Human", bot: "Bot", ich: "Me", spieler: "Player",
+    zufaellig: "random", mensch: "Human", bot: "Bot", ich: "Me", spieler: "Player", ohneVolk: "no people",
     beginnt: "The first seat starts. Heroes are drawn as in the board game.",
+    team: "Team game (2 people per color, 2–4 colors)",
+    teamTitel: "Two people share a color and take its turn alternately, every round the other one; each person draws 1 hero, both belong to the color. The tower starts 1 segment higher.",
+    erste: "First game (no peoples, tower 1 segment lower)",
+    ersteTitel: "For beginners: no peoples, heroes are in, and the tower starts 1 segment lower.",
+    person2: "2nd person",
+    teamZuGross: "The team game works with 2 to 4 colors.",
     starten: "Start game",
     farbedoppelt: "Each color only once, please.",
-    volkdoppelt: "Each people only once, please (or “random”).",
+    volkdoppelt: "Each people only once, please (or “random” or “no people”).",
     sogehts: "How to play",
     hilfe: [
       "All human seats take turns on this device (hot seat). Bots move on their own.",

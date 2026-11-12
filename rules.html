@@ -15,60 +15,81 @@
     .regeln ul.karten { list-style: none; padding: 0; margin: 8px 0 4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 10px 18px; }
     .regeln ul.karten li { display: flex; gap: 10px; align-items: flex-start; }
     .regeln ul.karten img { flex: none; width: 42px; height: 42px; padding: 5px; background: #fff; border-radius: 6px; }
-    .regeln ul.karten strong { display: block; }</style>
+    .regeln ul.karten strong { display: block; } .regeln #koop :is(ol, ul) { max-width: 46em; padding-left: 1.4em; } .regeln #koop li { margin: 4px 0; }</style>
 </head>
 <body>
   <div class="page regeln">
-    <header><nav><a href="./?lang=en">← Back to the start page</a> · <a href="regeln.html" lang="de" hreflang="de">Deutsch</a></nav><h1>Beacons – Quick Rules</h1><p>These are the rules printed on the rule boards in the lid of the box. In the browser version, the game sets up the map for you.</p></header>
+    <header><nav><a href="./?lang=en">← Back to the start page</a> · <a href="#koop">The Journey (co-op) and house rules</a> · <a href="regeln.html" lang="de" hreflang="de">Deutsch</a></nav><h1>Beacons – Quick Rules</h1><p>These are the rules printed on the rule boards in the lid of the box. In the browser version, the game sets up the map for you.</p></header>
     <section class="card">
 <h2>Setup</h2>
 <figure class="plan"><img src="aufbau_en.png" alt="Setup map: capital, homeland, mist and Shadowland"></figure>
-<p>With magnets: 1. Place the capital. Each player picks a color and a people (each people once; first game without). Coastfolk: choose a homeland space for 1 water tile (place it once a neighbor lies there), remove its token.</p>
-<p>With base plate: 1. Join the base plate, the capital goes in its marked hex. Each player picks a color and a people (each people once; first game without). Coastfolk: 1 water tile on a homeland space of their choice, remove its token.</p>
-<p>2. With 2 or 3 players use only 3 each of forest, fields, pasture, hills, mountains, 1 water, the ruin and their tokens.</p>
-<p>With magnets: 3. Tokens into the mist container. For each free homeland space draw one blind, place that tile, remove the token; a ruin goes back, draw again. If a tile repels: turn it 60°.</p>
-<p>With base plate: 3. Tokens into the mist container. For each free homeland space draw one blind, put that tile in its hex, remove the token; a ruin goes back, draw again.</p>
+<p>With magnets: 1. Place the capital. Each player picks a color and a people (each people once; first game: none; teams: see “Team game”).</p>
+<p>With base plate: 1. Assemble the base plate; the capital goes in its marked hex. Each player picks a color and a people (each people once; first game: none; teams: see “Team game”).</p>
+<p>2. With 2 or 3 players use only 3 each of forest, fields, pasture, hills and mountains, plus 1 water, the ruin and their tokens.</p>
+<p>With magnets: 3. Coastfolk: choose a homeland space for 1 water tile (place it once a neighboring tile is down), remove its token. Shuffle the other tokens face down; for each free homeland space flip one, place that tile, remove the token; a ruin goes back, flip another. If a tile repels: turn it 60°.</p>
+<p>With base plate: 3. Coastfolk: 1 water tile on a homeland space of their choice, remove its token. Shuffle the other tokens face down; for each free homeland space flip one, put that tile in its hex, remove the token; a ruin goes back, flip another.</p>
 <p class="legende"><span><img class="ic" src="icons/holz.svg" alt=""> Forest: wood</span> <span><img class="ic" src="icons/korn.svg" alt=""> Fields: grain</span> <span><img class="ic" src="icons/pferde.svg" alt=""> Pasture: horses</span> <span><img class="ic" src="icons/stein.svg" alt=""> Hills: stone</span> <span><img class="ic" src="icons/erz.svg" alt=""> Mountains: ore</span></p>
 <p>With magnets: 4. As a spacer lay 3 spare tiles from the homeland to the Tower Gate, snap the Shadowland on (North Gate at the top, South Gate with Fire Mountain at the bottom), remove the 3.</p>
 <p>With base plate: 4. Shadowland into the hexes N, T, S: North Gate, Tower Gate, South Gate with Fire Mountain.</p>
-<p>5. Shuffle the other tokens face down, one on each mist space.</p>
-<p>6. Tower with 4 segments on the Tower Gate (5 with 4 or 5 players), Eye toward the North Gate. Companions on START. Shuffle the fate cards (“cards”).</p>
-<p>7. Draw 2 heroes, keep 1 face up (with 5 players draw 1).</p>
-<p>8. The youngest starts (flag): in turn order 1 farm between two homeland tiles (the capital counts), then in reverse a second one, which gives 1 resource per terrain hex it touches. Fame markers on 2.</p>
+<p>5. The rest face down, 1 per mist space.</p>
+<p>6. Tower with 4 segments on the Tower Gate (5 with 4–5 players; teams +1; first game −1), Eye toward the North Gate. Companions on space 0. Shuffle the fate cards (“cards”).</p>
+<p>7. Draw 2 heroes (5 players: draw 1), keep 1 face up.</p>
+<p>8. The youngest starts (flag): in turn order place 1 farm between two homeland tiles (the capital counts), then in reverse a second one, which gives 1 resource per terrain hex it touches. Fame markers on 2.</p>
 <h2>Goal and end</h2>
-<p>2–5 players, in teams 4, 6 or 8. Tower completed (8 segments): everyone loses. Companions on space 10: finish the round including its end; most fame wins (tie: more resources, else shared).</p>
+<p>2–5 players. Tower completed (8 segments): all lose immediately. Companions on space 10: finish the round including its end; then all win; whoever has the most fame is Hero of the West (tie: more resources, else shared).</p>
 <h2>Peoples</h2>
-<p>Humans: in raids each of your horses gives 2 defense (fame 1).</p>
-<p>Elves: for 1 grain turn the die you took to any terrain.</p>
+<p>Humans: in raids each of your horses gives 2 defense (still 1 fame).</p>
+<p>Elves: when taking dice, you may turn each to any terrain for 1 grain per die.</p>
 <p>Dwarves: beacons cost 1 stone less.</p>
 <p>Halflings: when you move the Companions onto a space with an Eye, the tower does not grow.</p>
-<p>Coastfolk: with a building at the water: trade 2 : 1.</p>
+<p>Coastfolk: with a building at a water hex: trade 2 : 1.</p>
 <h2>Team game</h2>
-<p>Two players share a color and a people, take turns and win together; each color counts as one player (also for tiles, dice and tower). Each person draws 1 hero, both belong to the color. The tower starts 1 segment higher.</p>
+<p>With 4, 6 or 8: two players share a color, a people, resources and cards, and play their color's turn alternately (swapping every round); they decide and win together. Each color counts as one player (also for tiles, dice and tower). Each person draws 1 hero; both heroes belong to the color. The tower starts 1 segment higher (8 people: 6, first game 5).</p>
 <h2>Heroes and cards</h2>
-<p>Heroes act once per game, on your own turn (Diviner and Scholar right after the rune roll, in turn order from the first player); then turn them sideways. Cards: at most 3 in hand, extras under the deck; play on your own turn (Allies in a raid), then under the deck. The Messenger is not the journey of the round (the Companions may still move by themselves at the end of the round).</p>
+<p>Heroes act once per game, on your own turn (Diviner and Scholar right after the rune roll, in turn order from the first player); then turn them sideways. Cards: at most 3 in hand, extras to the bottom of the deck; play on your own turn (Allies in a raid), then to the bottom of the deck. The Messenger is not the journey of the round (the Companions may still move by themselves at the end of the round). Use the Scholar only if an Eye is showing.</p>
 <h2>Tips</h2>
-<p>First game: keep ore and horses ready for raids, they also bring fame. A farm at the capital allows trade 2 : 1. On journey spaces 4 and 8 the tower grows for sure: think of beacons and the Call early.</p>
+<p>First game: don't hoard heroes and cards. Keep ore and horses ready: paying earns fame, even for others' buildings. Farm at the capital: trade 2 : 1. Journey spaces 4 and 8: tower +1, so think of beacons and the Call (see “Beacons”) early. A gate is 5 hexes from the capital.</p>
 <h2>Round</h2>
-<p>1. The first player rolls 5 dice (6 with 5 players) in the upturned lid. Diviner and Scholar act now. Then for each Eye: turn the spire clockwise to the next gate (North, South, Tower Gate = looking west), a horde appears there. Set the Eyes aside.</p>
-<p>2. In turn order from the first player: take 1 die and harvest: your buildings yield per hex of that terrain farm 1, castle 2, fortress 3; if the die yields anything, 1 more. No die left: 1 resource of your choice. Then build, trade, travel, play cards and your hero as often as you like.</p>
-<p>3. End of round: everyone harvests the remaining dice (without the 1 more). Hordes move 1 hex toward the capital, front ones first; equally short: the first player chooses. Raids, nearest first. If nobody traveled, the Companions move 1 space by themselves (no cost, no fame). The player with the least fame becomes first player (tie: of them, the next to the left).</p>
+<p>1. The first player rolls 5 dice (6 with 5 players) in the upturned lid. Diviner and Scholar may act. Then for each Eye: turn the spire clockwise to the next gate (North, South, West = the Tower Gate itself); a horde appears there. Set the Eyes aside.</p>
+<p>2. In turn order from the first player: take 1 die and harvest: each of your buildings yields, per hex of that terrain it touches: farm 1, castle 2, fortress 3; a yielding die gives 1 more. No die or no yield: take any 1 resource. Then, as often as you like: build, trade, travel, play cards, use your hero.</p>
+<p>3. End of round: everyone harvests the remaining dice (no +1). Hordes move 1 hex toward the capital, nearest first; equally short paths: the first player chooses. Raids, nearest first (equally near: the first player chooses). If nobody traveled, the Companions move 1 space by themselves (no cost, no fame). The player with the least fame becomes first player (tie: of them, the next to the left of the old one).</p>
 <h2>Building</h2>
-<p>Buildings (farm, castle, fortress) stand on edges between two tiles, one per edge, never at the Shadowland. Your realm: all hexes at your buildings; new farms go on its free edges. Castle on your own farm, fortress on your own castle. Costs: player aid.</p>
-<p>Exploring: a farm at a mist token: first flip it, place that tile there (under a horde), remove the token, draw 1 card.</p>
-<p>Fame goes on the track at once: farm 1, upgrade +1, beacon 2. A building that loses a level (down to off the board): −1. All lost: your next farm between two homeland tiles.</p>
+<p>Buildings (farm, castle, fortress) stand on edges between two tiles, one per edge, never at the Shadowland. Your realm: all hexes your buildings touch; new farms go on its free edges. Castle on your own farm, fortress on your own castle. Costs: player aid.</p>
+<p>Exploring (a farm at a mist token): pay, flip the token, place that tile there (under any horde), remove the token, draw 1 card.</p>
+<p>Fame goes on the track at once: beacon 2, farm 1, upgrade +1. Each level lost (even a farm leaving the board): −1. All lost: your next farm between two homeland tiles.</p>
 <h2>Trade</h2>
-<p>Freely with the player whose turn it is; with the supply 3 of a kind for 1, with a building at the capital 2 for 1. What is not in the supply does not exist; too little for a harvest: in turn order from the first player. Hordes do not block harvests.</p>
+<p>Only the player whose turn it is trades: freely with others, with the supply 3 of a kind for 1, with a building at the capital 2 for 1. The supply is limited; if a harvest runs short, serve in turn order from the first player. Hordes do not block harvests. Water and the ruin yield nothing.</p>
 <h2>Shadow</h2>
-<p>Hordes move only across tiles and tokens. Several hordes on one hex: one figure, a ring under it for each extra one, its figure back to the supply; each figure and each ring is one horde. No figure or ring left: tower +1. In the mist hordes stand on the token. When the tower grows, put the spire back facing the same way.</p>
-<p>Raids at hexes with buildings, always at the capital. Strength 2 per horde. Defense: 1 per castle, 2 per fortress (whoever owns them). If it is short, the owners at the hex may pay in turn order from the first player, with a beacon everyone, only with ore and horses: 1 defense and 1 fame each. Each names an amount once, together never more than needed (Allies and a Humans' horse may overpay). Payment goes to the supply.</p>
-<p>Enough: hordes back to the supply. Otherwise: tower +1, each building at the hex loses a level, the hordes stay. At the capital they always go back to the supply afterwards.</p>
+<p>Hordes move only across tiles and tokens; in the mist they stand on the token. Several hordes on one hex: 1 figure, each extra horde a ring under it (its figure to the supply); they move together. No figure or ring left: that horde is lost. When the tower grows, the spire keeps its facing.</p>
+<p>Raids at hexes with buildings and always at the capital. Each horde: strength 2. Defense: 1 per castle, 2 per fortress (whoever owns them). If defense is short, building owners at the hex may pay in turn order from the first player (with a beacon or at the capital: everyone), only ore and horses: 1 defense and 1 fame each, even if it fails. Each names an amount once, together never more than needed (Allies and Humans' horses may overpay). Payment goes to the supply.</p>
+<p>Enough: hordes back to the supply. Otherwise: tower +1, each building at the hex loses a level, the hordes stay. At the capital they always go back to the supply.</p>
 <h2>Beacons</h2>
-<p>Building: a free corner of three tiles at a mountain or hill in your realm, not at the Shadowland; each mountain and hill at most one. It belongs to nobody and always burns: everyone may pay in raids at its three hexes and their neighbors.</p>
-<p>Call: with the third beacon, once per game: tower −1, its builder: 3 fame.</p>
-<p>Raid example: 2 hordes (strength 4) at a forest with Red's castle (defense 1): 3 short. Red is first player and pays 1 ore (1 fame). A beacon burns at a neighboring hex, so Blue may pay too: 2 horses (2 fame). Held: hordes back to the supply.</p>
+<p>Building: a free corner where three tiles meet, at a mountain or hill in your realm, not at the Shadowland; at most one per mountain or hill. It belongs to nobody and always burns: everyone may pay in raids at its three hexes and their neighbors.</p>
+<p>Call: with the third beacon, once per game: tower −1, its builder: +1 fame.</p>
+<p>Raid example: 2 hordes (strength 4) at a forest with Red's castle (defense 1): 3 short. Red is first player and pays 1 ore (1 fame). A beacon burns at a neighboring hex, so Blue may pay too: 2 horses (2 fame). Repelled: hordes back to the supply.</p>
 <h2>Journey</h2>
-<p>At most 1 space per round, on your own turn, whoever pays first; cost and fame on the track. Spaces with an Eye (4, 8), also when moving by themselves: tower +1, but it never completes the tower. Moved? Turn the Companions sideways, upright at the very end of the round.</p>
+<p>At most 1 space per round, on your own turn, whoever pays first; cost and fame of the new space on the track. Spaces with an Eye (4, 8), also when moving by themselves: tower +1, but it never completes the tower. Traveled? Turn the Companions sideways; turn them back at the very end of the round.</p>
+    </section>
+    <section class="card" id="koop">
+<h2>The Journey – everyone together against the Shadow</h2>
+<p>Cooperative, also solo: for 1–5 colors, also as a team game. The basic rules apply with these changes (summary on the two co-op cards):</p>
+<ol>
+<li><strong>Goal:</strong> You win together if the Companions reach space 10 <strong>and</strong> the Call of the Beacons has come. If the Tower is completed, you all lose. If the Companions reach space 10 without the Call, you have lost as well.</li>
+<li><strong>Call:</strong> With 1–3 colors, the Call already comes with the <strong>second</strong> beacon (otherwise with the third, as usual).</li>
+<li><strong>Fame does not count.</strong> The first player passes to the left every round; the flag moves along.</li>
+<li><strong>Gifts:</strong> On your turn you may give resources to other players. Trading works as always, only with the player whose turn it is.</li>
+<li><strong>Difficulty:</strong> The Tower starts with <strong>4 segments (easy), 5 (normal) or 6 (hard)</strong>; in the team game with 1 more.</li>
+<li><strong>Solo:</strong> Play two colors (each with its own heroes and resources), taking turns like two players.</li>
+<li><strong>Glory of Victory</strong> (to compare evenings): 8 minus the Tower's height at the end.</li>
+<li><em>Heroic (for experienced players):</em> no journey clock. If nobody travels in a round, the Tower grows by 1; after round 12 the journey is lost.</li>
+</ol>
+<p>Tuned with bots, not yet played at the table. The browser version cannot play the Journey (yet).</p>
+<h2>House rules</h2>
+<p>Not on the rule boards and only tested with bots; if you like, announce them before the game.</p>
+<ul>
+<li><strong>Starting card:</strong> Everyone starts with 1 fate card (more cards get played and the Tower becomes easier; a lucky start is possible).</li>
+<li><strong>Relaxed evening</strong> (e.g. with 4 or 5 players and beginners): the Tower starts with 4 segments, and you roll 6 rune dice. Fewer turns without an action, and the Tower grows less often.</li>
+</ul>
     </section>
     <section class="card">
 <p class="muted">At the table, this is printed on the player aid, the journey track and the cards.</p>
@@ -98,21 +119,21 @@
 <h2>Hero cards</h2>
 <p><strong>Back of each card:</strong> Once per game, on your own turn or as the card says. Then turn it sideways.</p>
 <ul class="karten">
-<li><img src="icons/faecher.svg" alt=""><div><strong>Master of Cards</strong>Draw 3 fate cards and keep 2.</div></li>
+<li><img src="icons/faecher.svg" alt=""><div><strong>Master of Cards</strong>Draw 3 fate cards and keep 2. +1 fame.</div></li>
 <li><img src="icons/lupe.svg" alt=""><div><strong>Diviner</strong>Right after the rune roll: turn up to 2 dice to any side. +2 fame.</div></li>
-<li><img src="icons/zahnrad.svg" alt=""><div><strong>Tinkerer</strong>Build a castle for 1 stone and 1 ore.</div></li>
-<li><img src="icons/klemmbrett.svg" alt=""><div><strong>Planner</strong>On your turn, take 2 dice instead of 1 and harvest both.</div></li>
-<li><img src="icons/blatt.svg" alt=""><div><strong>Warden of Nature</strong>Send a horde back to the Tower Gate. +1 fame.</div></li>
+<li><img src="icons/zahnrad.svg" alt=""><div><strong>Tinkerer</strong>Build a castle on your own farm for 1 stone and 1 ore.</div></li>
+<li><img src="icons/klemmbrett.svg" alt=""><div><strong>Planner</strong>On your turn, take 2 dice instead of 1 and harvest both (+1 each).</div></li>
+<li><img src="icons/blatt.svg" alt=""><div><strong>Warden of Nature</strong>Send one horde (figure or ring) back to the Tower Gate. +1 fame.</div></li>
 <li><img src="icons/buch.svg" alt=""><div><strong>Scholar</strong>Pax vobiscum: the Eyes of one rune roll do not count. +2 fame.</div></li>
-<li><img src="icons/wegweiser.svg" alt=""><div><strong>Pathfinder</strong>As the journey of the round: 1 space, free and safe, with fame. Not onto 10.</div></li>
-<li><img src="icons/stammbaum.svg" alt=""><div><strong>Chronicler</strong>A horde next to the capital goes back to the supply. +2 fame.</div></li>
+<li><img src="icons/wegweiser.svg" alt=""><div><strong>Pathfinder</strong>As the journey of the round: 1 space, free, with fame, no tower +1. Not onto 10.</div></li>
+<li><img src="icons/stammbaum.svg" alt=""><div><strong>Chronicler</strong>A horde within 3 hexes of the capital goes back to the supply. +1 fame.</div></li>
 </ul>
 <h2>Fate cards (2 of each)</h2>
-<p><strong>Back of each card:</strong> Exploring: 1 card. At most 3. Only on your own turn, then to the bottom of the deck.</p>
+<p><strong>Back of each card:</strong> Explore: draw 1. At most 3. Play on your own turn, then to the bottom of the deck.</p>
 <ul class="karten">
 <li><img src="icons/pfeil_fluegel.svg" alt=""><div><strong>Messenger</strong>Companions move 1 extra space now. You pay and get the fame.</div></li>
-<li><img src="icons/garbe.svg" alt=""><div><strong>Rich Harvest</strong>Harvest your die a second time.</div></li>
-<li><img src="icons/auge_bann.svg" alt=""><div><strong>Banishment</strong>Send a horde back to the Tower Gate.</div></li>
+<li><img src="icons/garbe.svg" alt=""><div><strong>Rich Harvest</strong>Harvest your die a second time (with +1). With 2 dice: one of them.</div></li>
+<li><img src="icons/auge_bann.svg" alt=""><div><strong>Banishment</strong>Send one horde (figure or ring) back to the Tower Gate.</div></li>
 <li><img src="icons/wachfeuer.svg" alt=""><div><strong>Watchfire</strong>Build a beacon without wood.</div></li>
 <li><img src="icons/pfeile.svg" alt=""><div><strong>Caravan</strong>Trade with the supply 1 for 1, up to 3 times.</div></li>
 <li><img src="icons/schild.svg" alt=""><div><strong>Allies</strong>+3 defense (no fame) in a raid where you may pay.</div></li>
