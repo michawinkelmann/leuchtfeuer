@@ -1,4 +1,5 @@
-// Spielwerte nach Regeln v0.5 (8.11.2026; v0.4 über VARIANTS_V04). Texte der Karten stehen in texte.js (aus dem Generator erzeugt).
+// Spielwerte nach Regeln v0.5 mit den Entscheidungen vom 12.11.2026 (Stand 8.11.2026 über VARIANTS_V05_8_11, v0.4 über
+// VARIANTS_V04). Texte der Karten stehen in texte.js (aus dem Generator erzeugt).
 
 export const RES = ["holz", "stein", "erz", "korn", "pferde"];
 export const RES_NAME = { holz: "Holz", stein: "Stein", erz: "Erz", korn: "Korn", pferde: "Pferde" };
@@ -14,10 +15,14 @@ export const COLORS = {
   blau: { name: "Blau", hex: "#1f5fa8" },
   gelb: { name: "Gelb", hex: "#f5b800" },
   weiss: { name: "Weiß", hex: "#edede6" },
-  lavendel: { name: "Lavendel", hex: "#ae96d4" },
+  indigo: { name: "Indigo", hex: "#482960" },      // fünfte Farbe der veröffentlichten Fassung (12.11.2026)
+  lavendel: { name: "Lavendel", hex: "#ae96d4" },  // fünfte Farbe des Geschenks; bleibt wählbar
   lila: { name: "Lila", hex: "#7b4fa0" },          // nur für alte Spielstände (bis 6.11.2026)
 };
-export const COLOR_ORDER = ["rot", "blau", "gelb", "weiss", "lavendel"];
+// Standardsitze; zur Wahl stehen COLOR_CHOICES (Indigo und Lavendel: Blau und Lavendel sind bei Rot-Grün-Schwäche
+// kaum zu unterscheiden, darum ist Indigo seit 12.11.2026 der Standard)
+export const COLOR_ORDER = ["rot", "blau", "gelb", "weiss", "indigo"];
+export const COLOR_CHOICES = ["rot", "blau", "gelb", "weiss", "indigo", "lavendel"];
 
 export const COSTS = {
   gehoeft: { holz: 1, korn: 1 },
@@ -49,21 +54,30 @@ export const TILES_BIG = { wald: 5, feld: 5, weide: 4, huegel: 4, gebirge: 4, wa
 export const TILES_SMALL = { wald: 3, feld: 3, weide: 3, huegel: 3, gebirge: 3, wasser: 1, ruine: 1 };
 export const TREASURE_KINDS = ["wald", "feld", "weide", "huegel"];
 
+// Völker mit ihrer Fähigkeit (wie REGELN.md, „Völker“; englisch wie REGELN_KURZ_EN.md). „keins“: ohne Volk (erste Partie).
 export const PEOPLES = {
-  menschen: { name: "Menschen", short: "Reiter: Pferde zählen bei Überfällen doppelt." },
-  elben: { name: "Elben", short: "Weitsicht: für 1 Korn den genommenen Würfel auf ein beliebiges Gelände drehen." },
-  zwerge: { name: "Zwerge", short: "Steinmetze: Ein Leuchtfeuer kostet dich 1 Stein weniger." },
-  halblinge: { name: "Halblinge", short: "Schleichen: Ziehst du die Gefährten auf ein Gefahrenfeld, wächst der Turm nicht." },
-  kuestenvolk: { name: "Küstenvolk", short: "Legt beim Aufbau 1 Wasser ins Heimatland. Hafen: Mit einem Gebäude am Wasser handelst du 2 : 1." },
+  menschen: { name: "Menschen", en: "Humans", short: "Reiter: Bei Überfällen bringt jedes deiner Pferde 2 Abwehr (Ruhm weiter 1 je Pferd).",
+    short_en: "Riders: in raids each of your horses gives 2 defense (still 1 fame per horse)." },
+  elben: { name: "Elben", en: "Elves", short: "Weitsicht: Beim Nehmen jeden Würfel für 1 Korn auf ein Gelände drehen (mit der Planerin je Würfel).",
+    short_en: "Foresight: when taking dice, turn each to any terrain for 1 grain (with the Planner: per die)." },
+  zwerge: { name: "Zwerge", en: "Dwarves", short: "Steinmetze: Leuchtfeuer kosten dich 1 Stein weniger.",
+    short_en: "Stonemasons: beacons cost you 1 stone less." },
+  halblinge: { name: "Halblinge", en: "Halflings", short: "Schleichen: Ziehst du die Gefährten auf ein Gefahrenfeld, wächst der Turm nicht.",
+    short_en: "Sneaking: when you move the Companions onto a danger space, the tower does not grow." },
+  kuestenvolk: { name: "Küstenvolk", en: "Coastfolk", short: "Hafen: Legt beim Aufbau 1 Wasser ins Heimatland; mit einem Gebäude am Wasser handelst du 2 : 1.",
+    short_en: "Harbor: places 1 water tile in the homeland at setup; with a building at a water hex you trade 2 : 1." },
+  keins: { name: "ohne Volk", en: "no people", short: "Keine Fähigkeit (erste Partie: ohne Völker).",
+    short_en: "No ability (first game: without peoples)." },
 };
-export const PEOPLE_ORDER = ["menschen", "elben", "zwerge", "halblinge", "kuestenvolk"];
+export const PEOPLE_ORDER = ["menschen", "elben", "zwerge", "halblinge", "kuestenvolk"];   // ohne „keins“ (zufällige Völker)
+export const PEOPLE_NONE = "keins";
 
 export const HERO_IDS = ["karten", "zauberin", "tueftler", "planerin", "hueterin", "gelehrter", "wegweiserin", "chronist"];
 export const FATE_IDS = ["eilbote", "ernte", "bann", "wachfeuer", "handel", "verstaerkung"];
 
-// Regelvarianten: Standard = Regeln v0.5 (8.11.2026: weniger Regeln, 45–60 Minuten). Die alten Werte stehen in
-// VARIANTS_V04. Neue Schalter sind so benannt, dass „fehlt“ das Verhalten von v0.4 bedeutet: Gespeicherte Spiele
-// (ihre variants stammen von damals) spielen also nach den Regeln weiter, mit denen sie begonnen wurden.
+// Regelvarianten: Standard = Regeln v0.5 (8.11.2026: weniger Regeln) mit den Entscheidungen vom 12.11.2026. Die alten
+// Werte stehen in VARIANTS_V05_8_11 und VARIANTS_V04. Neue Schalter sind so benannt, dass „fehlt“ das alte Verhalten
+// bedeutet: Gespeicherte Spiele (ihre variants stammen von damals) spielen also nach den Regeln weiter, mit denen sie begonnen wurden.
 export const DEFAULT_VARIANTS = {
   startSegments: 5,       // Turm zu Beginn (v0.4: 2); v0.5 abgestimmt: 4–5 Spieler 5 …
   startSegmentsSmall: 4,  // … 2–3 Spieler 4 (Simulation 8.11.2026: Turm gewinnt 14 / 18 / 23 / 21 %)
@@ -83,7 +97,7 @@ export const DEFAULT_VARIANTS = {
   hordeTie: "start",      // gleich kurze Wege: start (Startspieler wählt; v0.5) oder gebaeude (meiste Gebäude, v0.4)
   hordeTieRandom: false,  // true: stehen auf keinem der gleich weiten Felder Gebäude, zufällig statt Rückfrage; seit 7.11.2026 wie am Tisch: der Startspieler wählt
   handLimit: 3,
-  supply: 15,
+  supply: 20,             // Rohstoffe je Sorte (12.11.2026; bis dahin 15)
   diceTwoPlayers: 4,
   dangerTower: 1,
   siegeTower: 1,          // verlorener Kampf an der Hauptstadt: Turm + (v0.4: 2)
@@ -118,10 +132,35 @@ export const DEFAULT_VARIANTS = {
   halblinge: "A",         // A: Gefahrenfeld ohne Turmwachstum (v0.5, Siegquote 1,01), B: Überfälle verschonen Gehöfte (1,10–1,17); v0.4: beides
   noKuesteErnte: true,    // Küstenvolk ohne den Ernte-Bonus von v0.4 (+1 je erntendem Gebäude am Wasser)
   hueterinFame: 1,        // Hüterin der Natur: +1 Ruhm (v0.4: 2)
+  // neu am 12.11.2026 (PRUEFUNG_2026-11-11.md, Abschnitt 5; fehlt der Schalter, gilt der Stand vom 8.11.2026)
+  rufFame: 1,             // Ruf: der Erbauer des dritten Leuchtfeuers bekommt 1 Ruhm zusätzlich (fehlt: 3)
+  siegeAllPay: true,      // an der Hauptstadt dürfen immer alle zahlen (fehlt: nur Besitzer, bei Leuchtfeuer alle)
+  capitalNoRings: true,   // in der Hauptstadt braucht es keine Hordenringe (fehlt: Ring-Regel auch dort)
+  chronistDist: 3,        // Chronist: Horde höchstens so viele Felder (Weg der Horden) vor der Hauptstadt (fehlt: 1 = auf oder neben ihr)
+  chronistFame: 1,        // Chronist: +1 Ruhm (fehlt: 2)
+  kartenFame: 1,          // Meister der Karten: +1 Ruhm (fehlt: 0)
+  leerTrost: true,        // Würfel ohne Ertrag: 1 beliebiger Rohstoff wie ohne Würfel (fehlt: nichts)
+  missingNoTower: true,   // fehlt Figur oder Ring, entfällt die Horde ohne Turm +1 (fehlt: Turm +1)
+  elbenPlanerin: true,    // Elben drehen mit der Planerin je Würfel für 1 Korn (Ergänzung vom 9.11.2026)
+  raidTieChoice: true,    // gleich nahe Überfälle: der Startspieler wählt die Reihenfolge (fehlt: nach Feldschlüssel)
+  bannAussen: true,       // Hüterin und Bannspruch nur auf Horden außerhalb des Turm-Tors; fehlt dort das Teil: Vorrat
+  planerinZwei: true,     // Planerin nur, wenn noch 2 Würfel liegen
+  tradeBothSides: true,   // Handel unter Spielern: nur Rohstoffe gegen Rohstoffe, beide geben mindestens einen
+  heldDesWestens: true,   // Spielende: alle siegen gemeinsam, „Held des Westens“ hat den meisten Ruhm (nur der Text)
+  firstMinus: 1,          // erste Partie (createGame({erstePartie: true})): Turm startet mit so viel weniger
+};
+
+// Stand v0.5 vom 8.11.2026 (vor den Entscheidungen vom 12.11.2026) zum gepaarten Vergleich:
+// createGame({variants: VARIANTS_V05_8_11})
+export const VARIANTS_V05_8_11 = {
+  supply: 15, rufFame: 3, siegeAllPay: false, capitalNoRings: false, chronistDist: 1, chronistFame: 2, kartenFame: 0,
+  leerTrost: false, missingNoTower: false, elbenPlanerin: false, raidTieChoice: false, bannAussen: false, planerinZwei: false,
+  tradeBothSides: false, heldDesWestens: false,
 };
 
 // Regeln v0.4 (7.11.2026) zum gepaarten Vergleich: createGame({variants: VARIANTS_V04})
 export const VARIANTS_V04 = {
+  ...VARIANTS_V05_8_11,
   startSegments: 2, startSegmentsSmall: null, strongFrom: 6, hordeTie: "gebaeude", siegeTower: 2, capitalDefense: 1,
   questClock: false, ownPlus: 0, rings: null, payFame: 0, noFightReward: false, noAusfall: false, beaconsNeverOut: false,
   rufNoKill: false, fateExplore: false, noTreasure: false, noRuinReward: false, wachfeuerBau: false, heroTurnOnly: false,
@@ -129,7 +168,7 @@ export const VARIANTS_V04 = {
   kuesteFischer: false, noHafen: false, kuesteWasserPlus: 0,
 };
 
-// Weitere Prüfschalter (Simulation 8.11.2026): chronistFame (Standard 2), kuesteImmer (Küstenvolk handelt immer 2 : 1),
+// Weitere Prüfschalter (Simulation 8.11.2026): kuesteImmer (Küstenvolk handelt immer 2 : 1),
 // kuesteStart (Rohstoffe für das Küstenvolk beim Aufbau, z. B. {holz: 1, korn: 1}), kuesteFischer (bei eigenem Würfel zählt
 // Wasser wie das gewürfelte Gelände), noHafen (kein 2 : 1 am Wasser), kuesteWasserPlus (eigener Würfel: je Gebäude am Wasser +n),
 // kuesteWasserEins / kuesteWasserImmer (eigener Würfel +1 mit Gebäude am Wasser), kuesteNurEigenes (nur das beim Aufbau gelegte Wasser).
@@ -158,7 +197,12 @@ export const VARIANT_INFO = {
   supply: ["Rohstoffe je Sorte im Vorrat", "zahl", 5, 40],
   diceTwoPlayers: ["Würfel zu zweit", "zahl", 3, 6],
   dangerTower: ["Turm-Wachstum je Gefahrenfeld", "zahl", 0, 3],
-  siegeTower: ["Turm-Wachstum bei verlorener Belagerung", "zahl", 0, 4],
+  siegeTower: ["Turm-Wachstum bei verlorenem Überfall an der Hauptstadt", "zahl", 0, 4],
+  siegeAllPay: ["An der Hauptstadt dürfen immer alle zahlen", "bool"],
+  rufFame: ["Ruf: Ruhm zusätzlich für den Erbauer", "zahl", 0, 5],
+  chronistDist: ["Chronist: Horde höchstens so viele Felder vor der Hauptstadt", "zahl", 1, 5],
+  leerTrost: ["Würfel ohne Ertrag: 1 beliebiger Rohstoff", "bool"],
+  missingNoTower: ["Fehlt Figur oder Ring: Horde entfällt ohne Turm +1", "bool"],
   bankRate: ["Handel mit dem Vorrat (n : 1)", "zahl", 2, 5],
   capitalRate: ["Handel mit Gebäude an der Hauptstadt (n : 1)", "zahl", 1, 4],
 };

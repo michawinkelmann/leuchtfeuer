@@ -5,7 +5,7 @@ export const HELDEN = [
   "datei": "Meister der Karten",
   "titel": "MEISTER DER KARTEN",
   "bild": "faecher",
-  "text": "ZIEHE 3 SCHICKSALSKARTEN UND BEHALTE 2.",
+  "text": "ZIEHE 3 SCHICKSALSKARTEN UND BEHALTE 2. +1 RUHM.",
   "persoenlich": null
  },
  {
@@ -21,7 +21,7 @@ export const HELDEN = [
   "datei": "Tüftler",
   "titel": "DER TÜFTLER",
   "bild": "zahnrad",
-  "text": "BAUE EINE BURG FÜR 1 STEIN UND 1 ERZ.",
+  "text": "BAUE EINE BURG AUF EIN EIGENES GEHÖFT FÜR 1 STEIN UND 1 ERZ.",
   "persoenlich": null
  },
  {
@@ -29,7 +29,7 @@ export const HELDEN = [
   "datei": "Planerin",
   "titel": "DIE PLANERIN",
   "bild": "klemmbrett",
-  "text": "NIMM IN DEINEM ZUG 2 WÜRFEL STATT 1 UND ERNTE BEIDE.",
+  "text": "NIMM IN DEINEM ZUG 2 WÜRFEL STATT 1 UND ERNTE BEIDE (JE +1).",
   "persoenlich": null
  },
  {
@@ -37,7 +37,7 @@ export const HELDEN = [
   "datei": "Hüterin der Natur",
   "titel": "DIE HÜTERIN DER NATUR",
   "bild": "blatt",
-  "text": "SCHICKE EINE HORDE ZURÜCK AUFS TURM-TOR. +1 RUHM.",
+  "text": "SCHICKE EINE HORDE (FIGUR ODER RING) ZURÜCK AUFS TURM-TOR. +1 RUHM.",
   "persoenlich": null
  },
  {
@@ -53,7 +53,7 @@ export const HELDEN = [
   "datei": "Wegweiserin",
   "titel": "WEGWEISERIN",
   "bild": "wegweiser",
-  "text": "ALS REISE DER RUNDE: 1 FELD, OHNE KOSTEN UND GEFAHR, MIT RUHM. NICHT AUF 10.",
+  "text": "ALS REISE DER RUNDE: 1 FELD GRATIS, MIT RUHM, OHNE TURM +1. NICHT AUF 10.",
   "persoenlich": null
  },
  {
@@ -61,7 +61,7 @@ export const HELDEN = [
   "datei": "Chronist",
   "titel": "DER CHRONIST",
   "bild": "stammbaum",
-  "text": "EINE HORDE NEBEN DER HAUPTSTADT KOMMT IN DEN VORRAT. +2 RUHM.",
+  "text": "EINE HORDE BIS 3 FELDER VOR DER HAUPTSTADT KOMMT IN DEN VORRAT. +1 RUHM.",
   "persoenlich": null
  }
 ];
@@ -71,7 +71,7 @@ export const HELDEN_EN = [
   "datei": "Master of Cards",
   "titel": "MASTER OF CARDS",
   "bild": "faecher",
-  "text": "DRAW 3 FATE CARDS AND KEEP 2."
+  "text": "DRAW 3 FATE CARDS AND KEEP 2. +1 FAME."
  },
  {
   "id": "zauberin",
@@ -85,21 +85,21 @@ export const HELDEN_EN = [
   "datei": "Tinkerer",
   "titel": "TINKERER",
   "bild": "zahnrad",
-  "text": "BUILD A CASTLE FOR 1 STONE AND 1 ORE."
+  "text": "BUILD A CASTLE ON YOUR OWN FARM FOR 1 STONE AND 1 ORE."
  },
  {
   "id": "planerin",
   "datei": "Planner",
   "titel": "PLANNER",
   "bild": "klemmbrett",
-  "text": "ON YOUR TURN, TAKE 2 DICE INSTEAD OF 1 AND HARVEST BOTH."
+  "text": "ON YOUR TURN, TAKE 2 DICE INSTEAD OF 1 AND HARVEST BOTH (+1 EACH)."
  },
  {
   "id": "hueterin",
   "datei": "Warden of Nature",
   "titel": "WARDEN OF NATURE",
   "bild": "blatt",
-  "text": "SEND A HORDE BACK TO THE TOWER GATE. +1 FAME."
+  "text": "SEND ONE HORDE (FIGURE OR RING) BACK TO THE TOWER GATE. +1 FAME."
  },
  {
   "id": "gelehrter",
@@ -113,14 +113,14 @@ export const HELDEN_EN = [
   "datei": "Pathfinder",
   "titel": "PATHFINDER",
   "bild": "wegweiser",
-  "text": "AS THE JOURNEY OF THE ROUND: 1 SPACE, FREE AND SAFE, WITH FAME. NOT ONTO 10."
+  "text": "AS THE JOURNEY OF THE ROUND: 1 SPACE, FREE, WITH FAME, NO TOWER +1. NOT ONTO 10."
  },
  {
   "id": "chronist",
   "datei": "Chronicler",
   "titel": "CHRONICLER",
   "bild": "stammbaum",
-  "text": "A HORDE NEXT TO THE CAPITAL GOES BACK TO THE SUPPLY. +2 FAME."
+  "text": "A HORDE WITHIN 3 HEXES OF THE CAPITAL GOES BACK TO THE SUPPLY. +1 FAME."
  }
 ];
 export const HELD_RUECK = {
@@ -253,13 +253,13 @@ export const SCHICKSAL = [
   "id": "ernte",
   "name": "REICHE ERNTE",
   "bild": "garbe",
-  "text": "ERNTE DEINEN WÜRFEL EIN ZWEITES MAL."
+  "text": "ERNTE DEINEN WÜRFEL EIN ZWEITES MAL (MIT +1). HAST DU 2 WÜRFEL: EINEN DAVON."
  },
  {
   "id": "bann",
   "name": "BANNSPRUCH",
   "bild": "auge_bann",
-  "text": "SCHICKE EINE HORDE ZURÜCK AUFS TURM-TOR."
+  "text": "SCHICKE EINE HORDE (FIGUR ODER RING) ZURÜCK AUFS TURM-TOR."
  },
  {
   "id": "wachfeuer",
@@ -277,7 +277,7 @@ export const SCHICKSAL = [
   "id": "verstaerkung",
   "name": "VERSTÄRKUNG",
   "bild": "schild",
-  "text": "+3 ABWEHR (OHNE RUHM) BEI EINEM ÜBERFALL, WO DU ZAHLEN DARFST."
+  "text": "+3 ABWEHR (OHNE RUHM) BEI EINEM ÜBERFALL, BEI DEM DU ZAHLEN DARFST."
  }
 ];
 export const SCHICKSAL_ANZAHL = 2;
@@ -292,13 +292,13 @@ export const SCHICKSAL_EN = [
   "id": "ernte",
   "name": "RICH HARVEST",
   "bild": "garbe",
-  "text": "HARVEST YOUR DIE A SECOND TIME."
+  "text": "HARVEST YOUR DIE A SECOND TIME (WITH +1). WITH 2 DICE: ONE OF THEM."
  },
  {
   "id": "bann",
   "name": "BANISHMENT",
   "bild": "auge_bann",
-  "text": "SEND A HORDE BACK TO THE TOWER GATE."
+  "text": "SEND ONE HORDE (FIGURE OR RING) BACK TO THE TOWER GATE."
  },
  {
   "id": "wachfeuer",
@@ -323,13 +323,13 @@ export const SCHICKSAL_RUECK = {
  "titel": "SCHICKSAL",
  "absaetze": [
   "FÜRS ERKUNDEN: 1 KARTE.",
-  "HÖCHSTENS 3. NUR IM EIGENEN ZUG, DANN UNTER DEN STAPEL."
+  "HÖCHSTENS 3. IM EIGENEN ZUG SPIELEN, DANN UNTER DEN STAPEL."
  ]
 };
 export const SCHICKSAL_RUECK_EN = {
  "titel": "FATE",
  "absaetze": [
-  "EXPLORING: 1 CARD.",
-  "AT MOST 3. ONLY ON YOUR OWN TURN, THEN TO THE BOTTOM OF THE DECK."
+  "EXPLORE: DRAW 1.",
+  "AT MOST 3. PLAY ON YOUR OWN TURN, THEN TO THE BOTTOM OF THE DECK."
  ]
 };

@@ -27,14 +27,14 @@ const EIN_AKK = { wald: "einen Wald", feld: "einen Acker", weide: "eine Weide", 
 
 // Helden: Akkusativ und was die Karte kann (wie auf den Heldenkarten, v0.5)
 const HELD_DE = {
-  karten: ["den Meister der Karten", "zieht 3 Schicksalskarten und behält 2"],
+  karten: ["den Meister der Karten", "zieht 3 Schicksalskarten und behält 2, +1 Ruhm"],
   zauberin: ["die Spürzauberin", "dreht sofort nach dem Runenwurf bis zu 2 Würfel frei, +2 Ruhm"],
-  tueftler: ["den Tüftler", "baut eine Burg für 1 Stein und 1 Erz"],
-  planerin: ["die Planerin", "nimmt im eigenen Zug 2 Würfel statt 1 und erntet beide"],
-  hueterin: ["die Hüterin der Natur", "schickt eine Horde zurück aufs Turm-Tor, +1 Ruhm"],
+  tueftler: ["den Tüftler", "baut eine Burg auf ein eigenes Gehöft für 1 Stein und 1 Erz"],
+  planerin: ["die Planerin", "nimmt im eigenen Zug 2 Würfel statt 1 und erntet beide (nur, wenn noch 2 liegen)"],
+  hueterin: ["die Hüterin der Natur", "schickt eine Horde (Figur oder Ring) zurück aufs Turm-Tor, +1 Ruhm"],
   gelehrter: ["den Gelehrten", "„Pax vobiscum“: Die Augen eines Runenwurfs zählen nicht, +2 Ruhm"],
-  wegweiserin: ["die Wegweiserin", "führt die Gefährten als Reise der Runde 1 Feld weiter, ohne Kosten und Gefahr, mit Ruhm, nicht auf Feld 10"],
-  chronist: ["den Chronisten", "schickt eine Horde neben der Hauptstadt in den Vorrat, +2 Ruhm"],
+  wegweiserin: ["die Wegweiserin", "führt die Gefährten als Reise der Runde 1 Feld weiter, ohne Kosten und ohne Turm +1, mit Ruhm, nicht auf Feld 10"],
+  chronist: ["den Chronisten", "schickt eine Horde, die höchstens 3 Felder vor der Hauptstadt steht, in den Vorrat, +1 Ruhm"],
 };
 const heldDe = (id) => (HELD_DE[id] ? `${HELD_DE[id][0]} (${HELD_DE[id][1]})` : id);
 // Kacheln gezählt: „2 Äcker“
@@ -73,7 +73,7 @@ function hilfenDe(s) {
     einsatz: (e) => {
       const t = [];
       if (e.erz) t.push(`${e.erz} Erz`);
-      if (e.pferde) t.push(`${e.pferde} ${resDe("pferde", e.pferde)}${e.hv === 2 ? " (als Menschen zählt jedes Pferd doppelt)" : ""}`);
+      if (e.pferde) t.push(`${e.pferde} ${resDe("pferde", e.pferde)}${e.hv === 2 ? " (als Menschen bringt jedes Pferd 2 Abwehr)" : ""}`);
       const z = listeDe(t);
       return z && e.verst ? `zahlt ${z} und spielt die Verstärkung (+3)` : z ? `zahlt ${z}` : e.verst ? "spielt die Verstärkung (+3)" : "zahlt nichts";
     },
@@ -93,17 +93,22 @@ const DE = {
       || "Jeder bekommt einen Helden";
     let turm = `Gegner ist der Turm des Schattens: Er beginnt mit ${e.turm} Segmenten, bei ${e.max} ist er vollendet und alle verlieren. `
       + `Er steht also von Anfang an halb fertig da, als sichtbare Drohung: Bis zum Ende fehlen nur ${e.max - e.turm}. `
-      + "Er wächst, wenn ein Überfall verloren geht, wenn für ein Auge die nötige Horde oder der Ring nicht mehr im Vorrat ist "
+      + (e.entfaellt ? "Er wächst, wenn ein Überfall verloren geht "
+        : "Er wächst, wenn ein Überfall verloren geht, wenn für ein Auge die nötige Horde oder der Ring nicht mehr im Vorrat ist ")
       + "und wenn die Gefährten ein Feld mit Auge der Reise-Leiste betreten; einmal im Spiel nimmt ihm der Ruf der Leuchtfeuer 1 Segment. ";
     if (e.klein != null && e.gross != null && e.klein !== e.gross) {
       turm += `Zu zweit und zu dritt beginnt er mit ${e.klein}, zu viert und zu fünft mit ${e.gross}: Mit mehr Spielern kommen mehr Rohstoffe `
         + "gegen die Horden zusammen, so bleibt es ähnlich knapp. ";
     }
-    if (e.teamPlus) turm += `Im Teamspiel kommt ${e.teamPlus === 1 ? "1 Segment" : `${e.teamPlus} Segmente`} dazu. `;
-    const neu = e.team ? `Neues Teamspiel mit ${e.n} Farben, je zwei Personen spielen zusammen` : `Neues Spiel ${zu}`;
-    return `${neu}. Ziel: Die Gefährten ziehen über die Reise-Leiste bis Feld 10 zum Feuerberg; dann gewinnt, wer am meisten Ruhm hat. `
+    if (e.teamPlus) turm += `Im Teamspiel kommt ${e.teamPlus === 1 ? "1 Segment" : `${e.teamPlus} Segmente`} dazu (jede Farbe zählt als ein Spieler). `;
+    if (e.ersteMinus) turm += `In der ersten Partie beginnt er mit ${e.ersteMinus === 1 ? "1 Segment" : `${e.ersteMinus} Segmenten`} weniger. `;
+    const neu = (e.team ? `Neues Teamspiel mit ${e.n} Farben, je zwei Personen spielen zusammen` : `Neues Spiel ${zu}`)
+      + (e.ersteMinus ? " (erste Partie)" : "");
+    const ziel = e.sieg ? "dann siegen alle gemeinsam, und Held des Westens wird, wer am meisten Ruhm hat" : "dann gewinnt, wer am meisten Ruhm hat";
+    return `${neu}. Ziel: Die Gefährten ziehen über die Reise-Leiste bis Feld 10 zum Feuerberg; ${ziel}. `
       + (e.uhr ? "Reist in einer Runde niemand, ziehen sie am Rundenende von selbst ein Feld weiter. " : "")
       + turm
+      + (e.ohneVoelker ? "Gespielt wird ohne Völker (erste Partie): Niemand hat eine Volksfähigkeit. " : "")
       + `${held}. Die Helden liegen offen vor ihrem Besitzer, jeder wirkt einmal im Spiel. `
       + `Dann setzt jeder reihum ein Start-Gehöft und rückwärts ein zweites${e.startRuhm ? ", jedes bringt 1 Ruhm" : ""}. `
       + (e.start !== undefined && e.start !== null ? `${c.name(e.start)} beginnt (am Tisch der Jüngste) und bekommt die Fahne des Startspielers.` : "");
@@ -125,18 +130,19 @@ const DE = {
       return z ? `${z} ${KACHEL_DE[k][z === 1 ? 0 : 1]}` : "";
     });
     const dose = e.gross
-      ? `Zu viert und zu fünft kommen alle ${e.dose} Gelände-Plättchen in die Nebeldose, und alle Plätze werden belegt, auch die nur für 4–5 Spieler. `
-      : `Zu zweit und zu dritt kommen nur ${e.dose} der ${e.alle} Gelände-Plättchen in die Nebeldose (je 3 Wald, Acker, Weide, Hügel und Gebirge, `
-        + "1 Wasser und die Ruine); die übrigen Kacheln bleiben in der Schachtel, die Plätze nur für 4–5 Spieler bleiben leer. ";
+      ? `Zu viert und zu fünft werden alle ${e.dose} Nebel-Plättchen (Geländesymbol auf der Unterseite) verdeckt auf dem Tisch gemischt, `
+        + "und alle Plätze werden belegt, auch die nur für 4–5 Spieler. "
+      : `Zu zweit und zu dritt werden nur ${e.dose} der ${e.alle} Nebel-Plättchen verdeckt auf dem Tisch gemischt (je 3 Wald, Acker, Weide, Hügel `
+        + "und Gebirge, 1 Wasser und die Ruine); die übrigen Kacheln und Plättchen bleiben in der Schachtel, die Plätze nur für 4–5 Spieler bleiben leer. ";
     const ruine = e.ruine
-      ? `Die Ruine darf nicht ins Heimatland: Sie wurde ${e.ruine === 1 ? "einmal" : `${e.ruine}-mal`} gezogen, kam zurück in die Dose, und es wurde neu gezogen. `
-      : "Nur die Ruine dürfte nicht ins Heimatland (zurück in die Dose, neu ziehen); sie wurde diesmal nicht gezogen. ";
+      ? `Die Ruine darf nicht ins Heimatland: Sie wurde ${e.ruine === 1 ? "einmal" : `${e.ruine}-mal`} umgedreht, kam verdeckt zurück unter die übrigen, und ein anderes Plättchen wurde umgedreht. `
+      : "Nur die Ruine dürfte nicht ins Heimatland (verdeckt zurück unter die übrigen, ein anderes umdrehen); sie kam diesmal nicht. ";
     return "Die Karte wird ausgelegt (Aufbau 1 bis 6 auf den Tafeln). Die Hauptstadt liegt in der Mitte des Heimatlands im Westen, "
       + "ganz im Osten das Schattenland mit Nord-Tor, Turm-Tor und Süd-Tor samt Feuerberg, dazwischen der Nebel. "
       + dose
-      + (e.wasser ? "Das Wasser des Küstenvolks liegt schon, sein Plättchen ist aus der Dose. " : "")
-      + `Für jeden freien Heimatland-Platz (${e.plaetze - e.wasser}) zieht einer blind ein Plättchen aus der Dose: Darauf ist das Gelände abgebildet, `
-      + "die passende Kachel kommt auf den Platz, das Plättchen ist danach weg. Das ist reiner Zufall; wer zieht, ist egal. "
+      + (e.wasser ? "Das Wasser des Küstenvolks liegt schon, sein Plättchen ist aus dem Spiel. " : "")
+      + `Für jeden freien Heimatland-Platz (${e.plaetze - e.wasser}) wird ein Plättchen umgedreht: Darauf ist das Gelände abgebildet, `
+      + "die passende Kachel kommt auf den Platz, das Plättchen ist danach aus dem Spiel. Das ist reiner Zufall; wer umdreht, ist egal. "
       + ruine
       + (e.schatz ? `Ebenso kamen ${e.schatz === 1 ? "1 Schatz-Plättchen" : `${e.schatz} Schatz-Plättchen`} zurück. ` : "")
       + `Jetzt liegen ${n} Heimatland-Kacheln: ${listeDe(liste)}. `
@@ -190,6 +196,7 @@ const DE = {
         : `${e.augen} Augen: Gleich dreht sich die Turmspitze ${e.augen}-mal zum nächsten Tor, jedes Mal erscheint dort eine Horde.`;
     return `Runde ${l.r}: ${A} ist Startspieler und würfelt ${e.n} Runenwürfel (${formel}). Ergebnis: ${e.faces.map(c.wuerfel).join(", ")}. `
       + `${augen} Danach nimmt reihum ab ${A} jeder 1 Würfel und erntet${e.plus ? ` (mit ${e.plus} Rohstoff mehr, wenn er etwas bringt)` : ""}; `
+      + (e.trost ? "bringt er nichts oder liegt keiner mehr, gibt es 1 beliebigen Rohstoff aus dem Vorrat; " : "")
       + "die übrigen Würfel ernten am Rundenende alle.";
   },
   zauberin(e, A, c) {
@@ -203,14 +210,15 @@ const DE = {
   auge(e, A, c) {
     const pre = e.i ? (e.n > 1 ? `Auge ${e.i} von ${e.n}: ` : "Das Auge: ") : "";
     const dreh = `Die Turmspitze dreht sich im Uhrzeigersinn vom ${c.tor(e.von)} zum ${c.tor(e.nach)}${e.nach === TURM_TOR ? " (Blick nach Westen über das Land)" : ""}`;
-    if (e.leer && e.teil === "ring") return `${pre}${dreh}. Dort steht schon eine Horde, eine weitere käme als Ring unter die Figur, aber alle ${e.max} Ringe sind verbraucht: Stattdessen wächst der Turm um 1.`;
-    if (e.leer && e.teil === "figur") return `${pre}${dreh}. Das Tor ist frei, aber alle ${e.max} Hordenfiguren stehen schon auf dem Brett: Stattdessen wächst der Turm um 1.`;
+    const folge = e.entfaellt ? "Die Horde entfällt, ohne weitere Folge (der Turm wächst nicht)." : "Stattdessen wächst der Turm um 1.";
+    if (e.leer && e.teil === "ring") return `${pre}${dreh}. Dort steht schon eine Horde, eine weitere käme als Ring unter die Figur, aber alle ${e.max} Ringe sind verbraucht: ${folge}`;
+    if (e.leer && e.teil === "figur") return `${pre}${dreh}. Das Tor ist frei, aber alle ${e.max} Hordenfiguren stehen schon auf dem Brett: ${folge}`;
     if (e.leer) return `${pre}${dreh}. Alle ${e.max} Horden stehen schon auf dem Brett; ist keine mehr im Vorrat, wächst stattdessen der Turm um 1.`;
     if (e.teil) {
       const was = e.teil === "ring" ? `Dort steht schon eine Horde: Eine weitere kommt dazu, als Ring unter der Figur (jetzt ${c.horden(e.dort)}, sie zählen zusammen).`
         : "Das Tor ist frei: Dort erscheint eine Horde (eine Figur).";
       return `${pre}${dreh}. ${was} Im Vorrat ${e.figuren === 1 ? "ist noch 1 Figur" : `sind noch ${e.figuren} Figuren`} und ${e.ringe === 1 ? "1 Ring" : `${e.ringe} Ringe`}; `
-        + "fehlt das nötige Teil, wächst stattdessen der Turm.";
+        + (e.entfaellt ? "fehlt das nötige Teil, entfällt die Horde." : "fehlt das nötige Teil, wächst stattdessen der Turm.");
     }
     const dort = e.dort > 1 ? ` Dort stehen jetzt ${e.dort} Horden, sie zählen zusammen (eine Figur, je weitere ein Ring darunter).` : "";
     const vorrat = e.vorrat === 0
@@ -228,7 +236,8 @@ const DE = {
       + `${w.length === 1 ? `den Würfel ${w[0]} und erntet ihn` : `2 Würfel (${listeDe(w)}) und erntet beide`}. Im eigenen Zug nimmt ${A} dafür keinen Würfel.`;
   },
   zugOhneWuerfel: (e, A) => `${A} ist am Zug, hat die Würfel dieser Runde aber schon mit der Planerin genommen: kein Würfel, gleich weiter mit Bauen, Handeln oder Reisen.`,
-  elben: (e, A, c) => `${A} spielt die Elben: Sie dürfen den genommenen Würfel für ${e.kosten} Korn auf ein beliebiges Gelände drehen, hier ${c.wuerfel(e.von)} → ${c.wuerfel(e.nach)}.`,
+  elben: (e, A, c) => `${A} spielt die Elben: Sie dürfen ${e.planerin ? "mit der Planerin jeden der beiden Würfel" : "den genommenen Würfel"} `
+    + `für ${e.kosten} Korn auf ein beliebiges Gelände drehen, hier ${c.wuerfel(e.von)} → ${c.wuerfel(e.nach)}.`,
   ernte(e, A, c) {
     const T = c.ter(e.face);
     const R = c.res(e.res, 2);
@@ -237,9 +246,11 @@ const DE = {
     const regel = `${T} bringt ${R}: Jedes Gebäude bringt je angrenzendes Feld dieses Geländes Gehöft 1, Burg 2, Festung 3`
       + `${e.fischer ? " (als Küstenvolk zählt Wasser dabei wie dieses Gelände, Fischer)" : ""}`
       + `${e.plus ? `; bringt der eigene Würfel etwas, gibt es ${e.plus} mehr` : ""}.`;
+    const trost = " Bringt der eigene Würfel nichts, gibt es dafür 1 beliebigen Rohstoff aus dem Vorrat (wie ohne Würfel): "
+      + `${A} wählt ihn gleich.`;
     if (!e.soll) {
       const warum = e.geb ? `Kein Gebäude von ${A} grenzt an ${EIN_AKK[e.face] || T}${e.fischer ? " oder an Wasser" : ""}` : `${A} hat kein Gebäude auf dem Brett`;
-      return `${intro} ${regel} ${warum}, darum gibt es nichts.`;
+      return `${intro} ${regel} ${warum}, darum gibt es nichts.${e.trost ? trost : e.quelle === "karte" ? " (Die Reiche Ernte wiederholt nur den Würfelertrag.)" : ""}`;
     }
     const teile = e.teile.map((t) => {
       let x = `${c.lvl(t.lvl)} ${c.ort(t.fs)} bringt ${t.basis}${t.wasser ? ` (davon ${t.wasser} fürs Wasser)` : ""}`;
@@ -251,11 +262,13 @@ const DE = {
     let out = `${intro} ${regel} Bei ${A}: ${listeDe(teile)}${plus}, zusammen ${e.soll} ${c.res(e.res, e.soll)}.`;
     if (e.ist < e.soll) {
       out += e.ist ? ` Im Vorrat ${e.ist === 1 ? "lag" : "lagen"} aber nur noch ${e.ist}; was nicht im Vorrat ist, gibt es nicht.`
-        : ` Der Vorrat an ${R} ist aber leer; was nicht im Vorrat ist, gibt es nicht.`;
+        : ` Der Vorrat an ${R} ist aber leer; was nicht im Vorrat ist, gibt es nicht.${e.trost ? trost : ""}`;
     }
     return out;
   },
-  rohstoffWahl: (e, A, c) => `Alle Würfel sind vergeben: Wer keinen mehr bekommt, nimmt stattdessen 1 beliebigen Rohstoff aus dem Vorrat. `
+  rohstoffWahl: (e, A, c) => (e.grund === "ertrag"
+    ? `Der Würfel hat ${A} nichts gebracht: Dafür gibt es 1 beliebigen Rohstoff aus dem Vorrat (nur Sorten, die noch da sind). `
+    : "Alle Würfel sind vergeben: Wer keinen mehr bekommt, nimmt stattdessen 1 beliebigen Rohstoff aus dem Vorrat. ")
     + `${A} wählt 1 ${c.res(e.res, 1)}${e.ist ? "" : ", aber davon ist nichts mehr im Vorrat"}.`,
   gemeinsam(e, A, c) {
     if (!e.dice.length) return "Rundenende: Alle Würfel wurden genommen, darum gibt es keine gemeinsame Ernte.";
@@ -276,8 +289,9 @@ const DE = {
     return `${A} baut ein Gehöft ${c.ort(e.fs)} für ${c.kosten(e.kosten)}: +1 Ruhm, die Ruhm-Leiste steht jetzt auf ${e.leiste}. ${wo} ${rest}`;
   },
   erkunden(e, A) {
-    let out = `${A} baut an einer Kante am Nebel: Erst wird das Nebel-Plättchen umgedreht, darunter liegt ${EIN_NOM[e.kind] || TER_DE[e.kind]}`
-      + `${e.schatz ? " mit Schatz" : ""}. Die Kachel kommt an diese Stelle${e.horde ? " (unter die Horde, die dort steht)" : ""}, das Plättchen ist weg.`;
+    let out = `${A} baut an einer Kante am Nebel: Erst wird bezahlt, dann das Nebel-Plättchen umgedreht, darunter liegt ${EIN_NOM[e.kind] || TER_DE[e.kind]}`
+      + `${e.schatz ? " mit Schatz" : ""}. Die Kachel kommt an diese Stelle${e.horde ? " (unter die Horde, die dort steht)" : ""}, das Plättchen ist aus dem Spiel. `
+      + "Erkunden ist verbindlich: Das Gehöft bleibt an dieser Kante, auch wenn die Kachel nichts bringt.";
     if (e.kind === "ruine" && e.ruinLohn !== false) out += ` Wer die Ruine findet, bekommt 1 Ruhm${e.karte ? " und 1 Schicksalskarte" : " (Schicksalskarten sind keine mehr da)"}.`;
     if (e.kind === "ruine" && e.ruinLohn === false) out += " Die Ruine bringt keinen Rohstoff, wie das Wasser.";
     if (e.fuersErkunden) out += e.karte ? ` Wer erkundet, zieht 1 Schicksalskarte: ${A} bekommt eine (verdeckt, höchstens 3 auf der Hand).` : " Wer erkundet, zieht 1 Schicksalskarte, aber der Stapel ist leer.";
@@ -310,7 +324,8 @@ const DE = {
   entzuenden: (e, A, c) => `${A} entzündet das erloschene Leuchtfeuer ${c.ecke(e.fs)} für 1 Holz neu; das darf jeder im eigenen Zug. `
     + `Jetzt ${c.brennt(e.brennen)}.${c.ruf(e)}`,
   ruf: (e, A) => (e.weg === null ? `Ruf der Leuchtfeuer! Das ${e.n === 3 ? "dritte" : `${e.n}.`} Leuchtfeuer steht, das gibt es nur `
-    + `einmal im Spiel: Der Turm verliert ${e.minus === 1 ? "1 Segment" : `${e.minus} Segmente`} (jetzt ${e.turm}), und ${A} bekommt als Erbauer ${e.ruhm} Ruhm.`
+    + `einmal im Spiel: Die Verbündeten eilen herbei, der Turm verliert ${e.minus === 1 ? "1 Segment" : `${e.minus} Segmente`} (jetzt ${e.turm}), und ${A} bekommt als Erbauer `
+    + (e.zusaetzlich ? `${e.ruhm} Ruhm zusätzlich (zu den 2 für das Leuchtfeuer).` : `${e.ruhm} Ruhm.`)
     : `Ruf der Leuchtfeuer! ${e.n} Leuchtfeuer brennen zugleich, das geschieht nur einmal im Spiel. Alle Horden auf Feldern an `
     + `brennenden Leuchtfeuern kommen in den Vorrat (${e.weg ? (e.weg === 1 ? "1 Horde" : `${e.weg} Horden`) : "dort stand keine"}), `
     + `und der Turm verliert ${e.minus === 1 ? "1 Segment" : `${e.minus} Segmente`} (jetzt ${e.turm}). ${A} hat das letzte gebaut oder entzündet und bekommt ${e.ruhm} Ruhm.`),
@@ -335,7 +350,10 @@ const DE = {
         horde: `Feld ${e.feld} ist ein Gefahrenfeld: Das Auge dreht sich weiter.`,
       }[e.folge] || `Feld ${e.feld} ist ein Gefahrenfeld.`);
     }
-    if (e.ziel) out += " Die Gefährten erreichen den Feuerberg! Die Runde wird samt Rundenende zu Ende gespielt, dann gewinnt, wer am meisten Ruhm hat.";
+    if (e.ziel) {
+      out += " Die Gefährten erreichen den Feuerberg! Die Runde wird samt Rundenende zu Ende gespielt; "
+        + (e.held ? "wird der Turm dabei nicht vollendet, siegen alle, und wer am meisten Ruhm hat, ist Held des Westens." : "dann gewinnt, wer am meisten Ruhm hat.");
+    }
     return out;
   },
   reiseUhr(e) {
@@ -360,11 +378,14 @@ const DE = {
     const B = c.name(e.von);
     const gib = c.kosten(e.gib) || "nichts";
     const nimm = c.kosten(e.nimm) || "nichts";
-    return e.ja ? `Handel unter Spielern ist frei, aber nur mit dem Spieler am Zug: ${B} gibt ${A} ${gib} und bekommt dafür ${nimm}.`
+    return e.ja ? `Handel unter Spielern ist frei (Rohstoffe gegen Rohstoffe), aber nur mit dem Spieler am Zug: ${B} gibt ${A} ${gib} und bekommt dafür ${nimm}.`
       : `${A} lehnt das Angebot von ${B} ab (${gib} gegen ${nimm}): Es wird nicht getauscht.`;
   },
   karte(e, A, c) {
-    if (e.id === "bann") return `${A} spielt den Bannspruch: Die Horde ${c.aufDat(e.von)} muss zurück aufs Turm-Tor und beginnt ihren Weg zur Hauptstadt von vorn.`;
+    if (e.id === "bann") {
+      return e.vorrat ? `${A} spielt den Bannspruch gegen die Horde ${c.aufDat(e.von)}: Am Turm-Tor fehlt für sie die Figur oder ein Ring, darum kommt sie in den Vorrat (der Turm wächst nicht).`
+        : `${A} spielt den Bannspruch: Die Horde ${c.aufDat(e.von)} muss zurück aufs Turm-Tor und beginnt ihren Weg zur Hauptstadt von vorn.`;
+    }
     if (e.id === "wachfeuer") {
       return `${A} spielt Wachfeuer: ${e.n === 1 ? "Das erloschene Leuchtfeuer brennt" : `Alle ${e.n} erloschenen Leuchtfeuer brennen`} wieder, ohne Kosten. `
         + `Jetzt ${c.brennt(e.brennen)}.${c.ruf(e)}`;
@@ -375,21 +396,31 @@ const DE = {
     return "";
   },
   held(e, A, c) {
-    const vorKampf = e.kampf ? ` Das geschieht noch vor ${e.kampf === "siege" ? "der Belagerung" : "dem Überfall"}`
+    const vorKampf = e.kampf ? ` Das geschieht noch vor ${e.kampf === "siege" ? "dem Überfall auf die Hauptstadt" : "dem Überfall"}`
       + `${e.rest ? `; dort ${e.rest === 1 ? "steht noch 1 Horde" : `stehen noch ${e.rest} Horden`}, gegen die gekämpft wird` : ""}.` : "";
     switch (e.id) {
       case "karten":
         return `${A} nutzt den Meister der Karten (einmal im Spiel): 3 Schicksalskarten ziehen, 2 behalten, die übrige kommt unter den Stapel. `
-          + (e.n < 3 ? `Im Stapel ${e.n === 1 ? "lag nur 1 Karte" : `lagen nur ${e.n} Karten`}; ${A} behält ${e.n === 1 ? "sie" : "alle"}.` : "Welche, bleibt verdeckt.");
+          + (e.n === 0 ? "Der Stapel ist leer, es gibt keine Karte." : e.n < 3 ? `Im Stapel ${e.n === 1 ? "lag nur 1 Karte" : `lagen nur ${e.n} Karten`}; ${A} behält ${e.n === 1 ? "sie" : "alle"}.` : "Welche, bleibt verdeckt.")
+          + (e.ruhm ? ` +${e.ruhm} Ruhm.` : "");
       case "tueftler":
         return `${A} nutzt den Tüftler (einmal im Spiel): eine Burg auf das eigene Gehöft ${c.ort(e.fs)} für ${c.kosten(e.kosten) || "nichts"} `
           + `statt ${c.kosten(D.COSTS.burg)}. +1 Ruhm, die Ruhm-Leiste steht jetzt auf ${e.leiste}.`;
       case "hueterin":
-        return `${A} ruft die Hüterin der Natur (einmal im Spiel): Die Horde ${c.aufDat(e.von)} kehrt ohne Kampf aufs Turm-Tor zurück. `
-          + `+${e.ruhm ?? 2} Ruhm, aber keine Schicksalskarte.${vorKampf}`;
-      case "chronist":
-        return `${A} ruft den Chronisten (einmal im Spiel): Eine Horde auf oder neben der Hauptstadt, hier ${c.aufDat(e.von)}, kommt in den Vorrat. `
-          + `+${e.ruhm ?? 2} Ruhm, aber keine Schicksalskarte.${vorKampf}`;
+        if (e.vorrat) {
+          return `${A} ruft die Hüterin der Natur (einmal im Spiel) für die Horde ${c.aufDat(e.von)}: Am Turm-Tor fehlt für sie die Figur oder ein Ring, `
+            + `darum kommt sie in den Vorrat (der Turm wächst nicht). +${e.ruhm ?? 2} Ruhm.${vorKampf}`;
+        }
+        return `${A} ruft die Hüterin der Natur (einmal im Spiel): Die Horde ${c.aufDat(e.von)} kehrt aufs Turm-Tor zurück`
+          + `${e.neu ? " (Horden, die schon dort stehen, kann sie nicht wählen)" : ""}. +${e.ruhm ?? 2} Ruhm.${vorKampf}`;
+      case "chronist": {
+        const weit = e.weit ?? 1;
+        const wo = weit <= 1 ? "Eine Horde auf oder neben der Hauptstadt"
+          : `Eine Horde, die höchstens ${weit} Felder vor der Hauptstadt steht (Weg der Horden; das Nachbarfeld der Hauptstadt zählt als 1 Feld)`;
+        const dist = e.dist === 0 ? " (in der Hauptstadt)" : e.dist ? ` (${e.dist === 1 ? "1 Feld" : `${e.dist} Felder`} vor der Hauptstadt)` : "";
+        return `${A} ruft den Chronisten (einmal im Spiel): ${wo}, hier ${c.aufDat(e.von)}${dist}, kommt in den Vorrat. `
+          + `+${e.ruhm ?? 2} Ruhm.${vorKampf}`;
+      }
       default:
         return "";
     }
@@ -406,12 +437,14 @@ const DE = {
     + (e.tie === "start" ? "Sind zwei Wege gleich kurz, wählt der Startspieler."
       : "Sind zwei Wege gleich kurz, geht es zum Feld mit den meisten Gebäuden (Gehöft, Burg und Festung zählen je 1), bei Gleichstand wählt der Startspieler.")
     + (e.ringe ? " Treffen Horden auf einem Feld zusammen, zählen sie zusammen: Die Figur der dazukommenden geht zurück in den Vorrat, dafür kommt ein Ring unter die Figur."
-      + " Fehlt dieser Ring, geht die dazukommende Horde ganz zurück in den Vorrat und der Turm wächst um 1." : ""),
+      + (e.turm === false ? " Fehlt dieser Ring, entfällt die dazukommende Horde (zurück in den Vorrat, ohne weitere Folge)."
+        : " Fehlt dieser Ring, geht die dazukommende Horde ganz zurück in den Vorrat und der Turm wächst um 1.")
+      + (e.haupt ? " In der Hauptstadt braucht es keine Ringe: Die Horden dort werden gezählt, überfallen und kommen in den Vorrat." : "") : ""),
   hordenzug(e, A, c) {
     const wer = e.n > 1 ? `Die ${e.n} Horden ziehen gemeinsam` : "Die Horde zieht";
     const ri = RI_DE[e.ri] ? ` nach ${RI_DE[e.ri]}` : "";
     let out = `${wer} ${c.von(e.von)}${ri} ${c.aufAkk(e.nach)}`;
-    out += e.ziel ? ". Gleich folgt die Belagerung." : `, noch ${e.dist === 1 ? "1 Feld" : `${e.dist} Felder`} bis zur Hauptstadt.`;
+    out += e.ziel ? ". Gleich folgt der Überfall auf die Hauptstadt." : `, noch ${e.dist === 1 ? "1 Feld" : `${e.dist} Felder`} bis zur Hauptstadt.`;
     if (e.opts && e.grund !== "einzig") {
       const opts = listeDe(e.opts.map(([k, n, r]) => `${c.feld(k)}${RI_DE[r] ? ` im ${RI_DE[r]}` : ""} (${n} Gebäude)`));
       const top = Math.max(...e.opts.map((o) => o[1]));
@@ -429,17 +462,20 @@ const DE = {
     return out;
   },
   ringFehlt: (e, A, c) => `${gross(c.aufDat(e.f))} kommt eine weitere Horde zum Stapel, aber alle ${e.max} Ringe sind verbraucht: `
-    + `Die dazukommende Horde geht zurück in den Vorrat (dort ${e.dort === 1 ? "bleibt 1 Horde" : `bleiben ${e.dort} Horden`}), dafür wächst der Turm um 1.`,
+    + `Die dazukommende Horde geht zurück in den Vorrat (dort ${e.dort === 1 ? "bleibt 1 Horde" : `bleiben ${e.dort} Horden`})`
+    + (e.turm === false ? "; sie entfällt ohne weitere Folge, der Turm wächst nicht." : ", dafür wächst der Turm um 1."),
   ueberfaelle(e, A, c) {
     const ohne = e.ohne.length ? ` Horden auf Feldern ohne Gebäude überfallen niemand: ${listeDe(e.ohne.map(([k, n]) => `${c.feld(k)} (${c.horden(n)})`))}.` : "";
     if (!e.mit.length) return `Überfälle: Keine Horde steht an einem Feld mit Gebäuden, diese Runde gibt es keinen Überfall.${ohne}`;
     if (e.auto) {
       return `Überfälle: Horden greifen jedes Feld mit Gebäuden an (die Hauptstadt immer, sie war schon dran), diese Runde ${listeDe(e.mit.map(c.feld))}.${ohne}`
-        + `${e.mit.length > 1 ? " Der Reihe nach, die Felder nah an der Hauptstadt zuerst." : ""}`;
+        + `${e.mit.length > 1 ? ` Der Reihe nach, die Felder nah an der Hauptstadt zuerst${e.wahl ? "; bei gleich nahen Feldern wählt der Startspieler die Reihenfolge" : ""}.` : ""}`;
     }
     return `Überfälle: Horden greifen jedes Feld an, an dem Gebäude stehen, diese Runde ${listeDe(e.mit.map(c.feld))}.${ohne}`
       + `${e.mit.length > 1 ? " Die Reihenfolge wählt der Startspieler." : ""}`;
   },
+  ueberfallWahl: (e, A, c) => `Gleich nah an der Hauptstadt (${e.dist === 1 ? "1 Feld" : `${e.dist} Felder`}) werden ${listeDe(e.opts.map(c.feld))} überfallen: `
+    + `Der Startspieler ${A} wählt die Reihenfolge, zuerst ${c.feld(e.f)}.`,
   kampf(e, A, c) {
     // v0.5 (lohn === false): eine Regel für alle Überfälle, auch an der Hauptstadt
     const titel = e.art === "siege" ? (e.lohn === false ? "Überfall auf die Hauptstadt" : "Belagerung der Hauptstadt") : `Überfall ${c.aufAkk(e.f)}`;
@@ -459,8 +495,9 @@ const DE = {
         : "Niemand darf zahlen, der Überfall ist verloren.";
     } else if (e.lohn === false) {
       const namen = listeDe(e.zahler.map(c.name));
-      wer = (e.warum === "leuchtfeuer" ? `Ein Leuchtfeuer steht an diesem Feld oder einem Nachbarfeld, darum dürfen alle zahlen: ${namen}.`
-        : `Zahlen dürfen die Besitzer der Gebäude hier: ${namen}.`)
+      wer = (e.warum === "alle" ? `An der Hauptstadt dürfen immer alle zahlen, auch ohne Gebäude dort und ohne Leuchtfeuer: ${namen}.`
+        : e.warum === "leuchtfeuer" ? `Ein Leuchtfeuer steht an diesem Feld oder einem Nachbarfeld, darum dürfen alle zahlen: ${namen}.`
+          : `Zahlen dürfen die Besitzer der Gebäude hier: ${namen}.`)
         + (e.zahler.length > 1 ? " Reihum ab dem Startspieler sagt jeder einmal an, zusammen nie mehr als nötig." : "")
         + ` Jedes Erz und jedes Pferd zählt 1 (Pferde der Menschen 2, die Verstärkung 3) und bringt ${e.payFame || 1} Ruhm, die Verstärkung keinen. Gezahltes ist immer weg.`
         + ` Reicht es nicht: Turm +${e.turmPlus ?? 1}, jedes Gebäude hier verliert eine Stufe.`;
@@ -508,7 +545,7 @@ const DE = {
       : ` Der Turm wächst um ${e.turmPlus}, ${h ? "die Horde bleibt" : "die Horden bleiben"} stehen.`;
     return out;
   },
-  kampfFaelltAus: (e, A, c) => `${gross(c.aufDat(e.f))} steht keine Horde mehr: ${e.art === "siege" ? "Die Belagerung" : "Der Überfall"} fällt aus.`,
+  kampfFaelltAus: (e, A, c) => `${gross(c.aufDat(e.f))} steht keine Horde mehr: ${e.art === "siege" ? "Der Überfall auf die Hauptstadt" : "Der Überfall"} fällt aus.`,
   erlischt: (e, A, c) => `Am Rundenende steht eine Horde ${listeDe(e.an.map(c.aufDat))}: Das Leuchtfeuer ${c.ecke(e.fs)} erlischt. `
     + `Jeder kann es im eigenen Zug für 1 Holz neu entzünden. Jetzt ${c.brennt(e.brennen)}.`,
   turm(e) {
@@ -523,7 +560,7 @@ const DE = {
     const gleich = e.ruhm.map((x, i) => [i, x]).filter(([, x]) => x === e.lo).map(([i]) => i);
     let out = `Neuer Startspieler wird, wer am wenigsten Ruhm hat: ${A} mit ${e.lo} Ruhm (Ruhm-Leiste: ${e.ruhm.map((x, i) => `${c.name(i)} ${x}`).join(", ")}).`;
     const andere = gleich.filter((i) => i !== l.seat);
-    if (gleich.length > 1) out += ` Gleichstand mit ${listeDe(andere.map(c.name))}: Dann wird es der Nächste links vom bisherigen Startspieler ${c.name(e.alt)}.`;
+    if (gleich.length > 1) out += ` Gleichstand mit ${listeDe(andere.map(c.name))}: Dann wird es der erste Gleichstehende links vom bisherigen Startspieler ${c.name(e.alt)} (der bisherige selbst kommt als Letzter in Frage).`;
     return `${out} ${A} bekommt die Fahne und würfelt als Nächstes.`;
   },
   ende(e, A, c) {
@@ -531,11 +568,15 @@ const DE = {
     if (e.grund === "turm") return `Der Turm des Schattens hat ${e.turm} von ${e.max} Segmenten und ist vollendet: Der Schatten siegt, alle verlieren, egal wie viel Ruhm sie haben (${rang}).`;
     const head = e.grund === "abbruch" ? `Nach ${e.r} Runden wird abgebrochen und gewertet wie am Ende der Reise.`
       : "Die Gefährten haben den Feuerberg erreicht, und die Runde ist zu Ende gespielt.";
-    let out = `${head} Es gewinnt, wer am meisten Ruhm auf der Leiste hat (Gleichstand: mehr Rohstoffe, sonst gemeinsam): ${rang}.`;
+    let out = e.held
+      ? `${head} Der Turm ist nicht vollendet: Alle haben gemeinsam den Schatten besiegt. Held des Westens wird, wer am meisten Ruhm auf der Leiste hat `
+        + `(Gleichstand: mehr Rohstoffe, sonst teilen sie sich den Titel): ${rang}.`
+      : `${head} Es gewinnt, wer am meisten Ruhm auf der Leiste hat (Gleichstand: mehr Rohstoffe, sonst gemeinsam): ${rang}.`;
     const top = e.ranking[0];
     const gleich = e.ranking.filter((x) => x[1] === top[1]);
     if (gleich.length > 1) out += ` Gleich viel Ruhm haben ${listeDe(gleich.map((x) => c.name(x[0])))}, darum zählen die Rohstoffe: ${gleich.map((x) => `${c.name(x[0])} ${x[2]}`).join(", ")}.`;
-    out += e.winners.length > 1 ? ` Es gewinnen ${listeDe(e.winners.map(c.name))} gemeinsam.` : e.winners.length ? ` Es gewinnt ${c.name(e.winners[0])}.` : "";
+    if (e.held) out += e.winners.length > 1 ? ` Helden des Westens sind ${listeDe(e.winners.map(c.name))}.` : e.winners.length ? ` Held des Westens ist ${c.name(e.winners[0])}.` : "";
+    else out += e.winners.length > 1 ? ` Es gewinnen ${listeDe(e.winners.map(c.name))} gemeinsam.` : e.winners.length ? ` Es gewinnt ${c.name(e.winners[0])}.` : "";
     return out;
   },
 };
@@ -553,14 +594,14 @@ function listeEn(a) {
 const plEn = (n, eins, mehr) => (Number(n) === 1 ? eins : mehr);
 
 const HELD_EN = {
-  karten: ["the Master of Cards", "draw 3 fate cards and keep 2"],
+  karten: ["the Master of Cards", "draw 3 fate cards and keep 2, +1 fame"],
   zauberin: ["the Diviner", "right after the rune roll, turn up to 2 dice to any side, +2 fame"],
-  tueftler: ["the Tinkerer", "build a castle for 1 stone and 1 ore"],
-  planerin: ["the Planner", "on their turn, take 2 dice instead of 1 and harvest both"],
-  hueterin: ["the Warden of Nature", "send a horde back to the Tower Gate, +1 fame"],
+  tueftler: ["the Tinkerer", "build a castle on your own farm for 1 stone and 1 ore"],
+  planerin: ["the Planner", "on their turn, take 2 dice instead of 1 and harvest both (only while 2 dice are left)"],
+  hueterin: ["the Warden of Nature", "send one horde (figure or ring) back to the Tower Gate, +1 fame"],
   gelehrter: ["the Scholar", "“Pax vobiscum”: the Eyes of one rune roll do not count, +2 fame"],
-  wegweiserin: ["the Pathfinder", "as the journey of the round, move the Companions 1 space, free and safe, with fame, not onto space 10"],
-  chronist: ["the Chronicler", "a horde next to the capital goes back to the supply, +2 fame"],
+  wegweiserin: ["the Pathfinder", "as the journey of the round, move the Companions 1 space, free, with fame, no tower +1, not onto space 10"],
+  chronist: ["the Chronicler", "a horde within 3 hexes of the capital goes back to the supply, +1 fame"],
 };
 const heldEn = (id) => (HELD_EN[id] ? `${HELD_EN[id][0]} (${HELD_EN[id][1]})` : id);
 const KACHEL_EN = { wald: ["forest", "forests"], feld: ["fields", "fields"], weide: ["pasture", "pastures"], huegel: ["hills", "hills"],
@@ -587,7 +628,7 @@ function hilfenEn(s) {
     einsatz: (e) => {
       const t = [];
       if (e.erz) t.push(`${e.erz} ore`);
-      if (e.pferde) t.push(`${e.pferde} ${resEn("pferde", e.pferde)}${e.hv === 2 ? " (as Humans, each horse counts double)" : ""}`);
+      if (e.pferde) t.push(`${e.pferde} ${resEn("pferde", e.pferde)}${e.hv === 2 ? " (as Humans, each horse gives 2 defense)" : ""}`);
       const z = listeEn(t);
       return z && e.verst ? `pays ${z} and plays Allies (+3)` : z ? `pays ${z}` : e.verst ? "plays Allies (+3)" : "pays nothing";
     },
@@ -605,20 +646,24 @@ const EN = {
       || "Everyone gets a hero";
     let turm = `The enemy is the Tower of Shadow: it starts with ${e.turm} segments, and at ${e.max} it is complete and everyone loses. `
       + `So it stands half built from the start, a visible threat: only ${e.max - e.turm} are missing. `
-      + "It grows when a raid is lost, when an Eye needs a horde or ring that is no longer in the supply, "
+      + (e.entfaellt ? "It grows when a raid is lost " : "It grows when a raid is lost, when an Eye needs a horde or ring that is no longer in the supply, ")
       + "and when the Companions enter a space with an Eye on the journey track; once per game the Call of the Beacons takes 1 segment away. ";
     if (e.klein != null && e.gross != null && e.klein !== e.gross) {
       turm += `With 2 or 3 players it starts with ${e.klein}, with 4 or 5 with ${e.gross}: more players bring more resources against the hordes, `
         + "so it stays about as tight. ";
     }
-    if (e.teamPlus) turm += `In the team game it gets ${e.teamPlus === 1 ? "1 more segment" : `${e.teamPlus} more segments`}. `;
-    const neu = e.team ? `New team game with ${e.n} colors, two people playing together on each` : `New game with ${e.n} players`;
-    return `${neu}. Goal: the Companions travel along the journey track to space 10 at the Fire Mountain; then whoever has the most fame wins. `
+    if (e.teamPlus) turm += `In the team game it gets ${e.teamPlus === 1 ? "1 more segment" : `${e.teamPlus} more segments`} (each color counts as one player). `;
+    if (e.ersteMinus) turm += `In the first game it starts ${e.ersteMinus === 1 ? "1 segment" : `${e.ersteMinus} segments`} lower. `;
+    const neu = (e.team ? `New team game with ${e.n} colors, two people playing together on each` : `New game with ${e.n} players`)
+      + (e.ersteMinus ? " (first game)" : "");
+    const ziel = e.sieg ? "then everyone wins together, and whoever has the most fame becomes Hero of the West" : "then whoever has the most fame wins";
+    return `${neu}. Goal: the Companions travel along the journey track to space 10 at the Fire Mountain; ${ziel}. `
       + (e.uhr ? "If nobody travels in a round, they move on 1 space by themselves at the end of the round. " : "")
       + turm
+      + (e.ohneVoelker ? "This game is played without peoples (first game): nobody has a people's ability. " : "")
       + `${held}. Heroes lie face up in front of their owner; each works once per game. `
       + `Then everyone places a starting farm in turn order, and a second one in reverse order${e.startRuhm ? "; each gives 1 fame" : ""}. `
-      + (e.start !== undefined && e.start !== null ? `${c.name(e.start)} starts (at the table: the youngest) and takes the start player flag.` : "");
+      + (e.start !== undefined && e.start !== null ? `${c.name(e.start)} starts (at the table: the youngest) and takes the first-player flag.` : "");
   },
   heldWahl(e, A) {
     const k = "The hero card lies face up in front of its owner and works once per game; then it is turned sideways.";
@@ -637,24 +682,25 @@ const EN = {
       return z ? `${z} ${KACHEL_EN[k][z === 1 ? 0 : 1]}` : "";
     });
     const dose = e.gross
-      ? `With 4 or 5 players, all ${e.dose} terrain tokens go into the mist container, and every space is used, including those for 4–5 players only. `
-      : `With 2 or 3 players, only ${e.dose} of the ${e.alle} terrain tokens go into the mist container (3 each of forest, fields, pasture, hills `
-        + "and mountains, 1 water and the ruin); the other tiles stay in the box, the spaces for 4–5 players only stay empty. ";
+      ? `With 4 or 5 players, all ${e.dose} mist tokens (terrain symbol on the underside) are shuffled face down on the table, `
+        + "and every space is used, including those for 4–5 players only. "
+      : `With 2 or 3 players, only ${e.dose} of the ${e.alle} mist tokens are shuffled face down on the table (3 each of forest, fields, pasture, hills `
+        + "and mountains, 1 water and the ruin); the other tiles and tokens stay in the box, the spaces for 4–5 players only stay empty. ";
     const ruine = e.ruine
-      ? `The ruin may not go into the homeland: it was drawn ${e.ruine === 1 ? "once" : `${e.ruine} times`}, went back into the container, and a new token was drawn. `
-      : "Only the ruin may not go into the homeland (back into the container, draw again); it was not drawn this time. ";
+      ? `The ruin may not go into the homeland: it was flipped ${e.ruine === 1 ? "once" : `${e.ruine} times`}, went back face down under the others, and another token was flipped. `
+      : "Only the ruin may not go into the homeland (back face down under the others, flip another); it did not come up this time. ";
     return "The map is laid out (setup 1 to 6 on the boards). The capital lies in the middle of the homeland in the west, "
       + "in the far east the Shadowland with North Gate, Tower Gate and South Gate with the Fire Mountain, the mist in between. "
       + dose
-      + (e.wasser ? "The Coastfolk's water is already there, its token removed from the container. " : "")
-      + `For each free homeland space (${e.plaetze - e.wasser}) someone draws a token blind from the container: it shows the terrain, `
-      + "the matching tile goes on the space, then the token is removed. This is pure chance; it doesn't matter who draws. "
+      + (e.wasser ? "The Coastfolk's water is already there, its token removed from the game. " : "")
+      + `For each free homeland space (${e.plaetze - e.wasser}) one token is flipped: it shows the terrain, `
+      + "the matching tile goes on the space, then the token is removed from the game. This is pure chance; it doesn't matter who flips. "
       + ruine
       + (e.schatz ? `Likewise ${plEn(e.schatz, "1 treasure token went", `${e.schatz} treasure tokens went`)} back. ` : "")
       + `Now ${n} homeland tiles lie there: ${listeEn(liste)}. `
       + `The remaining ${e.rest} tokens are shuffled face down, one on each of the ${e.nebel} mist spaces. `
       + "Nobody knows which terrain lies beneath until someone builds a farm there (exploring). "
-      + `Finally the tower with ${e.turm} segments goes on the Tower Gate, the tower top with the Eye faces the North Gate, `
+      + `Finally the tower with ${e.turm} segments goes on the Tower Gate, the tower spire with the Eye faces the North Gate, `
       + "the Companions stand on START of the journey track, and the fate cards are shuffled.";
   },
   zugEnde(e, A, c) {
@@ -663,7 +709,7 @@ const EN = {
       const ernte = w.length ? `${plEn(w.length, "the remaining die", `the ${w.length} remaining dice`)} (${listeEn(w)}) ${plEn(w.length, "harvests", "harvest")} for everyone`
         : "no die is left, so there is no shared harvest";
       return `${A} ends the turn. Everyone has had a turn, now comes the end of the round: ${ernte}; then the hordes move, `
-        + "followed by the raids, the journey clock and choosing the new start player."
+        + "followed by the raids, the journey clock and choosing the new first player."
         + (e.ende ? " The Companions have reached the Fire Mountain: after this end of round the game is over." : "");
     }
     const B = c.name(e.next);
@@ -701,6 +747,7 @@ const EN = {
         : `${e.augen} Eyes: the spire is about to turn ${e.augen} times to the next gate, and each time a horde appears there.`;
     return `Round ${l.r}: ${A} is first player and rolls ${e.n} rune dice (${formel}). Result: ${e.faces.map(c.wuerfel).join(", ")}. `
       + `${augen} Then, in turn order from ${A}, everyone takes 1 die and harvests${e.plus ? ` (${e.plus} resource more if it yields anything)` : ""}; `
+      + (e.trost ? "if it yields nothing or no die is left, take any 1 resource from the supply; " : "")
       + "at the end of the round everyone harvests the remaining dice.";
   },
   zauberin(e, A, c) {
@@ -714,14 +761,15 @@ const EN = {
     const pre = e.i ? (e.n > 1 ? `Eye ${e.i} of ${e.n}: ` : "The Eye: ") : "";
     const dreh = `the tower spire turns clockwise from the ${c.tor(e.von)} to the ${c.tor(e.nach)}${e.nach === TURM_TOR ? " (looking west over the land)" : ""}`;
     const satz = pre ? `${pre}${dreh}` : gross(dreh);
-    if (e.leer && e.teil === "ring") return `${satz}. A horde already stands there, so another would go under it as a ring, but all ${e.max} rings are in use: the tower grows by 1 instead.`;
-    if (e.leer && e.teil === "figur") return `${satz}. The gate is free, but all ${e.max} horde figures are already on the board: the tower grows by 1 instead.`;
+    const folge = e.entfaellt ? "that horde is lost, with no further effect (the tower does not grow)." : "the tower grows by 1 instead.";
+    if (e.leer && e.teil === "ring") return `${satz}. A horde already stands there, so another would go under it as a ring, but all ${e.max} rings are in use: ${folge}`;
+    if (e.leer && e.teil === "figur") return `${satz}. The gate is free, but all ${e.max} horde figures are already on the board: ${folge}`;
     if (e.leer) return `${satz}. All ${e.max} hordes are already on the board; with none left in the supply, the tower grows by 1 instead.`;
     if (e.teil) {
       const was = e.teil === "ring" ? `A horde already stands there: another one joins it as a ring under the figure (now ${c.horden(e.dort)}, they add up).`
         : "The gate is free: a horde appears there (one figure).";
       return `${satz}. ${was} The supply still has ${e.figuren} ${plEn(e.figuren, "figure", "figures")} and ${e.ringe} ${plEn(e.ringe, "ring", "rings")}; `
-        + "if the piece needed is missing, the tower grows instead.";
+        + (e.entfaellt ? "if the piece needed is missing, that horde is lost." : "if the piece needed is missing, the tower grows instead.");
     }
     const dort = e.dort > 1 ? ` There are now ${e.dort} hordes there; they add up (one figure, a ring under it for each extra one).` : "";
     const vorrat = e.vorrat === 0 ? " Now no horde is left in the supply: as long as none comes back, each further Eye makes the tower grow instead."
@@ -738,7 +786,8 @@ const EN = {
       + `${w.length === 1 ? `the ${w[0]} die and harvests it` : `2 dice (${listeEn(w)}) and harvests both`}. In their own turn, ${A} takes no die.`;
   },
   zugOhneWuerfel: (e, A) => `It's ${A}'s turn, but ${A} already took dice with the Planner this round: no die, straight on to building, trading or traveling.`,
-  elben: (e, A, c) => `${A} plays the Elves: they may turn the die they took to any terrain for ${e.kosten} grain, here ${c.wuerfel(e.von)} → ${c.wuerfel(e.nach)}.`,
+  elben: (e, A, c) => `${A} plays the Elves: they may turn ${e.planerin ? "each of the two dice taken with the Planner" : "the die they took"} `
+    + `to any terrain for ${e.kosten} grain, here ${c.wuerfel(e.von)} → ${c.wuerfel(e.nach)}.`,
   ernte(e, A, c) {
     const T = c.ter(e.face);
     const R = c.res(e.res, 2);
@@ -747,9 +796,10 @@ const EN = {
     const regel = `The ${T} die yields ${R}: each building yields per adjacent hex of that terrain farm 1, castle 2, fortress 3`
       + `${e.fischer ? " (for the Coastfolk, water counts as that terrain: Fishers)" : ""}`
       + `${e.plus ? `; if your own die yields anything, you get ${e.plus} more` : ""}.`;
+    const trost = ` If your own die yields nothing, you take any 1 resource from the supply instead (as with no die left): ${A} picks it right away.`;
     if (!e.soll) {
       const warum = e.geb ? `None of ${A}'s buildings is next to a ${T} hex${e.fischer ? " or water" : ""}` : `${A} has no building on the board`;
-      return `${intro} ${regel} ${warum}, so there is nothing.`;
+      return `${intro} ${regel} ${warum}, so there is nothing.${e.trost ? trost : e.quelle === "karte" ? " (Rich Harvest only repeats what the die yields.)" : ""}`;
     }
     const teile = e.teile.map((t) => {
       let x = `the ${c.lvl(t.lvl)} ${c.ort(t.fs)} yields ${t.basis}${t.wasser ? ` (${t.wasser} of it for the water)` : ""}`;
@@ -761,11 +811,13 @@ const EN = {
     let out = `${intro} ${regel} For ${A}, ${listeEn(teile)}${plus}: ${e.soll} ${c.res(e.res, e.soll)} in total.`;
     if (e.ist < e.soll) {
       out += e.ist ? ` But only ${e.ist} ${plEn(e.ist, "was", "were")} left in the supply; what's not in the supply doesn't exist.`
-        : ` But the supply of ${R} is empty; what's not in the supply doesn't exist.`;
+        : ` But the supply of ${R} is empty; what's not in the supply doesn't exist.${e.trost ? trost : ""}`;
     }
     return out;
   },
-  rohstoffWahl: (e, A, c) => `All dice are taken: whoever gets none takes any 1 resource from the supply instead. `
+  rohstoffWahl: (e, A, c) => (e.grund === "ertrag"
+    ? `The die yielded nothing for ${A}: instead, take any 1 resource from the supply (only kinds that are still there). `
+    : "All dice are taken: whoever gets none takes any 1 resource from the supply instead. ")
     + `${A} chooses 1 ${c.res(e.res, 1)}${e.ist ? "" : ", but there is none left in the supply"}.`,
   gemeinsam(e, A, c) {
     if (!e.dice.length) return "End of round: all dice were taken, so there is no shared harvest.";
@@ -786,8 +838,9 @@ const EN = {
     return `${A} builds a farm ${c.ort(e.fs)} for ${c.kosten(e.kosten)}: +1 fame, the fame track is now at ${e.leiste}. ${wo} ${rest}`;
   },
   erkunden(e, A) {
-    let out = `${A} builds at an edge next to the mist: first the mist token is flipped, and it shows ${EIN_EN[e.kind] || TER_EN[e.kind]}`
-      + `${e.schatz ? " with a treasure" : ""}. That tile is placed there${e.horde ? " (under the horde standing there)" : ""}, and the token is removed.`;
+    let out = `${A} builds at an edge next to the mist: first they pay, then the mist token is flipped, and it shows ${EIN_EN[e.kind] || TER_EN[e.kind]}`
+      + `${e.schatz ? " with a treasure" : ""}. That tile is placed there${e.horde ? " (under the horde standing there)" : ""}, and the token is removed from the game. `
+      + "Exploring is binding: the farm stays on this edge, even if the tile yields nothing.";
     if (e.kind === "ruine" && e.ruinLohn !== false) out += ` Whoever finds the ruin gets 1 fame${e.karte ? " and 1 fate card" : " (no fate cards are left)"}.`;
     if (e.kind === "ruine" && e.ruinLohn === false) out += " The ruin yields no resource, like water.";
     if (e.fuersErkunden) out += e.karte ? ` Whoever explores draws 1 fate card: ${A} gets one (face down, at most 3 in hand).` : " Whoever explores draws 1 fate card, but the deck is empty.";
@@ -819,7 +872,8 @@ const EN = {
   },
   entzuenden: (e, A, c) => `${A} relights the beacon ${c.ecke(e.fs)} for 1 wood; anyone may do that on their turn. Now ${c.brennt(e.brennen)}.${c.ruf(e)}`,
   ruf: (e, A) => (e.weg === null ? `Call of the Beacons! The ${e.n === 3 ? "third" : `${e.n}th`} beacon stands, which happens only once per game: `
-    + `the tower loses ${e.minus} ${plEn(e.minus, "segment", "segments")} (now ${e.turm}), and ${A}, who built it, gains ${e.ruhm} fame.`
+    + `the allies come to help, the tower loses ${e.minus} ${plEn(e.minus, "segment", "segments")} (now ${e.turm}), and ${A}, who built it, gains `
+    + (e.zusaetzlich ? `${e.ruhm} extra fame (on top of the 2 for the beacon).` : `${e.ruhm} fame.`)
     : `Call of the Beacons! ${e.n} beacons burn at once; this happens only once per game. All hordes on hexes at burning beacons go back to the supply `
     + `(${e.weg ? (e.weg === 1 ? "1 horde" : `${e.weg} hordes`) : "there were none"}), and the tower loses ${e.minus} ${plEn(e.minus, "segment", "segments")} `
     + `(now ${e.turm}). ${A} built or lit the last one and gains ${e.ruhm} fame.`),
@@ -844,7 +898,10 @@ const EN = {
         horde: `Space ${e.feld} is a danger space: the Eye turns on.`,
       }[e.folge] || `Space ${e.feld} is a danger space.`);
     }
-    if (e.ziel) out += " The Companions reach the Fire Mountain! The round is played to the end, including the end of the round; then whoever has the most fame wins.";
+    if (e.ziel) {
+      out += " The Companions reach the Fire Mountain! The round is played to the end, including the end of the round; "
+        + (e.held ? "if the tower is not completed, everyone wins, and whoever has the most fame is Hero of the West." : "then whoever has the most fame wins.");
+    }
     return out;
   },
   reiseUhr(e) {
@@ -869,11 +926,14 @@ const EN = {
     const B = c.name(e.von);
     const gib = c.kosten(e.gib) || "nothing";
     const nimm = c.kosten(e.nimm) || "nothing";
-    return e.ja ? `Trading between players is free, but only with the player whose turn it is: ${B} gives ${A} ${gib} and gets ${nimm} in return.`
+    return e.ja ? `Trading between players is free (resources for resources), but only with the player whose turn it is: ${B} gives ${A} ${gib} and gets ${nimm} in return.`
       : `${A} declines ${B}'s offer (${gib} for ${nimm}): no trade.`;
   },
   karte(e, A, c) {
-    if (e.id === "bann") return `${A} plays Banishment: the horde ${c.on(e.von)} must go back to the Tower Gate and start its way to the capital again.`;
+    if (e.id === "bann") {
+      return e.vorrat ? `${A} plays Banishment on the horde ${c.on(e.von)}: the figure or ring it needs at the Tower Gate is missing, so it goes back to the supply (the tower does not grow).`
+        : `${A} plays Banishment: the horde ${c.on(e.von)} must go back to the Tower Gate and start its way to the capital again.`;
+    }
     if (e.id === "wachfeuer") {
       return `${A} plays Watchfire: ${e.n === 1 ? "the beacon that was out burns" : `all ${e.n} beacons that were out burn`} again, at no cost. `
         + `Now ${c.brennt(e.brennen)}.${c.ruf(e)}`;
@@ -882,19 +942,30 @@ const EN = {
     return "";
   },
   held(e, A, c) {
-    const vorKampf = e.kampf ? ` This happens before the ${e.kampf === "siege" ? "siege" : "raid"}`
+    const vorKampf = e.kampf ? ` This happens before the ${e.kampf === "siege" ? "raid on the capital" : "raid"}`
       + `${e.rest ? `; ${e.rest === 1 ? "1 horde is" : `${e.rest} hordes are`} still there and will be fought` : ""}.` : "";
     switch (e.id) {
       case "karten":
         return `${A} uses the Master of Cards (once per game): draw 3 fate cards, keep 2, the other one goes under the deck. `
-          + (e.n < 3 ? `Only ${e.n} ${plEn(e.n, "card was", "cards were")} left in the deck; ${A} keeps ${plEn(e.n, "it", "them")}.` : "Which ones stays hidden.");
+          + (e.n === 0 ? "The deck is empty, so there is no card." : e.n < 3 ? `Only ${e.n} ${plEn(e.n, "card was", "cards were")} left in the deck; ${A} keeps ${plEn(e.n, "it", "them")}.` : "Which ones stays hidden.")
+          + (e.ruhm ? ` +${e.ruhm} fame.` : "");
       case "tueftler":
         return `${A} uses the Tinkerer (once per game): a castle on their own farm ${c.ort(e.fs)} for ${c.kosten(e.kosten) || "nothing"} `
           + `instead of ${c.kosten(D.COSTS.burg)}. +1 fame, the fame track is now at ${e.leiste}.`;
       case "hueterin":
-        return `${A} calls the Warden of Nature (once per game): the horde ${c.on(e.von)} returns to the Tower Gate without a fight. +${e.ruhm ?? 2} fame, but no fate card.${vorKampf}`;
-      case "chronist":
-        return `${A} calls the Chronicler (once per game): a horde on or next to the capital, here ${c.on(e.von)}, goes back to the supply. +${e.ruhm ?? 2} fame, but no fate card.${vorKampf}`;
+        if (e.vorrat) {
+          return `${A} calls the Warden of Nature (once per game) for the horde ${c.on(e.von)}: the figure or ring it needs at the Tower Gate is missing, `
+            + `so it goes back to the supply (the tower does not grow). +${e.ruhm ?? 2} fame.${vorKampf}`;
+        }
+        return `${A} calls the Warden of Nature (once per game): the horde ${c.on(e.von)} returns to the Tower Gate`
+          + `${e.neu ? " (hordes already standing there cannot be chosen)" : ""}. +${e.ruhm ?? 2} fame.${vorKampf}`;
+      case "chronist": {
+        const weit = e.weit ?? 1;
+        const wo = weit <= 1 ? "a horde on or next to the capital"
+          : `a horde within ${weit} hexes of the capital (along the hordes' path; the hex next to the capital counts as 1)`;
+        const dist = e.dist === 0 ? " (in the capital)" : e.dist ? ` (${e.dist} ${plEn(e.dist, "hex", "hexes")} from the capital)` : "";
+        return `${A} calls the Chronicler (once per game): ${wo}, here ${c.on(e.von)}${dist}, goes back to the supply. +${e.ruhm ?? 2} fame.${vorKampf}`;
+      }
       default:
         return "";
     }
@@ -911,12 +982,14 @@ const EN = {
     + (e.tie === "start" ? "If two paths are equally short, the first player chooses."
       : "If two paths are equally short, they go to the hex with the most buildings (farm, castle and fortress count 1 each); if that is tied too, the first player chooses.")
     + (e.ringe ? " When hordes meet on a hex, they add up: the figure of the one joining goes back to the supply, and a ring goes under the figure instead."
-      + " If that ring is missing, the joining horde goes back to the supply entirely and the tower grows by 1." : ""),
+      + (e.turm === false ? " If that ring is missing, the joining horde is lost (back to the supply, no further effect)."
+        : " If that ring is missing, the joining horde goes back to the supply entirely and the tower grows by 1.")
+      + (e.haupt ? " In the capital no rings are needed: the hordes there are counted, raid, and go back to the supply." : "") : ""),
   hordenzug(e, A, c) {
     const wer = e.n > 1 ? `The ${e.n} hordes move together` : "The horde moves";
     const ri = RI_EN[e.ri] ? ` ${RI_EN[e.ri]}` : "";
     let out = `${wer}${ri} from ${c.the(e.von)} to ${c.the(e.nach)}`;
-    out += e.ziel ? ". The siege follows right away." : `, ${e.dist} ${plEn(e.dist, "hex", "hexes")} left to the capital.`;
+    out += e.ziel ? ". The raid on the capital follows right away." : `, ${e.dist} ${plEn(e.dist, "hex", "hexes")} left to the capital.`;
     if (e.opts && e.grund !== "einzig") {
       const opts = listeEn(e.opts.map(([k, n, r]) => `${c.feld(k)}${RI_EN[r] ? ` to the ${RI_EN[r]}` : ""} (${n} ${plEn(n, "building", "buildings")})`));
       const top = Math.max(...e.opts.map((o) => o[1]));
@@ -934,16 +1007,19 @@ const EN = {
     return out;
   },
   ringFehlt: (e, A, c) => `Another horde joins the stack ${c.on(e.f)}, but all ${e.max} rings are in use: the joining horde goes back to the supply `
-    + `(${e.dort === 1 ? "1 horde stays" : `${e.dort} hordes stay`} there), and the tower grows by 1 instead.`,
+    + `(${e.dort === 1 ? "1 horde stays" : `${e.dort} hordes stay`} there)`
+    + (e.turm === false ? "; it is lost with no further effect, the tower does not grow." : ", and the tower grows by 1 instead."),
   ueberfaelle(e, A, c) {
     const ohne = e.ohne.length ? ` Hordes on hexes without buildings raid nobody: ${listeEn(e.ohne.map(([k, n]) => `${c.feld(k)} (${c.horden(n)})`))}.` : "";
     if (!e.mit.length) return `Raids: no horde stands at a hex with buildings, so there is no raid this round.${ohne}`;
     if (e.auto) {
       return `Raids: hordes attack every hex with buildings (the capital always, it came first), this round ${listeEn(e.mit.map(c.the))}.${ohne}`
-        + `${e.mit.length > 1 ? " One after another, the hexes nearest the capital first." : ""}`;
+        + `${e.mit.length > 1 ? ` One after another, the hexes nearest the capital first${e.wahl ? "; for equally near hexes the first player chooses the order" : ""}.` : ""}`;
     }
     return `Raids: hordes attack every hex with buildings, this round ${listeEn(e.mit.map(c.the))}.${ohne}${e.mit.length > 1 ? " The first player chooses the order." : ""}`;
   },
+  ueberfallWahl: (e, A, c) => `${gross(listeEn(e.opts.map(c.the)))} are equally near the capital (${e.dist} ${plEn(e.dist, "hex", "hexes")}): `
+    + `first player ${A} chooses the order, ${c.the(e.f)} first.`,
   kampf(e, A, c) {
     const titel = e.art === "siege" ? (e.lohn === false ? "Raid on the capital" : "Siege of the capital") : `Raid on ${c.the(e.f)}`;
     const st = `${c.horden(e.horden)} × strength ${e.je} = ${e.staerke}${e.stark ? ` (from tower ${e.ab}, each horde has strength ${e.je})` : ""}`;
@@ -962,8 +1038,9 @@ const EN = {
         : "Nobody may pay, the raid is lost.";
     } else if (e.lohn === false) {
       const namen = listeEn(e.zahler.map(c.name));
-      wer = (e.warum === "leuchtfeuer" ? `A beacon stands at this hex or a neighboring one, so everyone may pay: ${namen}.`
-        : `The owners of the buildings here may pay: ${namen}.`)
+      wer = (e.warum === "alle" ? `At the capital everyone may always pay, even without a building or beacon there: ${namen}.`
+        : e.warum === "leuchtfeuer" ? `A beacon stands at this hex or a neighboring one, so everyone may pay: ${namen}.`
+          : `The owners of the buildings here may pay: ${namen}.`)
         + (e.zahler.length > 1 ? " In turn order from the first player, each names an amount once, together never more than needed." : "")
         + ` Each ore and each horse counts 1 (Human horses 2, Allies 3) and gives ${e.payFame || 1} fame; Allies give none. Payment is always lost.`
         + ` If it's not enough: tower +${e.turmPlus ?? 1}, and each building here loses a level.`;
@@ -1008,7 +1085,7 @@ const EN = {
       : ` The tower grows by ${e.turmPlus}, and ${h ? "the horde stays" : "the hordes stay"}.`;
     return out;
   },
-  kampfFaelltAus: (e, A, c) => `No horde is left ${c.on(e.f)}: the ${e.art === "siege" ? "siege" : "raid"} is called off.`,
+  kampfFaelltAus: (e, A, c) => `No horde is left ${c.on(e.f)}: the ${e.art === "siege" ? "raid on the capital" : "raid"} is called off.`,
   erlischt: (e, A, c) => `At the end of the round, a horde stands ${listeEn(e.an.map(c.on))}: the beacon ${c.ecke(e.fs)} goes out. `
     + `Anyone may relight it on their turn for 1 wood. Now ${c.brennt(e.brennen)}.`,
   turm(e) {
@@ -1023,7 +1100,7 @@ const EN = {
     const gleich = e.ruhm.map((x, i) => [i, x]).filter(([, x]) => x === e.lo).map(([i]) => i);
     let out = `The new first player is whoever has the least fame: ${A} with ${e.lo} (fame track: ${e.ruhm.map((x, i) => `${c.name(i)} ${x}`).join(", ")}).`;
     const andere = gleich.filter((i) => i !== l.seat);
-    if (gleich.length > 1) out += ` Tied with ${listeEn(andere.map(c.name))}: then it goes to the next player to the left of the previous first player, ${c.name(e.alt)}.`;
+    if (gleich.length > 1) out += ` Tied with ${listeEn(andere.map(c.name))}: then it goes to the first tied player to the left of the previous first player, ${c.name(e.alt)} (who comes last).`;
     return `${out} ${A} gets the flag and rolls next.`;
   },
   ende(e, A, c) {
@@ -1031,11 +1108,15 @@ const EN = {
     if (e.grund === "turm") return `The Tower of Shadow has ${e.turm} of ${e.max} segments and is complete: the Shadow wins and everyone loses, no matter how much fame they have (${rang}).`;
     const head = e.grund === "abbruch" ? `The game is stopped after ${e.r} rounds and scored as at the end of the journey.`
       : "The Companions have reached the Fire Mountain, and the round has been played to the end.";
-    let out = `${head} Whoever has the most fame on the track wins (tie: more resources, otherwise shared): ${rang}.`;
+    let out = e.held
+      ? `${head} The tower is not complete: together, everyone has defeated the Shadow. Whoever has the most fame on the track becomes Hero of the West `
+        + `(tie: more resources, otherwise they share the title): ${rang}.`
+      : `${head} Whoever has the most fame on the track wins (tie: more resources, otherwise shared): ${rang}.`;
     const top = e.ranking[0];
     const gleich = e.ranking.filter((x) => x[1] === top[1]);
     if (gleich.length > 1) out += ` ${listeEn(gleich.map((x) => c.name(x[0])))} have the same fame, so resources count: ${gleich.map((x) => `${c.name(x[0])} ${x[2]}`).join(", ")}.`;
-    out += e.winners.length > 1 ? ` ${listeEn(e.winners.map(c.name))} share the win.` : e.winners.length ? ` ${c.name(e.winners[0])} wins.` : "";
+    if (e.held) out += e.winners.length > 1 ? ` ${listeEn(e.winners.map(c.name))} share the title Hero of the West.` : e.winners.length ? ` ${c.name(e.winners[0])} is Hero of the West.` : "";
+    else out += e.winners.length > 1 ? ` ${listeEn(e.winners.map(c.name))} share the win.` : e.winners.length ? ` ${c.name(e.winners[0])} wins.` : "";
     return out;
   },
 };

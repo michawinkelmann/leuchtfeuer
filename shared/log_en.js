@@ -136,6 +136,14 @@ const FEST = {
   "Gerade ist nichts zu entscheiden": "There is nothing to decide right now",
   "Unbekannte Aktion": "Unknown action",
   "Unbekannte Entscheidung": "Unknown decision",
+  // seit 12.11.2026
+  "Teamspiel nur mit 2 bis 4 Farben": "Team game only with 2 to 4 colors",
+  "Unbekanntes Volk": "Unknown people",
+  "Davon ist nichts mehr im Vorrat": "There is none of that left in the supply",
+  "Dein Würfel bringt nichts: Nimm zuerst 1 beliebigen Rohstoff": "Your die yields nothing: take any 1 resource first",
+  "Beide Seiten geben mindestens einen Rohstoff": "Both sides must give at least one resource",
+  "Diese Horde steht schon auf dem Turm-Tor": "This horde is already on the Tower Gate",
+  "Die Planerin braucht 2 Würfel": "The Planner needs 2 dice",
   // Server (server/index.js) und Browser-Fassung (pages/lokal.js)
   "Spiel nicht gefunden": "Game not found",
   "Erst einem Spiel beitreten": "Join a game first",
@@ -154,6 +162,7 @@ const re = (s) => new RegExp(`^${s}$`);
 export const MUSTER = [
   // Spielbeginn und Runde
   [re(`Neues Spiel mit (\\d+) Plätzen \\(Startwert (.+)\\)\\.`), (n, seed) => `New game with ${n} seats (seed ${seed}).`],
+  [re(`Neues Spiel mit (\\d+) Plätzen\\.`), (n) => `New game with ${n} seats.`],
   [re(`Runde (\\d+): ${N} würfelt (.+)\\.`), (r, a, l) => liste(l, ", ") && `Round ${r}: ${a} rolls ${liste(l, ", ")}.`],
   [re(`Gemeinsame Ernte: (.+)\\.`), (l) => liste(l, ", ") && `Shared harvest: ${liste(l, ", ")}.`],
   [re(`Das Küstenvolk \\((.+)\\) legt sein Wasser ins Heimatland\\.`), (a) => `The Coastfolk (${a}) place their water in the homeland.`],
@@ -172,6 +181,10 @@ export const MUSTER = [
   // Turm, Auge, Horden
   [re(`Der Turm wächst um (\\d+) auf (\\d+) \\((.+)\\)\\.`), (n, t, w) => GRUND[w] && `The tower grows by ${n} to ${t} (${GRUND[w]}).`],
   [re(`Das Auge blickt zum (.+), aber keine Horde ist mehr im Vorrat\\.`), (g) => gate(g) && `The Eye turns to the ${gate(g)}, but no horde is left in the supply.`],
+  [re(`Das Auge blickt zum (.+), aber keine Horde ist mehr im Vorrat: Die Horde entfällt\\.`),
+    (g) => gate(g) && `The Eye turns to the ${gate(g)}, but no horde is left in the supply: that horde is lost.`],
+  [re(`Das Auge blickt zum (.+), aber kein Ring ist mehr im Vorrat: Die Horde entfällt\\.`),
+    (g) => gate(g) && `The Eye turns to the ${gate(g)}, but no ring is left in the supply: that horde is lost.`],
   [re(`Das Auge blickt zum (.+): Dort erscheint eine Ork-Horde\\.`), (g) => gate(g) && `The Eye turns to the ${gate(g)}: an orc horde appears there.`],
   [re(`Das Auge blickt zum (.+), aber kein Ring ist mehr im Vorrat\\.`), (g) => gate(g) && `The Eye turns to the ${gate(g)}, but no ring is left in the supply.`],
   [re(`Das Auge blickt zum (.+): Dort erscheint eine weitere Ork-Horde \\(ein Ring mehr\\)\\.`),
@@ -214,19 +227,30 @@ export const MUSTER = [
   [re(`${N} spielt den Eilboten\\.`), (a) => `${a} plays Messenger.`],
   [re(`${N} spielt Reiche Ernte\\.`), (a) => `${a} plays Rich Harvest.`],
   [re(`${N} spielt den Bannspruch: Eine Horde muss zurück aufs Turm-Tor\\.`), (a) => `${a} plays Banishment: a horde must return to the Tower Gate.`],
+  [re(`${N} spielt den Bannspruch: Am Turm-Tor fehlt Figur oder Ring, die Horde kommt in den Vorrat\\.`),
+    (a) => `${a} plays Banishment: the Tower Gate lacks a figure or ring, so the horde goes back to the supply.`],
   [re(`${N} spielt Wachfeuer: (\\d+) Leuchtfeuer brennen wieder\\.`), (a, n) => `${a} plays Watchfire: ${n} ${pl(n, "beacon is", "beacons are")} lit again.`],
   [re(`${N} spielt Wachfeuer und baut ein Leuchtfeuer ohne Holz \\(\\+(\\d+) Ruhm\\)\\.`), (a, f) => `${a} plays Watchfire and builds a beacon without wood (+${f} fame).`],
   [re(`${N} spielt den Handelszug \\((\\d+)-mal 1 : 1\\)\\.`), (a, n) => `${a} plays Caravan (1 for 1, ${n} ${pl(n, "time", "times")}).`],
   // Helden
   [re(`${N} nutzt den Meister der Karten\\.`), (a) => `${a} uses the Master of Cards.`],
+  [re(`${N} nutzt den Meister der Karten \\(\\+(\\d+) Ruhm\\)\\.`), (a, f) => `${a} uses the Master of Cards (+${f} fame).`],
   [re(`${N} baut mit dem Tüftler eine Burg ohne Kosten\\.`), (a) => `${a} uses the Tinkerer to build a castle at no cost.`],
   [re(`${N} baut mit dem Tüftler eine Burg für (.+)\\.`), (a, k) => kosten(k) && `${a} uses the Tinkerer to build a castle for ${kosten(k)}.`],
   [re(`${N} nutzt die Wegweiserin\\.`), (a) => `${a} uses the Pathfinder.`],
   [re(`${N} ruft die Hüterin der Natur: Eine Horde kehrt ohne Kampf aufs Turm-Tor zurück \\(\\+(\\d+) Ruhm\\)\\.`),
     (a, f) => `${a} calls the Warden of Nature: a horde returns to the Tower Gate without a fight (+${f} fame).`],
+  [re(`${N} ruft die Hüterin der Natur: Eine Horde kehrt aufs Turm-Tor zurück \\(\\+(\\d+) Ruhm\\)\\.`),
+    (a, f) => `${a} calls the Warden of Nature: a horde returns to the Tower Gate (+${f} fame).`],
+  [re(`${N} ruft die Hüterin der Natur: Am Turm-Tor fehlt Figur oder Ring, die Horde kommt in den Vorrat \\(\\+(\\d+) Ruhm\\)\\.`),
+    (a, f) => `${a} calls the Warden of Nature: the Tower Gate lacks a figure or ring, so the horde goes back to the supply (+${f} fame).`],
   [re(`${N} ruft den Chronisten: Eine Horde zieht ab \\(\\+(\\d+) Ruhm\\)\\.`), (a, f) => `${a} calls the Chronicler: a horde withdraws (+${f} fame).`],
   // Spielende: Grund + Ergebnis
   [re(`(.+\\.) Alle haben verloren\\.`), (g) => ende(g) && `${ende(g)} Everyone loses.`],
+  [re(`(.+\\.) Alle haben gemeinsam gesiegt\\. Held des Westens ist (.+) mit (\\d+) Ruhm\\.`),
+    (g, a, n) => ende(g) && `${ende(g)} Everyone wins together. ${a} is Hero of the West with ${n} fame.`],
+  [re(`(.+\\.) Alle haben gemeinsam gesiegt\\. Helden des Westens sind (.+) mit je (\\d+) Ruhm\\.`),
+    (g, a, n) => ende(g) && `${ende(g)} Everyone wins together. ${a.replace(/^(.*) und /, "$1 and ")} share the title Hero of the West with ${n} fame each.`],
   [re(`(.+\\.) Es gewinnt (.+) mit (\\d+) Ruhm\\.`), (g, a, n) => ende(g) && `${ende(g)} ${a} wins with ${n} fame.`],
   [re(`(.+\\.) Es gewinnen (.+) gemeinsam mit (\\d+) Ruhm\\.`),            // „A, B und C“ → „A, B and C“
     (g, a, n) => ende(g) && `${ende(g)} ${a.replace(/^(.*) und /, "$1 and ")} share the win with ${n} fame.`],
@@ -242,6 +266,8 @@ export const MUSTER = [
   [re(`Lege (\\d+) Karte\\(n\\) ab`), (n) => `Discard ${n} ${pl(n, "card", "cards")}`],
   [re(`(.+) ist dran`), (a) => `It's ${a}'s turn`],
   [re(`Drehen kostet (\\d+) Korn`), (n) => `Turning costs ${n} grain`],
+  [re(`Drehen kostet (\\d+) Korn je Würfel`), (n) => `Turning costs ${n} grain per die`],
+  [re(`Nur Horden bis (\\d+) Felder vor der Hauptstadt`), (n) => `Only hordes within ${n} hexes of the capital`],
   [re(`Bot-Fehler: (.+)`), (e) => `Bot error: ${logEn(e)}`],
   [re(`Bot hängt \\((\\w+)\\): (.+)`), (typ, e) => `Bot stuck (${typ}): ${e.split(" / ").map(logEn).join(" / ")}`],
 ];
