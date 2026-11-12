@@ -19,7 +19,9 @@
   "LF_FLAME_Z": 21.9,
   "A_INSERT": 28.25,
   "EDGE_FREE": 5.5,
-  "SPOT_R": 7
+  "SPOT_R": 7,
+  "NEBEL_SW": 52,
+  "NEBEL_H": 2.6
  },
  "_versaetze": {
   "_hinweis": "Generator-Koordinaten (mm, z oben) relativ zur Kachelmitte; die Schale steht mit z = 0 auf dem Tisch, alle Modelle sind zentriert (x/y-Mitte 0, Unterkante z = 0). Aus szene_rendern.py.",
@@ -31,14 +33,14 @@
     0,
     4.5
    ],
-   "z": 9.6,
+   "z": 8,
    "drehung": 0,
    "_hinweis": "nur auf dem Turm-Tor; Sechskant-Zapfen, Drehung 0 (oder Vielfache von 60°)"
   },
-  "turm_segment_z": "turm_sockel.z + 12.4 + 9.0 · k (k = 0, 1, …)",
-  "turm_segment_z0": 12.4,
+  "turm_segment_z": "turm_sockel.z + 16.4 + 9.0 · k (k = 0, 1, …)",
+  "turm_segment_z0": 16.4,
   "turm_segment_h": 9,
-  "turm_spitze_z": "turm_sockel.z + 12.4 + 9.0 · Zahl der Segmente",
+  "turm_spitze_z": "turm_sockel.z + 16.4 + 9.0 · Zahl der Segmente",
   "turm_spitze_auge": "Das Auge blickt im Modell nach +y (Generator) = −z (glTF). Drehung um z um a Grad: Blickrichtung 90 + a Grad. szene_rendern.py nimmt a = 150.",
   "gehoeft_z": 8.2,
   "burg_z": 9,
@@ -462,9 +464,8 @@
   "file": "wald_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 58130,
+  "tris_roh": 58134,
   "farben": [
-   "gelb",
    "gruen",
    "dunkelgruen",
    "braun"
@@ -485,7 +486,7 @@
    28.25,
    15.572
   ],
-  "bytes": 62736,
+  "bytes": 61944,
   "kind": "wald",
   "seed": 1000,
   "schale": "Schale dunkelgrün",
@@ -499,9 +500,8 @@
   "file": "wald_2.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 60368,
+  "tris_roh": 60360,
   "farben": [
-   "gelb",
    "gruen",
    "dunkelgruen",
    "braun"
@@ -522,7 +522,7 @@
    28.25,
    15.461
   ],
-  "bytes": 65404,
+  "bytes": 64612,
   "kind": "wald",
   "seed": 1001,
   "schale": "Schale dunkelgrün",
@@ -536,9 +536,8 @@
   "file": "wald_3.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 57951,
+  "tris_roh": 57933,
   "farben": [
-   "gelb",
    "gruen",
    "dunkelgruen",
    "braun"
@@ -559,7 +558,7 @@
    28.25,
    15.584
   ],
-  "bytes": 61744,
+  "bytes": 60928,
   "kind": "wald",
   "seed": 1002,
   "schale": "Schale dunkelgrün",
@@ -573,9 +572,8 @@
   "file": "wald_4.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 58950,
+  "tris_roh": 58952,
   "farben": [
-   "gelb",
    "gruen",
    "dunkelgruen",
    "braun"
@@ -596,7 +594,7 @@
    28.25,
    13.975
   ],
-  "bytes": 63724,
+  "bytes": 62960,
   "kind": "wald",
   "seed": 1003,
   "schale": "Schale dunkelgrün",
@@ -610,9 +608,8 @@
   "file": "wald_5.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 59908,
+  "tris_roh": 59906,
   "farben": [
-   "gelb",
    "gruen",
    "dunkelgruen",
    "braun"
@@ -633,7 +630,7 @@
    28.25,
    14.443
   ],
-  "bytes": 64788,
+  "bytes": 64004,
   "kind": "wald",
   "seed": 1004,
   "schale": "Schale dunkelgrün",
@@ -646,8 +643,8 @@
  "Feld 1": {
   "file": "feld_1.glb",
   "art": "kachel",
-  "tris": 12000,
-  "tris_roh": 99386,
+  "tris": 11999,
+  "tris_roh": 96679,
   "farben": [
    "gelb",
    "gruen",
@@ -670,7 +667,7 @@
    28.25,
    12.692
   ],
-  "bytes": 69152,
+  "bytes": 69720,
   "kind": "feld",
   "seed": 2000,
   "schale": "Schale dunkelgrün",
@@ -684,7 +681,7 @@
   "file": "feld_2.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 97919,
+  "tris_roh": 96045,
   "farben": [
    "gelb",
    "gruen",
@@ -693,7 +690,7 @@
   ],
   "bbox": [
    -32.62,
-   -0.001,
+   0,
    -28.25,
    32.62,
    12.719,
@@ -702,12 +699,12 @@
   "bbox_generator": [
    -32.62,
    -28.25,
-   -0.001,
+   0,
    32.62,
    28.25,
    12.719
   ],
-  "bytes": 69204,
+  "bytes": 69456,
   "kind": "feld",
   "seed": 2001,
   "schale": "Schale dunkelgrün",
@@ -720,11 +717,12 @@
  "Feld 3": {
   "file": "feld_3.glb",
   "art": "kachel",
-  "tris": 12000,
-  "tris_roh": 97180,
+  "tris": 11999,
+  "tris_roh": 94761,
   "farben": [
    "gelb",
    "gruen",
+   "dunkelgruen",
    "braun"
   ],
   "bbox": [
@@ -732,7 +730,7 @@
    0,
    -28.25,
    32.62,
-   12.792,
+   12.787,
    28.25
   ],
   "bbox_generator": [
@@ -741,9 +739,9 @@
    0,
    32.62,
    28.25,
-   12.792
+   12.787
   ],
-  "bytes": 68524,
+  "bytes": 69608,
   "kind": "feld",
   "seed": 2002,
   "schale": "Schale dunkelgrün",
@@ -757,10 +755,11 @@
   "file": "feld_4.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 94047,
+  "tris_roh": 92425,
   "farben": [
    "gelb",
    "gruen",
+   "dunkelgruen",
    "braun"
   ],
   "bbox": [
@@ -779,7 +778,7 @@
    28.25,
    12.73
   ],
-  "bytes": 66780,
+  "bytes": 67996,
   "kind": "feld",
   "seed": 2003,
   "schale": "Schale dunkelgrün",
@@ -792,8 +791,8 @@
  "Feld 5": {
   "file": "feld_5.glb",
   "art": "kachel",
-  "tris": 12000,
-  "tris_roh": 101406,
+  "tris": 11999,
+  "tris_roh": 99053,
   "farben": [
    "gelb",
    "gruen",
@@ -816,7 +815,7 @@
    28.25,
    12.783
   ],
-  "bytes": 69888,
+  "bytes": 70316,
   "kind": "feld",
   "seed": 2004,
   "schale": "Schale dunkelgrün",
@@ -830,7 +829,7 @@
   "file": "weide_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 58668,
+  "tris_roh": 58628,
   "farben": [
    "gelb",
    "gruen",
@@ -853,7 +852,7 @@
    28.25,
    11.17
   ],
-  "bytes": 60780,
+  "bytes": 60924,
   "kind": "weide",
   "seed": 3000,
   "schale": "Schale dunkelgrün",
@@ -867,7 +866,7 @@
   "file": "weide_2.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 57099,
+  "tris_roh": 57075,
   "farben": [
    "gelb",
    "gruen",
@@ -890,7 +889,7 @@
    28.25,
    11.729
   ],
-  "bytes": 59408,
+  "bytes": 59684,
   "kind": "weide",
   "seed": 3001,
   "schale": "Schale dunkelgrün",
@@ -904,7 +903,7 @@
   "file": "weide_3.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 57326,
+  "tris_roh": 57360,
   "farben": [
    "gelb",
    "gruen",
@@ -916,7 +915,7 @@
    0,
    -28.25,
    32.62,
-   10.664,
+   10.42,
    28.25
   ],
   "bbox_generator": [
@@ -925,9 +924,9 @@
    0,
    32.62,
    28.25,
-   10.664
+   10.42
   ],
-  "bytes": 59672,
+  "bytes": 59728,
   "kind": "weide",
   "seed": 3002,
   "schale": "Schale dunkelgrün",
@@ -941,7 +940,7 @@
   "file": "weide_4.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 56965,
+  "tris_roh": 56947,
   "farben": [
    "gelb",
    "gruen",
@@ -964,7 +963,7 @@
    28.25,
    10.397
   ],
-  "bytes": 57724,
+  "bytes": 57932,
   "kind": "weide",
   "seed": 3003,
   "schale": "Schale dunkelgrün",
@@ -978,7 +977,7 @@
   "file": "huegel_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 84790,
+  "tris_roh": 84774,
   "farben": [
    "weiss",
    "grau",
@@ -1002,7 +1001,7 @@
    28.25,
    12.807
   ],
-  "bytes": 69068,
+  "bytes": 69012,
   "kind": "huegel",
   "seed": 4000,
   "schale": "Schale dunkelgrün",
@@ -1016,7 +1015,7 @@
   "file": "huegel_2.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 82284,
+  "tris_roh": 82270,
   "farben": [
    "weiss",
    "grau",
@@ -1040,7 +1039,7 @@
    28.25,
    12.5
   ],
-  "bytes": 66740,
+  "bytes": 66764,
   "kind": "huegel",
   "seed": 4001,
   "schale": "Schale dunkelgrün",
@@ -1054,7 +1053,7 @@
   "file": "huegel_3.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 84058,
+  "tris_roh": 84028,
   "farben": [
    "weiss",
    "grau",
@@ -1078,7 +1077,7 @@
    28.25,
    15.633
   ],
-  "bytes": 69136,
+  "bytes": 69140,
   "kind": "huegel",
   "seed": 4002,
   "schale": "Schale dunkelgrün",
@@ -1092,7 +1091,7 @@
   "file": "huegel_4.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 83001,
+  "tris_roh": 82967,
   "farben": [
    "weiss",
    "grau",
@@ -1116,7 +1115,7 @@
    28.25,
    14.524
   ],
-  "bytes": 67564,
+  "bytes": 67780,
   "kind": "huegel",
   "seed": 4003,
   "schale": "Schale dunkelgrün",
@@ -1130,7 +1129,7 @@
   "file": "gebirge_1.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 97301,
+  "tris_roh": 97307,
   "farben": [
    "weiss",
    "grau",
@@ -1154,7 +1153,7 @@
    28.25,
    21.146
   ],
-  "bytes": 74428,
+  "bytes": 74396,
   "kind": "gebirge",
   "seed": 5000,
   "schale": "Schale dunkelgrün",
@@ -1167,8 +1166,8 @@
  "Gebirge 2": {
   "file": "gebirge_2.glb",
   "art": "kachel",
-  "tris": 12000,
-  "tris_roh": 98660,
+  "tris": 11999,
+  "tris_roh": 98653,
   "farben": [
    "weiss",
    "grau",
@@ -1192,7 +1191,7 @@
    28.25,
    22.13
   ],
-  "bytes": 75576,
+  "bytes": 75560,
   "kind": "gebirge",
   "seed": 5001,
   "schale": "Schale dunkelgrün",
@@ -1206,7 +1205,7 @@
   "file": "gebirge_3.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 99881,
+  "tris_roh": 99893,
   "farben": [
    "weiss",
    "grau",
@@ -1230,7 +1229,7 @@
    28.25,
    21.061
   ],
-  "bytes": 75392,
+  "bytes": 75216,
   "kind": "gebirge",
   "seed": 5002,
   "schale": "Schale dunkelgrün",
@@ -1244,7 +1243,7 @@
   "file": "gebirge_4.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 95977,
+  "tris_roh": 96001,
   "farben": [
    "weiss",
    "grau",
@@ -1268,7 +1267,7 @@
    28.25,
    20.792
   ],
-  "bytes": 73284,
+  "bytes": 73200,
   "kind": "gebirge",
   "seed": 5003,
   "schale": "Schale dunkelgrün",
@@ -1358,7 +1357,7 @@
   "file": "ruine_1.glb",
   "art": "kachel",
   "tris": 11999,
-  "tris_roh": 60821,
+  "tris_roh": 60815,
   "farben": [
    "weiss",
    "grau",
@@ -1382,7 +1381,7 @@
    28.25,
    12.359
   ],
-  "bytes": 68040,
+  "bytes": 68108,
   "kind": "ruine",
   "seed": 7000,
   "schale": "Schale dunkelgrün",
@@ -1396,7 +1395,7 @@
   "file": "hauptstadt_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 51018,
+  "tris_roh": 51170,
   "farben": [
    "weiss",
    "grau",
@@ -1419,7 +1418,7 @@
    28.25,
    23.9
   ],
-  "bytes": 59052,
+  "bytes": 59272,
   "kind": "hauptstadt",
   "seed": 8000,
   "schale": "Schale grau",
@@ -1430,7 +1429,7 @@
   "file": "schattenland_tor_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 61892,
+  "tris_roh": 61770,
   "farben": [
    "grau",
    "schwarz",
@@ -1452,7 +1451,7 @@
    28.25,
    17.103
   ],
-  "bytes": 50852,
+  "bytes": 50868,
   "kind": "tor",
   "seed": 9000,
   "schale": "Schale grau",
@@ -1466,7 +1465,7 @@
   "file": "turm_tor_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 60450,
+  "tris_roh": 60236,
   "farben": [
    "grau",
    "schwarz",
@@ -1477,7 +1476,7 @@
    0,
    -28.25,
    32.62,
-   14.469,
+   14.07,
    28.25
   ],
   "bbox_generator": [
@@ -1486,9 +1485,9 @@
    0,
    32.62,
    28.25,
-   14.469
+   14.07
   ],
-  "bytes": 52492,
+  "bytes": 52524,
   "kind": "turm_tor",
   "seed": 10000,
   "schale": "Schale grau",
@@ -1502,7 +1501,7 @@
   "file": "feuerberg_1.glb",
   "art": "kachel",
   "tris": 12000,
-  "tris_roh": 83980,
+  "tris_roh": 83926,
   "farben": [
    "grau",
    "schwarz",
@@ -1591,8 +1590,8 @@
  "Gehöft Rot": {
   "file": "gehoeft_rot.glb",
   "art": "figur",
-  "tris": 570,
-  "tris_roh": 570,
+  "tris": 1008,
+  "tris_roh": 1008,
   "farben": [
    "grau",
    "rot",
@@ -1614,15 +1613,15 @@
    3.65,
    9.735
   ],
-  "bytes": 5628,
+  "bytes": 7064,
   "spieler": "rot",
   "methode": "unverändert"
  },
  "Burg Rot": {
   "file": "burg_rot.glb",
   "art": "figur",
-  "tris": 2310,
-  "tris_roh": 2310,
+  "tris": 2346,
+  "tris_roh": 2346,
   "farben": [
    "grau",
    "rot",
@@ -1644,7 +1643,7 @@
    5.713,
    17.185
   ],
-  "bytes": 12300,
+  "bytes": 12484,
   "spieler": "rot",
   "methode": "unverändert"
  },
@@ -1652,7 +1651,7 @@
   "file": "festung_rot.glb",
   "art": "figur",
   "tris": 3000,
-  "tris_roh": 4124,
+  "tris_roh": 4138,
   "farben": [
    "grau",
    "rot",
@@ -1674,7 +1673,7 @@
    8.213,
    28.698
   ],
-  "bytes": 19096,
+  "bytes": 19120,
   "spieler": "rot",
   "methode": "Collapse (alle Farben gemeinsam)"
  },
@@ -1709,8 +1708,8 @@
  "Gehöft Blau": {
   "file": "gehoeft_blau.glb",
   "art": "figur",
-  "tris": 570,
-  "tris_roh": 570,
+  "tris": 1008,
+  "tris_roh": 1008,
   "farben": [
    "grau",
    "braun",
@@ -1732,15 +1731,15 @@
    3.65,
    9.735
   ],
-  "bytes": 5628,
+  "bytes": 7064,
   "spieler": "blau",
   "methode": "unverändert"
  },
  "Burg Blau": {
   "file": "burg_blau.glb",
   "art": "figur",
-  "tris": 2310,
-  "tris_roh": 2310,
+  "tris": 2346,
+  "tris_roh": 2346,
   "farben": [
    "grau",
    "braun",
@@ -1762,7 +1761,7 @@
    5.713,
    17.185
   ],
-  "bytes": 12304,
+  "bytes": 12484,
   "spieler": "blau",
   "methode": "unverändert"
  },
@@ -1770,7 +1769,7 @@
   "file": "festung_blau.glb",
   "art": "figur",
   "tris": 3000,
-  "tris_roh": 4124,
+  "tris_roh": 4138,
   "farben": [
    "grau",
    "braun",
@@ -1792,7 +1791,7 @@
    8.213,
    28.698
   ],
-  "bytes": 19096,
+  "bytes": 19120,
   "spieler": "blau",
   "methode": "Collapse (alle Farben gemeinsam)"
  },
@@ -1827,8 +1826,8 @@
  "Gehöft Gelb": {
   "file": "gehoeft_gelb.glb",
   "art": "figur",
-  "tris": 570,
-  "tris_roh": 570,
+  "tris": 1008,
+  "tris_roh": 1008,
   "farben": [
    "grau",
    "gelb",
@@ -1850,15 +1849,15 @@
    3.65,
    9.735
   ],
-  "bytes": 5608,
+  "bytes": 7044,
   "spieler": "gelb",
   "methode": "unverändert"
  },
  "Burg Gelb": {
   "file": "burg_gelb.glb",
   "art": "figur",
-  "tris": 2310,
-  "tris_roh": 2310,
+  "tris": 2346,
+  "tris_roh": 2346,
   "farben": [
    "grau",
    "gelb",
@@ -1880,7 +1879,7 @@
    5.713,
    17.185
   ],
-  "bytes": 12284,
+  "bytes": 12464,
   "spieler": "gelb",
   "methode": "unverändert"
  },
@@ -1888,7 +1887,7 @@
   "file": "festung_gelb.glb",
   "art": "figur",
   "tris": 3000,
-  "tris_roh": 4124,
+  "tris_roh": 4138,
   "farben": [
    "grau",
    "gelb",
@@ -1910,7 +1909,7 @@
    8.213,
    28.698
   ],
-  "bytes": 19076,
+  "bytes": 19100,
   "spieler": "gelb",
   "methode": "Collapse (alle Farben gemeinsam)"
  },
@@ -1945,8 +1944,8 @@
  "Gehöft Weiß": {
   "file": "gehoeft_weiss.glb",
   "art": "figur",
-  "tris": 570,
-  "tris_roh": 570,
+  "tris": 1008,
+  "tris_roh": 1008,
   "farben": [
    "weiss",
    "grau",
@@ -1968,15 +1967,15 @@
    3.65,
    9.735
   ],
-  "bytes": 5628,
+  "bytes": 7060,
   "spieler": "weiss",
   "methode": "unverändert"
  },
  "Burg Weiß": {
   "file": "burg_weiss.glb",
   "art": "figur",
-  "tris": 2310,
-  "tris_roh": 2310,
+  "tris": 2346,
+  "tris_roh": 2346,
   "farben": [
    "weiss",
    "grau",
@@ -1998,7 +1997,7 @@
    5.713,
    17.185
   ],
-  "bytes": 12300,
+  "bytes": 12484,
   "spieler": "weiss",
   "methode": "unverändert"
  },
@@ -2006,7 +2005,7 @@
   "file": "festung_weiss.glb",
   "art": "figur",
   "tris": 3000,
-  "tris_roh": 4124,
+  "tris_roh": 4138,
   "farben": [
    "weiss",
    "grau",
@@ -2028,7 +2027,7 @@
    8.213,
    28.698
   ],
-  "bytes": 19092,
+  "bytes": 19128,
   "spieler": "weiss",
   "methode": "Collapse (alle Farben gemeinsam)"
  },
@@ -2063,8 +2062,8 @@
  "Gehöft Lavendel": {
   "file": "gehoeft_lavendel.glb",
   "art": "figur",
-  "tris": 570,
-  "tris_roh": 570,
+  "tris": 1008,
+  "tris_roh": 1008,
   "farben": [
    "grau",
    "braun",
@@ -2086,15 +2085,15 @@
    3.65,
    9.735
   ],
-  "bytes": 5636,
+  "bytes": 7068,
   "spieler": "lavendel",
   "methode": "unverändert"
  },
  "Burg Lavendel": {
   "file": "burg_lavendel.glb",
   "art": "figur",
-  "tris": 2310,
-  "tris_roh": 2310,
+  "tris": 2346,
+  "tris_roh": 2346,
   "farben": [
    "grau",
    "braun",
@@ -2116,7 +2115,7 @@
    5.713,
    17.185
   ],
-  "bytes": 12308,
+  "bytes": 12492,
   "spieler": "lavendel",
   "methode": "unverändert"
  },
@@ -2124,7 +2123,7 @@
   "file": "festung_lavendel.glb",
   "art": "figur",
   "tris": 3000,
-  "tris_roh": 4124,
+  "tris_roh": 4138,
   "farben": [
    "grau",
    "braun",
@@ -2146,7 +2145,7 @@
    8.213,
    28.698
   ],
-  "bytes": 19104,
+  "bytes": 19128,
   "spieler": "lavendel",
   "methode": "Collapse (alle Farben gemeinsam)"
  },
@@ -2176,6 +2175,124 @@
   ],
   "bytes": 3824,
   "spieler": "lavendel",
+  "methode": "unverändert"
+ },
+ "Gehöft Indigo": {
+  "file": "gehoeft_indigo.glb",
+  "art": "figur",
+  "tris": 1008,
+  "tris_roh": 1008,
+  "farben": [
+   "grau",
+   "braun",
+   "indigo"
+  ],
+  "bbox": [
+   -5.2,
+   0,
+   -3.65,
+   5.2,
+   9.735,
+   3.65
+  ],
+  "bbox_generator": [
+   -5.2,
+   -3.65,
+   0,
+   5.2,
+   3.65,
+   9.735
+  ],
+  "bytes": 7072,
+  "spieler": "indigo",
+  "methode": "unverändert"
+ },
+ "Burg Indigo": {
+  "file": "burg_indigo.glb",
+  "art": "figur",
+  "tris": 2346,
+  "tris_roh": 2346,
+  "farben": [
+   "grau",
+   "braun",
+   "indigo"
+  ],
+  "bbox": [
+   -7.3,
+   0,
+   -5.713,
+   7.3,
+   17.185,
+   5.713
+  ],
+  "bbox_generator": [
+   -7.3,
+   -5.713,
+   0,
+   7.3,
+   5.713,
+   17.185
+  ],
+  "bytes": 12492,
+  "spieler": "indigo",
+  "methode": "unverändert"
+ },
+ "Festung Indigo": {
+  "file": "festung_indigo.glb",
+  "art": "figur",
+  "tris": 3000,
+  "tris_roh": 4138,
+  "farben": [
+   "grau",
+   "braun",
+   "indigo"
+  ],
+  "bbox": [
+   -9.8,
+   0,
+   -8.213,
+   9.8,
+   28.698,
+   8.213
+  ],
+  "bbox_generator": [
+   -9.8,
+   -8.213,
+   0,
+   9.8,
+   8.213,
+   28.698
+  ],
+  "bytes": 19128,
+  "spieler": "indigo",
+  "methode": "Collapse (alle Farben gemeinsam)"
+ },
+ "Ruhm-Marker Indigo": {
+  "file": "ruhm_marker_indigo.glb",
+  "art": "figur",
+  "tris": 574,
+  "tris_roh": 574,
+  "farben": [
+   "indigo"
+  ],
+  "bbox": [
+   -4.2,
+   0,
+   -4.2,
+   4.2,
+   12.8,
+   4.2
+  ],
+  "bbox_generator": [
+   -4.2,
+   -4.2,
+   0,
+   4.2,
+   4.2,
+   12.8
+  ],
+  "bytes": 3828,
+  "spieler": "indigo",
   "methode": "unverändert"
  },
  "Ork-Horde 1": {
@@ -2382,8 +2499,8 @@
  "Holz": {
   "file": "holz.glb",
   "art": "figur",
-  "tris": 328,
-  "tris_roh": 328,
+  "tris": 406,
+  "tris_roh": 406,
   "farben": [
    "gelb",
    "braun"
@@ -2391,20 +2508,20 @@
   "bbox": [
    -6.075,
    0,
-   -4.725,
+   -4.523,
    6.075,
-   8.409,
-   4.725
+   8.233,
+   4.523
   ],
   "bbox_generator": [
    -6.075,
-   -4.725,
+   -4.523,
    0,
    6.075,
-   4.725,
-   8.409
+   4.523,
+   8.233
   ],
-  "bytes": 3584,
+  "bytes": 3972,
   "rohstoff": "holz",
   "methode": "unverändert"
  },
@@ -2526,8 +2643,8 @@
  "Turm-Sockel": {
   "file": "turm_sockel.glb",
   "art": "figur",
-  "tris": 546,
-  "tris_roh": 546,
+  "tris": 692,
+  "tris_roh": 692,
   "farben": [
    "grau",
    "schwarz",
@@ -2538,7 +2655,7 @@
    0,
    -9.516,
    9.516,
-   12.4,
+   16.4,
    9.516
   ],
   "bbox_generator": [
@@ -2547,16 +2664,16 @@
    0,
    9.516,
    9.516,
-   12.4
+   16.4
   ],
-  "bytes": 6376,
+  "bytes": 6920,
   "methode": "unverändert"
  },
  "Turm-Segment": {
   "file": "turm_segment.glb",
   "art": "figur",
-  "tris": 672,
-  "tris_roh": 672,
+  "tris": 1028,
+  "tris_roh": 1028,
   "farben": [
    "schwarz",
    "rot"
@@ -2577,14 +2694,14 @@
    8.506,
    9
   ],
-  "bytes": 6160,
+  "bytes": 7520,
   "methode": "unverändert"
  },
  "Turm-Spitze": {
   "file": "turm_spitze.glb",
   "art": "figur",
-  "tris": 720,
-  "tris_roh": 720,
+  "tris": 946,
+  "tris_roh": 946,
   "farben": [
    "schwarz",
    "rot"
@@ -2605,14 +2722,14 @@
    7.206,
    13.3
   ],
-  "bytes": 6620,
+  "bytes": 7588,
   "methode": "unverändert"
  },
  "Runenwürfel": {
   "file": "runenwuerfel.glb",
   "art": "figur",
-  "tris": 930,
-  "tris_roh": 3752,
+  "tris": 939,
+  "tris_roh": 3819,
   "farben": [
    "weiss",
    "schwarz",
@@ -2634,14 +2751,14 @@
    8,
    16
   ],
-  "bytes": 7576,
+  "bytes": 7564,
   "methode": "verdeckte Flächen entfernt"
  },
  "Reise-Leiste neutral": {
   "file": "reise_leiste_neutral.glb",
   "art": "leiste",
-  "tris": 7713,
-  "tris_roh": 7713,
+  "tris": 7749,
+  "tris_roh": 7749,
   "farben": [
    "weiss",
    "grau",
@@ -2666,7 +2783,7 @@
    36,
    3.2
   ],
-  "bytes": 29664,
+  "bytes": 29752,
   "fassung": "neutral",
   "methode": "flach (2D vereinfacht, eps 0.03 mm)"
  },
